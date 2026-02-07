@@ -2,84 +2,191 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Quest: Circle Mastery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Circle Mastery Mobile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2c3e50; --secondary: #34495e; --accent: #e67e22; --success: #27ae60; --danger: #e74c3c; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f0f2f5; color: var(--primary); padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
-        header { grid-column: 1 / -1; background: var(--primary); color: white; padding: 20px; border-radius: 12px; text-align: center; }
-        .main-card { background: white; padding: 25px; border-radius: 12px; shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .sidebar { background: white; padding: 20px; border-radius: 12px; }
+        :root { 
+            --primary: #1a2a6c; 
+            --accent: #f2994a; 
+            --bg: #f8f9fa;
+            --glass: rgba(255, 255, 255, 0.9);
+            --success: #27ae60;
+        }
         
-        canvas { background: #fff; border: 2px solid #ddd; border-radius: 8px; width: 100%; max-width: 500px; margin: 0 auto; display: block; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        .theorem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 20px 0; }
-        .t-btn { padding: 10px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; background: #f8f9fa; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
-        .t-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        
-        .info-box { background: #fff3e0; border-left: 5px solid var(--accent); padding: 15px; margin: 15px 0; border-radius: 4px; }
-        .quiz-box { display: none; background: #e8f5e9; padding: 20px; border-radius: 8px; margin-top: 20px; }
-        
-        .option-btn { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ced4da; border-radius: 6px; background: white; cursor: pointer; text-align: left; }
-        .option-btn:hover { border-color: var(--accent); }
-        
-        .progress-container { margin: 15px 0; }
-        .bar { background: #ddd; height: 10px; border-radius: 5px; overflow: hidden; }
-        .fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
-        
-        .history-list { font-size: 0.9rem; max-height: 400px; overflow-y: auto; }
-        .history-item { padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        body { background: var(--bg); color: #333; line-height: 1.6; }
+
+        .container { 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh;
+            max-width: 600px; 
+            margin: 0 auto;
+            padding-bottom: 80px; 
+        }
+
+        header { 
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        /* The Exit Icon Style */
+        .exit-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+        .exit-link:hover { opacity: 1; transform: scale(1.1); }
+
+        .main-card { 
+            padding: 15px; 
+            margin: -20px 10px 0 10px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        canvas { 
+            background: #fff; 
+            border-radius: 15px; 
+            width: 100%; 
+            height: auto; 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .theorem-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin: 15px 0; 
+        }
+
+        .t-btn { 
+            padding: 12px 8px; 
+            border: none; 
+            border-radius: 12px; 
+            background: white; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .t-btn.active { background: var(--accent); color: white; transform: translateY(-2px); }
+
+        .info-box { 
+            background: #fff9f0; 
+            border-left: 4px solid var(--accent); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .quiz-box { 
+            display: none;
+            background: #f0fff4; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-top: 15px; 
+            border: 2px dashed var(--success);
+        }
+
+        .option-btn { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 12px; 
+            background: white; 
+            font-weight: 600;
+        }
+
+        .sidebar { 
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .progress-container { flex-grow: 1; margin: 0 15px; }
+        .bar { background: #eee; height: 8px; border-radius: 10px; overflow: hidden; }
+        .fill { background: var(--success); height: 100%; width: 0%; border-radius: 10px; transition: 0.5s; }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 1.3rem; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1><i class="fas fa-shapes"></i> Circle Theorem Masterclass</h1>
-        <p>Analyze the diagrams, understand the proofs, and solve the geometric puzzles.</p>
+        <a href="index.html" class="exit-link" title="Back to Home">
+            <i class="fas fa-door-open"></i>
+        </a>
+        <h1><i class="fas fa-circle-nodes"></i> Circle Master</h1>
+        <p style="font-size: 0.8rem; opacity: 0.9;">Master the logic of Geometry</p>
     </header>
 
     <div class="main-card">
         <canvas id="geoCanvas" width="500" height="400"></canvas>
 
-        <div class="theorem-grid" id="buttonGrid">
-            </div>
+        <div class="theorem-grid" id="buttonGrid"></div>
 
         <div id="explanationArea">
-            <h2 id="tTitle">Central Angle</h2>
+            <h3 id="tTitle" style="color: var(--primary);">Loading...</h3>
             <div class="info-box">
                 <p id="tDesc"></p>
                 <strong id="tLogic" style="display:block; margin-top:10px; color:#d35400;"></strong>
             </div>
         </div>
 
-        <button class="t-btn" style="background:var(--primary); color:white; width:200px;" onclick="startQuiz()">
-            <i class="fas fa-edit"></i> Solve Practice Problem
+        <button class="t-btn" style="background:var(--primary); color:white; width:100%; padding: 15px; margin-top: 10px;" onclick="startQuiz()">
+            <i class="fas fa-play"></i> Solve Practice Problems
         </button>
 
         <div class="quiz-box" id="quizBox">
-            <h3 id="qText">Question goes here?</h3>
+            <h3 id="qText" style="margin-bottom:15px;"></h3>
             <div id="qOptions"></div>
         </div>
     </div>
 
     <div class="sidebar">
-        <h3>Your Progress</h3>
+        <div class="stats-mini">
+            <p style="font-size: 0.6rem; font-weight:bold;">SCORE</p>
+            <p id="score" style="font-size: 1.1rem; color: var(--primary); font-weight:900;">0</p>
+        </div>
         <div class="progress-container">
             <div class="bar"><div class="fill" id="progressFill"></div></div>
-            <p style="font-size:0.8rem; margin-top:5px;">Mastery: <span id="masteryCount">0</span>/8 Theorems</p>
+            <p style="font-size:0.6rem; text-align:center; margin-top:3px;">MASTERY: <span id="masteryCount">0</span>/6</p>
         </div>
-        
-        <div class="stats" style="margin: 20px 0;">
-            <p>Score: <strong id="score">0</strong></p>
-            <p>Best Streak: <strong id="streak">0</strong></p>
+        <div class="stats-mini">
+            <p style="font-size: 0.6rem; font-weight:bold;">STREAK</p>
+            <p id="streak" style="font-size: 1.1rem; color: var(--accent); font-weight:900;">0</p>
         </div>
-
-        <h4>Activity Log</h4>
-        <div class="history-list" id="history"></div>
     </div>
 </div>
 
@@ -95,75 +202,113 @@
         mastered: new Set(),
         data: {
             center: {
-                title: "Angle at Center & Circumference",
-                desc: "The angle subtended by an arc at the center is exactly double the angle at the circumference.",
-                logic: "Proof Hint: Drawing a line from the center to the top vertex creates two isosceles triangles. Use the exterior angle theorem!",
-                problem: "If the top angle is 37°, what is the central angle?",
-                options: ["18.5°", "74°", "90°", "148°"],
-                ans: 1
+                title: "Angle at Center",
+                desc: "The angle at the center is double the angle at the circumference.",
+                logic: "Proof: Use isosceles triangles formed by radii to show the center is 2x.",
+                questions: [
+                    { q: "If circumference angle is 35°, center is?", o: ["17.5°", "70°", "90°", "140°"], a: 1 },
+                    { q: "If center is 120°, circumference is?", o: ["60°", "240°", "30°", "90°"], a: 0 },
+                    { q: "Reflex angle at center is 260°. Angle at circumference?", o: ["130°", "50°", "100°", "180°"], a: 0 },
+                    { q: "Radius AO=BO. If ∠OAB=40°, find angle at circumference.", o: ["50°", "100°", "25°", "80°"], a: 0 },
+                    { q: "Angle at center is 2x+10, circumference is 50. Find x.", o: ["20", "45", "40", "25"], a: 1 }
+                ]
             },
             semicircle: {
-                title: "Angle in a Semicircle",
-                desc: "Any angle drawn from the ends of a diameter to the circumference is a right angle (90°).",
-                logic: "Proof Hint: This is a special case of the Center Theorem where the central angle is a straight line (180°).",
-                problem: "In ΔABC, if AB is the diameter and ∠A = 30°, find ∠B.",
-                options: ["30°", "60°", "90°", "120°"],
-                ans: 1
+                title: "Semicircle",
+                desc: "Angle in a semicircle is always 90°.",
+                logic: "This is a special case where the center angle is a straight line (180°).",
+                questions: [
+                    { q: "Angle subtended by diameter is?", o: ["45°", "90°", "180°", "60°"], a: 1 },
+                    { q: "AB is diameter. If ∠A=30°, find ∠B.", o: ["30°", "60°", "90°", "150°"], a: 1 },
+                    { q: "Can a triangle in a semicircle be obtuse?", o: ["Yes", "No", "Only if it's large", "Sometimes"], a: 1 },
+                    { q: "If diameter is 10 and one side is 6, the other is?", o: ["4", "8", "7", "5"], a: 1 },
+                    { q: "In semicircle ABC, if ∠A=∠B, find ∠A.", o: ["90°", "45°", "30°", "60°"], a: 1 }
+                ]
             },
             cyclic: {
-                title: "Cyclic Quadrilaterals",
-                desc: "Opposite angles in a quadrilateral where all 4 points touch the circle sum to 180°.",
-                logic: "Proof Hint: The two central angles formed by the diagonals sum to 360°, thus their halves (circumference angles) sum to 180°.",
-                problem: "If ∠A = 115° in a cyclic quad, what is the value of the opposite ∠C?",
-                options: ["65°", "75°", "115°", "180°"],
-                ans: 0
+                title: "Cyclic Quad",
+                desc: "Opposite angles sum to 180°.",
+                logic: "All 4 vertices must touch the circumference.",
+                questions: [
+                    { q: "If ∠A=110°, find opposite ∠C.", o: ["110°", "70°", "180°", "20°"], a: 1 },
+                    { q: "Exterior angle is 85°. Find interior opposite.", o: ["85°", "95°", "180°", "5°"], a: 0 },
+                    { q: "Opposite angles are x and 2x. Find x.", o: ["60", "90", "120", "45"], a: 0 },
+                    { q: "Is every rectangle a cyclic quad?", o: ["Yes", "No", "Only squares", "Rarely"], a: 0 },
+                    { q: "If ∠A=x+20 and ∠C=x-10 are opposite, find x.", o: ["85", "90", "170", "10"], a: 0 }
+                ]
             },
             tangent: {
-                title: "Tangent-Radius Property",
-                desc: "A tangent line touches the circle at exactly one point and is perpendicular to the radius.",
-                logic: "Proof Hint: The radius is the shortest distance from the center to the line; shortest distance is always perpendicular.",
-                problem: "A triangle is formed by Center O, Point P on circumference, and Point T. If OT is 13cm and radius is 5cm, find Tangent PT.",
-                options: ["8cm", "10cm", "12cm", "18cm"],
-                ans: 2
+                title: "Tangent",
+                desc: "Tangent is 90° to the radius.",
+                logic: "The radius is the shortest path to the tangent line.",
+                questions: [
+                    { q: "Angle between tangent and radius?", o: ["45°", "90°", "180°", "0°"], a: 1 },
+                    { q: "Radius=5, Tangent=12. Distance from center?", o: ["13", "17", "7", "11"], a: 0 },
+                    { q: "Two tangents from P meet at 40°. Angle at center?", o: ["40°", "140°", "180°", "70°"], a: 1 },
+                    { q: "Tangents from external point are?", o: ["Equal", "Perpendicular", "Parallel", "Infinite"], a: 0 },
+                    { q: "If radius=tangent, angle at center is?", o: ["90°", "45°", "60°", "30°"], a: 1 }
+                ]
+            },
+            sameSegment: {
+                title: "Same Segment",
+                desc: "Angles in the same segment are equal.",
+                logic: "Angles subtended by the same chord/arc at the circumference match.",
+                questions: [
+                    { q: "∠ACB and ∠ADB share arc AB. If ∠ACB=40°, ∠ADB is?", o: ["20°", "40°", "80°", "90°"], a: 1 },
+                    { q: "This theorem forms what visual shape?", o: ["Z-shape", "Bow-tie", "Triangle", "Square"], a: 1 },
+                    { q: "If ∠1=x and ∠2=50 share an arc, x is?", o: ["25", "100", "50", "40"], a: 2 },
+                    { q: "Do the points have to be on the same side of the chord?", o: ["No", "Yes", "Sometimes", "Only at center"], a: 1 },
+                    { q: "Angles in different segments sum to?", o: ["90°", "180°", "360°", "Equal"], a: 1 }
+                ]
+            },
+            altSegment: {
+                title: "Alt Segment",
+                desc: "Angle between tangent and chord equals angle in alternate segment.",
+                logic: "This connects the tangent outside to the triangle inside.",
+                questions: [
+                    { q: "Tangent/Chord angle is 65°. Alternate segment angle?", o: ["130°", "32.5°", "65°", "115°"], a: 2 },
+                    { q: "If the triangle is equilateral, tangent/chord angle is?", o: ["90°", "30°", "60°", "45°"], a: 2 },
+                    { q: "Tangent/Chord angle is x. Opposite interior angle is?", o: ["x", "180-x", "2x", "90-x"], a: 0 },
+                    { q: "If chord is a diameter, tangent/chord angle is?", o: ["0°", "45°", "90°", "180°"], a: 2 },
+                    { q: "Tangent/Chord angle is 40°. Find angle in major segment.", o: ["40°", "140°", "50°", "80°"], a: 0 }
+                ]
             }
         }
     };
 
     function draw() {
         ctx.clearRect(0,0,500,400);
-        // Circle
         ctx.beginPath(); ctx.arc(center.x, center.y, radius, 0, Math.PI*2);
-        ctx.strokeStyle = "#34495e"; ctx.lineWidth = 3; ctx.stroke();
-        // Center Point
-        ctx.beginPath(); ctx.arc(center.x, center.y, 4, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "#1a2a6c"; ctx.lineWidth = 4; ctx.stroke();
+        ctx.beginPath(); ctx.arc(center.x, center.y, 5, 0, Math.PI*2); ctx.fill();
 
-        ctx.lineWidth = 2;
         const p1 = { x: center.x + radius*Math.cos(0.8), y: center.y + radius*Math.sin(0.8) };
         const p2 = { x: center.x + radius*Math.cos(2.3), y: center.y + radius*Math.sin(2.3) };
         const top = { x: center.x + radius*Math.cos(-1.5), y: center.y + radius*Math.sin(-1.5) };
 
-        switch(gameState.current) {
-            case 'center':
-                line(p1, center, "#3498db"); line(p2, center, "#3498db");
-                line(p1, top, "#e74c3c"); line(p2, top, "#e74c3c");
-                ctx.fillStyle = "#3498db"; ctx.fillText("2x", center.x-10, center.y+20);
-                ctx.fillStyle = "#e74c3c"; ctx.fillText("x", top.x-5, top.y-10);
-                break;
-            case 'semicircle':
-                const opp = { x: center.x + radius*Math.cos(0.8 + Math.PI), y: center.y + radius*Math.sin(0.8 + Math.PI) };
-                line(p1, opp, "#3498db"); line(p1, top, "#e74c3c"); line(opp, top, "#e74c3c");
-                ctx.fillText("90°", top.x-10, top.y+25);
-                break;
-            case 'cyclic':
-                const p4 = { x: center.x + radius*Math.cos(4), y: center.y + radius*Math.sin(4) };
-                ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(top.x,top.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p4.x,p4.y); ctx.closePath();
-                ctx.strokeStyle = "#e67e22"; ctx.stroke();
-                break;
-            case 'tangent':
-                line(center, p1, "#3498db");
-                ctx.beginPath(); ctx.moveTo(p1.x-60, p1.y+45); ctx.lineTo(p1.x+60, p1.y-45);
-                ctx.strokeStyle = "#e74c3c"; ctx.stroke();
-                break;
+        ctx.lineWidth = 3;
+        if(gameState.current === 'center') {
+            line(p1, center, "#3498db"); line(p2, center, "#3498db");
+            line(p1, top, "#e74c3c"); line(p2, top, "#e74c3c");
+        } else if(gameState.current === 'semicircle') {
+            const opp = { x: center.x + radius*Math.cos(0.8 + Math.PI), y: center.y + radius*Math.sin(0.8 + Math.PI) };
+            line(p1, opp, "#3498db"); line(p1, top, "#e74c3c"); line(opp, top, "#e74c3c");
+        } else if(gameState.current === 'cyclic') {
+            const p4 = { x: center.x + radius*Math.cos(4), y: center.y + radius*Math.sin(4) };
+            ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(top.x,top.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p4.x,p4.y); ctx.closePath();
+            ctx.strokeStyle = "#e67e22"; ctx.stroke();
+        } else if(gameState.current === 'tangent') {
+            line(center, p1, "#3498db");
+            ctx.beginPath(); ctx.moveTo(p1.x-80, p1.y+60); ctx.lineTo(p1.x+80, p1.y-60);
+            ctx.strokeStyle = "#e74c3c"; ctx.stroke();
+        } else if(gameState.current === 'sameSegment') {
+            const top2 = { x: center.x + radius*Math.cos(-0.5), y: center.y + radius*Math.sin(-0.5) };
+            line(p1, top, "#e74c3c"); line(p2, top, "#e74c3c");
+            line(p1, top2, "#27ae60"); line(p2, top2, "#27ae60");
+        } else if(gameState.current === 'altSegment') {
+            line(p1, p2, "#1a2a6c"); line(p2, top, "#1a2a6c"); line(top, p1, "#1a2a6c");
+            ctx.beginPath(); ctx.moveTo(p1.x-80, p1.y+60); ctx.lineTo(p1.x+80, p1.y-60);
+            ctx.strokeStyle = "#e74c3c"; ctx.stroke();
         }
     }
 
@@ -188,7 +333,6 @@
         document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('quizBox').style.display = 'none';
-        
         const d = gameState.data[key];
         document.getElementById('tTitle').innerText = d.title;
         document.getElementById('tDesc').innerText = d.desc;
@@ -197,14 +341,15 @@
     }
 
     function startQuiz() {
-        const d = gameState.data[gameState.current];
+        const set = gameState.data[gameState.current].questions;
+        const quest = set[Math.floor(Math.random() * set.length)];
+        gameState.currentQ = quest;
         const box = document.getElementById('quizBox');
         box.style.display = 'block';
-        document.getElementById('qText').innerText = d.problem;
+        document.getElementById('qText').innerText = quest.q;
         const opts = document.getElementById('qOptions');
         opts.innerHTML = '';
-        
-        d.options.forEach((o, i) => {
+        quest.o.forEach((o, i) => {
             const b = document.createElement('button');
             b.className = 'option-btn';
             b.innerText = o;
@@ -215,23 +360,16 @@
     }
 
     function checkAns(idx) {
-        const correct = gameState.data[gameState.current].ans === idx;
-        const hist = document.getElementById('history');
-        const item = document.createElement('div');
-        item.className = 'history-item';
-        
-        if(correct) {
+        if(gameState.currentQ.a === idx) {
             gameState.score += 20;
             gameState.streak++;
             gameState.mastered.add(gameState.current);
-            item.innerHTML = `<span>Correct: ${gameState.current}</span> ✅`;
+            alert("Correct!");
         } else {
             gameState.streak = 0;
-            item.innerHTML = `<span>Failed: ${gameState.current}</span> ❌`;
+            alert("Incorrect!");
         }
-        
         updateStats();
-        hist.prepend(item);
         document.getElementById('quizBox').style.display = 'none';
     }
 
@@ -240,7 +378,7 @@
         document.getElementById('streak').innerText = gameState.streak;
         const mCount = gameState.mastered.size;
         document.getElementById('masteryCount').innerText = mCount;
-        document.getElementById('progressFill').style.width = (mCount / 8 * 100) + "%";
+        document.getElementById('progressFill').style.width = (mCount / 6 * 100) + "%";
     }
 
     init();
