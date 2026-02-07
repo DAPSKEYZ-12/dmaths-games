@@ -3,793 +3,429 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quadratic Quest: Equation Challenge</title>
+    <title>Quadratic Quest | Pro Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #1a2a6c, #3a7bd5);
-            color: #333;
+            background: radial-gradient(circle at top left, #1a1a2e, #16213e);
+            color: var(--dark);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
+
         .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
         }
-        
+
+        /* --- Header Styling --- */
         header {
-            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 25px;
+            padding: 30px 20px;
             text-align: center;
             position: relative;
         }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+
+        .level-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.3);
         }
-        
-        .tagline {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 800px;
-            margin: 0 auto;
+
+        /* --- Grid Layout --- */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 0;
         }
-        
-        .game-container {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 20px;
-            gap: 20px;
+
+        .game-zone {
+            padding: 40px;
+            border-right: 1px solid #eee;
         }
-        
-        .left-panel {
-            flex: 1;
-            min-width: 300px;
-            background-color: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+
+        .sidebar {
+            padding: 30px;
+            background: rgba(0,0,0,0.02);
         }
-        
-        .right-panel {
-            flex: 1;
-            min-width: 300px;
-            background-color: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        .panel-title {
-            font-size: 1.5rem;
-            color: #3a7bd5;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eaeaea;
-        }
-        
-        .equation-container {
-            background-color: white;
-            border-radius: 10px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            border: 2px dashed #3a7bd5;
-        }
-        
-        .equation {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .answer-inputs {
-            display: flex;
-            justify-content: center;
+
+        /* --- UI Components --- */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
+            margin-bottom: 30px;
         }
-        
-        .answer-input {
-            width: 120px;
-            padding: 12px;
-            font-size: 1.3rem;
-            text-align: center;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            transition: all 0.3s;
-        }
-        
-        .answer-input:focus {
-            border-color: #3a7bd5;
-            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.2);
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background-color: #3a7bd5;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #2a6bc5;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 10px rgba(58, 123, 213, 0.3);
-        }
-        
-        .btn-secondary {
-            background-color: #f8f9fa;
-            color: #3a7bd5;
-            border: 2px solid #3a7bd5;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #e9ecef;
-            transform: translateY(-3px);
-        }
-        
-        .btn-help {
-            background-color: #17a2b8;
-            color: white;
-        }
-        
-        .btn-help:hover {
-            background-color: #138496;
-            transform: translateY(-3px);
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            background-color: white;
-            border-radius: 10px;
+
+        .stat-card {
+            background: white;
             padding: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        .stat-box {
+            border-radius: 16px;
             text-align: center;
-            flex: 1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
         }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #3a7bd5;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .progress-container {
-            margin-top: 25px;
-        }
-        
-        .progress-bar {
-            height: 20px;
-            background-color: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(to right, #3a7bd5, #00d2ff);
-            width: 0%;
-            transition: width 0.5s;
-        }
-        
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .feedback {
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: center;
-            font-weight: bold;
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-        
-        .feedback.correct {
-            background-color: rgba(40, 167, 69, 0.2);
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .feedback.incorrect {
-            background-color: rgba(220, 53, 69, 0.2);
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .hint-container {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 25px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-            display: none;
-        }
-        
-        .hint-title {
-            font-size: 1.2rem;
-            color: #17a2b8;
-            margin-bottom: 10px;
-        }
-        
-        .method-step {
-            margin-bottom: 10px;
-            padding-left: 10px;
-            border-left: 3px solid #17a2b8;
-        }
-        
-        .history-item {
-            background-color: white;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .history-equation {
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .history-answer {
-            color: #3a7bd5;
-            font-weight: bold;
-        }
-        
-        .correct-icon {
-            color: #28a745;
-        }
-        
-        .incorrect-icon {
-            color: #dc3545;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 0.9rem;
-            border-top: 1px solid #eee;
-        }
-        
-        .level-indicator {
-            display: inline-block;
-            background-color: #3a7bd5;
-            color: white;
-            padding: 5px 15px;
+
+        .stat-card i { color: var(--primary); margin-bottom: 5px; }
+        .stat-val { font-size: 1.5rem; font-weight: 800; display: block; }
+        .stat-lbl { font-size: 0.75rem; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+
+        .equation-box {
+            background: white;
+            padding: 40px;
             border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+            border: 2px solid #e9ecef;
+        }
+
+        #equation {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--dark);
+            margin: 20px 0;
+            letter-spacing: -1px;
+        }
+
+        .discriminant-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
             font-weight: bold;
-            margin-top: 10px;
+            margin-bottom: 10px;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+
+        /* --- Inputs & Buttons --- */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
         }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+
+        .math-input {
+            width: 140px;
+            height: 60px;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            transition: 0.3s;
+            background: #fff;
         }
-        
-        .pulse {
-            animation: pulse 0.5s;
+
+        .math-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.15);
         }
+
+        .btn {
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-main { background: var(--primary); color: white; width: 100%; font-size: 1.1rem; }
+        .btn-main:hover { background: var(--secondary); transform: scale(1.02); }
         
-        @media (max-width: 768px) {
-            .game-container {
-                flex-direction: column;
-            }
-            
-            .left-panel, .right-panel {
-                width: 100%;
-            }
-            
-            .equation {
-                font-size: 1.8rem;
-            }
-            
-            .answer-input {
-                width: 100px;
-            }
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-outline { background: white; border: 2px solid #e9ecef; color: #666; font-size: 0.9rem; padding: 10px; }
+        .btn-outline:hover { background: #f8f9fa; border-color: #ccc; }
+        .btn-exit { color: var(--danger); border-color: rgba(247, 37, 133, 0.2); }
+        .btn-exit:hover { background: #fff0f5; border-color: var(--danger); }
+
+        /* --- Progress Bar --- */
+        .progress-wrapper { margin-top: 40px; }
+        .progress-track { height: 12px; background: #eee; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* --- Feedback --- */
+        #feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: none;
+            text-align: center;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .game-zone { border-right: none; padding: 20px; }
+            #equation { font-size: 2rem; }
+            .math-input { width: 100%; }
+            .action-row { grid-template-columns: 1fr 1fr; }
+            .btn-exit { grid-column: span 2; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-square-root-alt"></i> Quadratic Quest</h1>
-            <p class="tagline">Master quadratic equations through an interactive game that complements classroom learning. Solve equations, earn points, and level up!</p>
-            <div class="level-indicator">Level: <span id="level">1</span></div>
-        </header>
-        
-        <div class="game-container">
-            <div class="left-panel">
-                <h2 class="panel-title"><i class="fas fa-calculator"></i> Current Equation</h2>
-                
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-value" id="score">0</div>
-                        <div class="stat-label">Score</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="streak">0</div>
-                        <div class="stat-label">Correct Streak</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="total">0</div>
-                        <div class="stat-label">Equations Solved</div>
-                    </div>
+
+<div class="container">
+    <header>
+        <div class="level-badge">LVL <span id="level">1</span></div>
+        <h1><i class="fas fa-bolt"></i> Quadratic Quest</h1>
+        <p>Solve the roots to power up the grid.</p>
+    </header>
+
+    <div class="main-grid">
+        <div class="game-zone">
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <i class="fas fa-trophy"></i>
+                    <span class="stat-val" id="score">0</span>
+                    <span class="stat-lbl">Score</span>
                 </div>
-                
-                <div class="equation-container">
-                    <p>Solve for x in the quadratic equation:</p>
-                    <div class="equation" id="equation">x² + 5x + 6 = 0</div>
-                    
-                    <div class="answer-inputs">
-                        <input type="number" step="any" class="answer-input" id="answer1" placeholder="Root 1">
-                        <input type="number" step="any" class="answer-input" id="answer2" placeholder="Root 2">
-                    </div>
-                    
-                    <div class="controls">
-                        <button class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-check-circle"></i> Check Answer
-                        </button>
-                        <button class="btn btn-secondary" id="nextBtn">
-                            <i class="fas fa-forward"></i> Next Equation
-                        </button>
-                    </div>
-                    
-                    <div class="controls">
-                        <button class="btn btn-help" id="hintBtn">
-                            <i class="fas fa-lightbulb"></i> Show Hint
-                        </button>
-                        <button class="btn btn-secondary" id="resetBtn">
-                            <i class="fas fa-redo"></i> Reset Game
-                        </button>
-                    </div>
+                <div class="stat-card">
+                    <i class="fas fa-fire"></i>
+                    <span class="stat-val" id="streak">0</span>
+                    <span class="stat-lbl">Streak</span>
                 </div>
-                
-                <div class="feedback" id="feedback"></div>
-                
-                <div class="hint-container" id="hintContainer">
-                    <h3 class="hint-title"><i class="fas fa-lightbulb"></i> Solving Hint</h3>
-                    <div id="hintContent"></div>
-                </div>
-                
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress" id="progress"></div>
-                    </div>
-                    <div class="progress-text">
-                        <span>Level Progress</span>
-                        <span id="progressPercent">0%</span>
-                    </div>
+                <div class="stat-card">
+                    <i class="fas fa-stopwatch"></i>
+                    <span class="stat-val" id="timer">30</span>
+                    <span class="stat-lbl">Seconds</span>
                 </div>
             </div>
-            
-            <div class="right-panel">
-                <h2 class="panel-title"><i class="fas fa-history"></i> Solution History</h2>
-                <div id="historyList">
-                    <!-- History items will be added here -->
-                </div>
+
+            <div class="equation-box">
+                <div id="discriminantBadge" class="discriminant-tag">Real & Distinct Roots</div>
+                <div id="equation">x² + 5x + 6 = 0</div>
                 
-                <h2 class="panel-title" style="margin-top: 30px;"><i class="fas fa-chalkboard-teacher"></i> Educational Tips</h2>
-                <div class="hint-container">
-                    <div class="method-step">Quadratic equations have the form: ax² + bx + c = 0</div>
-                    <div class="method-step">Solutions can be found using: x = [-b ± √(b² - 4ac)] / 2a</div>
-                    <div class="method-step">The discriminant (b² - 4ac) determines the nature of roots</div>
-                    <div class="method-step">If discriminant > 0: Two real roots</div>
-                    <div class="method-step">If discriminant = 0: One real root (repeated)</div>
-                    <div class="method-step">If discriminant < 0: Two complex roots</div>
+                <div class="input-group">
+                    <input type="number" step="any" class="math-input" id="answer1" placeholder="x₁">
+                    <input type="number" step="any" class="math-input" id="answer2" placeholder="x₂">
+                </div>
+
+                <button class="btn btn-main" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> SUBMIT ANSWER
+                </button>
+
+                <div class="action-row">
+                    <button class="btn btn-outline" id="hintBtn"><i class="fas fa-lightbulb"></i> Hint</button>
+                    <button class="btn btn-outline" id="nextBtn"><i class="fas fa-forward"></i> Skip</button>
+                    <button class="btn btn-outline btn-exit" id="exitBtn"><i class="fas fa-door-open"></i> Quit</button>
+                </div>
+            </div>
+
+            <div id="feedback"></div>
+
+            <div class="progress-wrapper">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; font-weight: bold;">
+                    <span>LEVEL PROGRESS</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress"></div>
                 </div>
             </div>
         </div>
-        
-        <footer>
-            <p>Quadratic Quest - An interactive game to complement quadratic equations teaching</p>
-            <p>Use this game to practice solving quadratic equations. Check your answers and learn from hints!</p>
-        </footer>
-    </div>
 
-    <script>
-        // Game state variables
-        let score = 0;
-        let streak = 0;
-        let totalSolved = 0;
-        let level = 1;
-        let levelProgress = 0;
-        let currentEquation = {};
-        let history = [];
+        <div class="sidebar">
+            <h3 style="margin-bottom: 20px; font-size: 1.1rem;"><i class="fas fa-history"></i> Recent Solves</h3>
+            <div id="historyList"></div>
+            
+            <div style="margin-top: 40px; background: white; padding: 20px; border-radius: 15px; border: 1px solid #eee;">
+                <h4 style="color: var(--primary); margin-bottom: 10px;"><i class="fas fa-info-circle"></i> Quick Tip</h4>
+                <p style="font-size: 0.85rem; color: #666; line-height: 1.5;">
+                    If the equation is in the form <strong>x² + bx + c = 0</strong>, the roots sum to <strong>-b</strong> and multiply to <strong>c</strong>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+    let streak = 0;
+    let level = 1;
+    let progress = 0;
+    let currentEq = {};
+    let timeLeft = 30;
+    let timerInterval;
+
+    const elements = {
+        equation: document.getElementById('equation'),
+        ans1: document.getElementById('answer1'),
+        ans2: document.getElementById('answer2'),
+        feedback: document.getElementById('feedback'),
+        score: document.getElementById('score'),
+        streak: document.getElementById('streak'),
+        level: document.getElementById('level'),
+        timer: document.getElementById('timer'),
+        progress: document.getElementById('progress'),
+        perc: document.getElementById('progressPercent'),
+        history: document.getElementById('historyList'),
+        disc: document.getElementById('discriminantBadge')
+    };
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 30;
+        elements.timer.textContent = timeLeft;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            elements.timer.textContent = timeLeft;
+            if (timeLeft <= 5) elements.timer.style.color = 'var(--danger)';
+            else elements.timer.style.color = 'var(--dark)';
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleWrong("Time's up!");
+            }
+        }, 1000);
+    }
+
+    function generateEq() {
+        let a, b, c, r1, r2;
         
-        // DOM elements
-        const equationEl = document.getElementById('equation');
-        const answer1El = document.getElementById('answer1');
-        const answer2El = document.getElementById('answer2');
-        const submitBtn = document.getElementById('submitBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const hintBtn = document.getElementById('hintBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const feedbackEl = document.getElementById('feedback');
-        const hintContainer = document.getElementById('hintContainer');
-        const hintContent = document.getElementById('hintContent');
-        const historyList = document.getElementById('historyList');
-        const scoreEl = document.getElementById('score');
-        const streakEl = document.getElementById('streak');
-        const totalEl = document.getElementById('total');
-        const levelEl = document.getElementById('level');
-        const progressEl = document.getElementById('progress');
-        const progressPercentEl = document.getElementById('progressPercent');
-        
-        // Quadratic equation generator
-        function generateQuadraticEquation() {
-            // Generate coefficients based on level
-            let a, b, c;
-            
-            if (level === 1) {
-                // Level 1: Simple integer roots
-                const root1 = Math.floor(Math.random() * 5) - 2; // -2 to 2
-                const root2 = Math.floor(Math.random() * 5) - 2; // -2 to 2
-                a = 1;
-                b = -(root1 + root2);
-                c = root1 * root2;
-            } else if (level === 2) {
-                // Level 2: a may not be 1
-                const root1 = Math.floor(Math.random() * 5) - 2;
-                const root2 = Math.floor(Math.random() * 5) - 2;
-                a = Math.floor(Math.random() * 3) + 1; // 1 to 3
-                b = -a * (root1 + root2);
-                c = a * root1 * root2;
-            } else {
-                // Level 3: Fractions possible
-                const root1 = (Math.floor(Math.random() * 9) - 4) / 2; // -2 to 2 in 0.5 steps
-                const root2 = (Math.floor(Math.random() * 9) - 4) / 2; // -2 to 2 in 0.5 steps
-                a = Math.floor(Math.random() * 4) + 1; // 1 to 4
-                b = -a * (root1 + root2);
-                c = a * root1 * root2;
-            }
-            
-            // Store equation data
-            currentEquation = { a, b, c };
-            
-            // Format the equation for display
-            let equationString = "";
-            
-            if (a !== 1 && a !== -1) equationString += a;
-            if (a === -1) equationString += "-";
-            equationString += "x²";
-            
-            if (b !== 0) {
-                equationString += b > 0 ? " + " : " - ";
-                if (Math.abs(b) !== 1) equationString += Math.abs(b);
-                equationString += "x";
-            }
-            
-            if (c !== 0) {
-                equationString += c > 0 ? " + " : " - ";
-                equationString += Math.abs(c);
-            }
-            
-            equationString += " = 0";
-            
-            // Update equation display
-            equationEl.textContent = equationString;
-            
-            // Clear inputs and feedback
-            answer1El.value = "";
-            answer2El.value = "";
-            feedbackEl.style.display = "none";
-            hintContainer.style.display = "none";
-            
-            // Focus on first input
-            answer1El.focus();
+        if (level === 1) {
+            r1 = Math.floor(Math.random() * 10) - 5;
+            r2 = Math.floor(Math.random() * 10) - 5;
+            a = 1;
+            b = -(r1 + r2);
+            c = r1 * r2;
+        } else {
+            a = Math.floor(Math.random() * 3) + 1;
+            r1 = Math.floor(Math.random() * 8) - 4;
+            r2 = Math.floor(Math.random() * 8) - 4;
+            b = -a * (r1 + r2);
+            c = a * r1 * r2;
         }
+
+        currentEq = { a, b, c, r1, r2 };
         
-        // Calculate roots of current equation
-        function calculateRoots() {
-            const { a, b, c } = currentEquation;
-            const discriminant = b * b - 4 * a * c;
-            
-            if (discriminant < 0) {
-                // Complex roots
-                const realPart = -b / (2 * a);
-                const imaginaryPart = Math.sqrt(-discriminant) / (2 * a);
-                return [
-                    `${realPart.toFixed(2)} + ${imaginaryPart.toFixed(2)}i`,
-                    `${realPart.toFixed(2)} - ${imaginaryPart.toFixed(2)}i`
-                ];
-            } else {
-                // Real roots
-                const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
-                const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
-                return [root1, root2];
-            }
-        }
+        let str = `${a === 1 ? '' : a}x²`;
+        str += b >= 0 ? ` + ${b === 1 ? '' : b}x` : ` - ${Math.abs(b)}x`;
+        str += c >= 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+        elements.equation.textContent = str + " = 0";
         
-        // Check if user's answer is correct
-        function checkAnswer() {
-            const userAnswer1 = parseFloat(answer1El.value);
-            const userAnswer2 = parseFloat(answer2El.value);
-            
-            // Validate inputs
-            if (isNaN(userAnswer1) || isNaN(userAnswer2)) {
-                showFeedback("Please enter both roots", "incorrect");
-                return false;
-            }
-            
-            const correctRoots = calculateRoots();
-            
-            // Check if answers match (order doesn't matter)
-            let isCorrect = false;
-            
-            // For real roots
-            if (typeof correctRoots[0] === 'number') {
-                const tolerance = 0.01; // Allow small rounding errors
-                isCorrect = (
-                    (Math.abs(userAnswer1 - correctRoots[0]) < tolerance && Math.abs(userAnswer2 - correctRoots[1]) < tolerance) ||
-                    (Math.abs(userAnswer1 - correctRoots[1]) < tolerance && Math.abs(userAnswer2 - correctRoots[0]) < tolerance)
-                );
-            } else {
-                // For complex roots, just check if they entered something (simplified)
-                isCorrect = (answer1El.value !== "" && answer2El.value !== "");
-            }
-            
-            return isCorrect;
-        }
-        
-        // Show feedback to user
-        function showFeedback(message, type) {
-            feedbackEl.textContent = message;
-            feedbackEl.className = `feedback ${type}`;
-            feedbackEl.style.display = "block";
-            
-            // Add animation
-            feedbackEl.classList.add('pulse');
-            setTimeout(() => feedbackEl.classList.remove('pulse'), 500);
-        }
-        
-        // Update game stats
-        function updateStats(isCorrect) {
-            if (isCorrect) {
-                score += 10 * level;
-                streak++;
-                totalSolved++;
-                levelProgress += 10;
-                
-                showFeedback(`Correct! +${10 * level} points`, "correct");
-            } else {
-                streak = 0;
-                showFeedback("Incorrect. Try again or check the hint!", "incorrect");
-            }
-            
-            // Update level if progress is complete
-            if (levelProgress >= 100 && level < 3) {
+        elements.ans1.value = '';
+        elements.ans2.value = '';
+        elements.ans1.focus();
+        elements.feedback.style.display = 'none';
+        startTimer();
+    }
+
+    function check() {
+        const u1 = parseFloat(elements.ans1.value);
+        const u2 = parseFloat(elements.ans2.value);
+        const { r1, r2 } = currentEq;
+
+        const isCorrect = (
+            (Math.abs(u1 - r1) < 0.1 && Math.abs(u2 - r2) < 0.1) ||
+            (Math.abs(u1 - r2) < 0.1 && Math.abs(u2 - r1) < 0.1)
+        );
+
+        if (isCorrect) {
+            score += (10 * level) + timeLeft;
+            streak++;
+            progress += 20;
+            if (progress >= 100) {
                 level++;
-                levelProgress = 0;
-                levelEl.textContent = level;
-                showFeedback(`Level Up! You're now at level ${level}`, "correct");
+                progress = 0;
             }
-            
-            // Update display
-            scoreEl.textContent = score;
-            streakEl.textContent = streak;
-            totalEl.textContent = totalSolved;
-            progressEl.style.width = `${levelProgress}%`;
-            progressPercentEl.textContent = `${levelProgress}%`;
-            
-            // Add to history
-            addToHistory(isCorrect);
+            showFeedback("Excellent!", "var(--success)", "#fff");
+            updateUI();
+            addHistory(true);
+            setTimeout(generateEq, 1500);
+        } else {
+            handleWrong("Not quite. Try again!");
         }
-        
-        // Add equation to history
-        function addToHistory(isCorrect) {
-            const correctRoots = calculateRoots();
-            let rootDisplay;
-            
-            if (typeof correctRoots[0] === 'number') {
-                rootDisplay = `x = ${correctRoots[0].toFixed(2)}, ${correctRoots[1].toFixed(2)}`;
-            } else {
-                rootDisplay = `x = ${correctRoots[0]}, ${correctRoots[1]}`;
-            }
-            
-            const historyItem = {
-                equation: equationEl.textContent,
-                roots: rootDisplay,
-                correct: isCorrect,
-                timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            };
-            
-            history.unshift(historyItem); // Add to beginning
-            
-            // Update history display (keep only last 5)
-            if (history.length > 5) history.pop();
-            
-            renderHistory();
+    }
+
+    function handleWrong(msg) {
+        streak = 0;
+        showFeedback(msg, "rgba(247, 37, 133, 0.1)", "var(--danger)");
+        updateUI();
+    }
+
+    function showFeedback(text, bg, color) {
+        elements.feedback.textContent = text;
+        elements.feedback.style.background = bg;
+        elements.feedback.style.color = color;
+        elements.feedback.style.display = 'block';
+    }
+
+    function updateUI() {
+        elements.score.textContent = score;
+        elements.streak.textContent = streak;
+        elements.level.textContent = level;
+        elements.progress.style.width = progress + "%";
+        elements.perc.textContent = progress + "%";
+    }
+
+    function addHistory(correct) {
+        const item = document.createElement('div');
+        item.style = "padding: 10px; background: white; border-radius: 8px; margin-bottom: 10px; font-size: 0.8rem; border-left: 4px solid " + (correct ? 'var(--success)' : 'var(--danger)');
+        item.innerHTML = `<strong>${elements.equation.textContent}</strong><br>Roots: ${currentEq.r1}, ${currentEq.r2}`;
+        elements.history.prepend(item);
+    }
+
+    function exitGame() {
+        clearInterval(timerInterval);
+        const confirmExit = confirm(`Game Over!\n\nFinal Score: ${score}\nLevel Reached: ${level}\n\nWould you like to reset and play again?`);
+        if (confirmExit) {
+            score = 0; streak = 0; level = 1; progress = 0;
+            elements.history.innerHTML = '';
+            updateUI();
+            generateEq();
         }
-        
-        // Render history list
-        function renderHistory() {
-            historyList.innerHTML = "";
-            
-            history.forEach(item => {
-                const historyItemEl = document.createElement('div');
-                historyItemEl.className = 'history-item';
-                
-                historyItemEl.innerHTML = `
-                    <div>
-                        <div class="history-equation">${item.equation}</div>
-                        <div style="font-size: 0.8rem; color: #666;">${item.timestamp}</div>
-                    </div>
-                    <div>
-                        <div class="history-answer">${item.roots}</div>
-                        <div style="text-align: center; margin-top: 5px;">
-                            ${item.correct ? 
-                                '<i class="fas fa-check-circle correct-icon"></i>' : 
-                                '<i class="fas fa-times-circle incorrect-icon"></i>'}
-                        </div>
-                    </div>
-                `;
-                
-                historyList.appendChild(historyItemEl);
-            });
-        }
-        
-        // Show hint for current equation
-        function showHint() {
-            const { a, b, c } = currentEquation;
-            const discriminant = b * b - 4 * a * c;
-            
-            let hintHTML = `
-                <div class="method-step">Equation: ${a}x² + ${b}x + ${c} = 0</div>
-                <div class="method-step">Step 1: Identify coefficients: a = ${a}, b = ${b}, c = ${c}</div>
-                <div class="method-step">Step 2: Calculate discriminant: D = b² - 4ac = ${b}² - 4×${a}×${c} = ${discriminant}</div>
-            `;
-            
-            if (discriminant > 0) {
-                hintHTML += `
-                    <div class="method-step">Step 3: Since D > 0, there are two real roots</div>
-                    <div class="method-step">Step 4: Use quadratic formula: x = [-b ± √D] / 2a</div>
-                    <div class="method-step">Step 5: x = [${-b} ± √${discriminant}] / ${2*a}</div>
-                `;
-            } else if (discriminant === 0) {
-                hintHTML += `
-                    <div class="method-step">Step 3: Since D = 0, there is one real root (repeated)</div>
-                    <div class="method-step">Step 4: Use quadratic formula: x = -b / 2a</div>
-                    <div class="method-step">Step 5: x = ${-b} / ${2*a} = ${-b/(2*a)}</div>
-                `;
-            } else {
-                hintHTML += `
-                    <div class="method-step">Step 3: Since D < 0, there are two complex roots</div>
-                    <div class="method-step">Step 4: Use quadratic formula: x = [-b ± i√|D|] / 2a</div>
-                    <div class="method-step">Step 5: x = [${-b} ± i√${-discriminant}] / ${2*a}</div>
-                `;
-            }
-            
-            hintContent.innerHTML = hintHTML;
-            hintContainer.style.display = "block";
-        }
-        
-        // Reset game
-        function resetGame() {
-            if (confirm("Are you sure you want to reset the game? Your progress will be lost.")) {
-                score = 0;
-                streak = 0;
-                totalSolved = 0;
-                level = 1;
-                levelProgress = 0;
-                history = [];
-                
-                scoreEl.textContent = score;
-                streakEl.textContent = streak;
-                totalEl.textContent = totalSolved;
-                levelEl.textContent = level;
-                progressEl.style.width = "0%";
-                progressPercentEl.textContent = "0%";
-                
-                historyList.innerHTML = "";
-                feedbackEl.style.display = "none";
-                hintContainer.style.display = "none";
-                
-                generateQuadraticEquation();
-            }
-        }
-        
-        // Event listeners
-        submitBtn.addEventListener('click', () => {
-            const isCorrect = checkAnswer();
-            updateStats(isCorrect);
-        });
-        
-        nextBtn.addEventListener('click', generateQuadraticEquation);
-        
-        hintBtn.addEventListener('click', showHint);
-        
-        resetBtn.addEventListener('click', resetGame);
-        
-        // Allow Enter key to submit
-        answer1El.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                answer2El.focus();
-            }
-        });
-        
-        answer2El.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const isCorrect = checkAnswer();
-                updateStats(isCorrect);
-            }
-        });
-        
-        // Initialize game
-        generateQuadraticEquation();
-        
-        // Add some initial history items for demonstration
-        setTimeout(() => {
-            addToHistory(true);
-            addToHistory(false);
-            addToHistory(true);
-        }, 500);
-    </script>
+    }
+
+    document.getElementById('submitBtn').onclick = check;
+    document.getElementById('nextBtn').onclick = generateEq;
+    document.getElementById('exitBtn').onclick = exitGame;
+    document.getElementById('hintBtn').onclick = () => {
+        showFeedback(`Sum: ${-currentEq.b/currentEq.a} | Product: ${currentEq.c/currentEq.a}`, "#fff3cd", "#856404");
+    };
+    
+    generateEq();
+</script>
 </body>
 </html>
