@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divisibility Rules Game - Year 8</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a237e, #4a148c);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #bb86fc;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .game-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-panel h2 {
+            color: #bb86fc;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(187, 134, 252, 0.5);
+        }
+        
+        .rules-panel {
+            grid-column: 1 / span 2;
+        }
+        
+        @media (max-width: 900px) {
+            .rules-panel {
+                grid-column: 1;
+            }
+        }
+        
+        .rules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .rule-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #bb86fc;
+        }
+        
+        .rule-card h3 {
+            color: #ff9800;
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+        }
+        
+        .question-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .question {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option-btn {
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            background: #3700b3;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .option-btn:hover {
+            background: #6200ee;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .option-btn.selected {
+            background: #ff9800;
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.7);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .control-btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .submit-btn {
+            background: #03dac6;
+            color: #000;
+        }
+        
+        .next-btn {
+            background: #ff9800;
+            color: #000;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feedback {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.4rem;
+            min-height: 40px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .correct {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .score-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 150px;
+        }
+        
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #bb86fc;
+        }
+        
+        .score-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .level-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .level-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .level-btn.active {
+            background: #bb86fc;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .level-btn:hover {
+            background: rgba(187, 134, 252, 0.7);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #03dac6;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .explanation {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        
+        .explanation h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            color: #bb86fc;
+            font-weight: bold;
+        }
+        
+        .rule-example {
+            font-style: italic;
+            margin-top: 10px;
+            color: #03dac6;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Divisibility Rules Game</h1>
+            <p class="subtitle">A fun interactive game to help Year 8 students learn and practice divisibility rules for numbers 2 through 11. Test your knowledge and improve your mental math skills!</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="game-panel">
+                <h2><i class="fas fa-gamepad"></i> Game Play</h2>
+                <div class="level-selector">
+                    <button class="level-btn active" data-level="easy">Easy (2-5)</button>
+                    <button class="level-btn" data-level="medium">Medium (2-8)</button>
+                    <button class="level-btn" data-level="hard">Hard (2-11)</button>
+                </div>
+                
+                <div class="question-container">
+                    <p>Is the number divisible by:</p>
+                    <div class="question">
+                        <span id="target-number">128</span> ÷ <span id="divisor">4</span> ?
+                    </div>
+                </div>
+                
+                <div class="options">
+                    <button class="option-btn" data-answer="yes">Yes</button>
+                    <button class="option-btn" data-answer="no">No</button>
+                </div>
+                
+                <div class="controls">
+                    <button class="control-btn submit-btn" id="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Submit Answer
+                    </button>
+                    <button class="control-btn next-btn" id="next-btn">
+                        <i class="fas fa-forward"></i> Next Question
+                    </button>
+                </div>
+                
+                <div class="feedback" id="feedback"></div>
+                
+                <div class="score-board">
+                    <div class="score-item">
+                        <div class="score-value" id="score">0</div>
+                        <div class="score-label">Score</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="streak">0</div>
+                        <div class="score-label">Streak</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="correct-count">0</div>
+                        <div class="score-label">Correct</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="question-count">0</div>
+                        <div class="score-label">Questions</div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="game-panel">
+                <h2><i class="fas fa-chart-line"></i> Progress & Explanation</h2>
+                <div class="explanation" id="explanation">
+                    <h3>How to determine divisibility by 4:</h3>
+                    <p>A number is divisible by 4 if the number formed by its last two digits is divisible by 4.</p>
+                    <p class="rule-example">Example: 128 → Last two digits are 28, and 28 ÷ 4 = 7 with no remainder. So 128 is divisible by 4.</p>
+                    <p class="rule-example">Example: 142 → Last two digits are 42, and 42 ÷ 4 = 10 with remainder 2. So 142 is NOT divisible by 4.</p>
+                </div>
+                
+                <div class="explanation" style="margin-top: 20px;">
+                    <h3>Your Progress</h3>
+                    <p>You've answered <span class="highlight" id="progress-percent">0%</span> of questions correctly.</p>
+                    <p>Current level: <span class="highlight" id="current-level">Easy (2-5)</span></p>
+                    <p>Keep practicing to unlock higher levels and improve your speed!</p>
+                </div>
+            </div>
+            
+            <div class="game-panel rules-panel">
+                <h2><i class="fas fa-book-open"></i> Divisibility Rules Reference</h2>
+                <div class="rules-container" id="rules-container">
+                    <!-- Rules will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Divisibility Rules Game • Designed for Year 8 Mathematics • Use this game to practice mental math and learn divisibility rules</p>
+        </footer>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            score: 0,
+            streak: 0,
+            correctCount: 0,
+            questionCount: 0,
+            currentQuestion: {},
+            selectedAnswer: null,
+            level: 'easy',
+            divisorsByLevel: {
+                easy: [2, 3, 4, 5],
+                medium: [2, 3, 4, 5, 6, 7, 8],
+                hard: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+            }
+        };
+
+        // Divisibility rules reference
+        const divisibilityRules = {
+            2: "A number is divisible by 2 if its last digit is even (0, 2, 4, 6, or 8).",
+            3: "A number is divisible by 3 if the sum of its digits is divisible by 3.",
+            4: "A number is divisible by 4 if the number formed by its last two digits is divisible by 4.",
+            5: "A number is divisible by 5 if its last digit is 0 or 5.",
+            6: "A number is divisible by 6 if it is divisible by both 2 and 3.",
+            7: "Double the last digit, subtract it from the rest of the number. If the result is divisible by 7, then the original number is divisible by 7.",
+            8: "A number is divisible by 8 if the number formed by its last three digits is divisible by 8.",
+            9: "A number is divisible by 9 if the sum of its digits is divisible by 9.",
+            10: "A number is divisible by 10 if its last digit is 0.",
+            11: "Subtract the sum of digits in odd positions from the sum of digits in even positions. If the result is divisible by 11, then the original number is divisible by 11."
+        };
+
+        // DOM elements
+        const targetNumberEl = document.getElementById('target-number');
+        const divisorEl = document.getElementById('divisor');
+        const optionsBtns = document.querySelectorAll('.option-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const feedbackEl = document.getElementById('feedback');
+        const scoreEl = document.getElementById('score');
+        const streakEl = document.getElementById('streak');
+        const correctCountEl = document.getElementById('correct-count');
+        const questionCountEl = document.getElementById('question-count');
+        const progressFillEl = document.getElementById('progress-fill');
+        const explanationEl = document.getElementById('explanation');
+        const levelBtns = document.querySelectorAll('.level-btn');
+        const rulesContainerEl = document.getElementById('rules-container');
+        const progressPercentEl = document.getElementById('progress-percent');
+        const currentLevelEl = document.getElementById('current-level');
+
+        // Initialize the game
+        function initGame() {
+            // Set up event listeners
+            optionsBtns.forEach(btn => {
+                btn.addEventListener('click', selectAnswer);
+            });
+            
+            submitBtn.addEventListener('click', submitAnswer);
+            nextBtn.addEventListener('click', generateQuestion);
+            nextBtn.disabled = true;
+            
+            levelBtns.forEach(btn => {
+                btn.addEventListener('click', changeLevel);
+            });
+            
+            // Populate rules reference
+            populateRules();
+            
+            // Generate first question
+            generateQuestion();
+            
+            // Update progress display
+            updateProgress();
+        }
+
+        // Populate the rules reference section
+        function populateRules() {
+            rulesContainerEl.innerHTML = '';
+            
+            // Only show rules for current level
+            const divisors = gameState.divisorsByLevel[gameState.level];
+            
+            divisors.forEach(divisor => {
+                const ruleCard = document.createElement('div');
+                ruleCard.className = 'rule-card';
+                ruleCard.innerHTML = `
+                    <h3>Divisible by ${divisor}</h3>
+                    <p>${divisibilityRules[divisor]}</p>
+                    <p class="rule-example">${getRuleExample(divisor)}</p>
+                `;
+                rulesContainerEl.appendChild(ruleCard);
+            });
+        }
+
+        // Get example for a rule
+        function getRuleExample(divisor) {
+            const examples = {
+                2: "Example: 136 is divisible by 2 because it ends with 6 (even).",
+                3: "Example: 123 is divisible by 3 because 1+2+3 = 6, and 6 ÷ 3 = 2.",
+                4: "Example: 1,028 is divisible by 4 because 28 ÷ 4 = 7.",
+                5: "Example: 345 is divisible by 5 because it ends with 5.",
+                6: "Example: 738 is divisible by 6 because it's even (divisible by 2) and 7+3+8=18 (divisible by 3).",
+                7: "Example: 161 → 16 - (2×1) = 14, and 14 ÷ 7 = 2.",
+                8: "Example: 5,120 is divisible by 8 because 120 ÷ 8 = 15.",
+                9: "Example: 2,457 is divisible by 9 because 2+4+5+7 = 18, and 18 ÷ 9 = 2.",
+                10: "Example: 890 is divisible by 10 because it ends with 0.",
+                11: "Example: 2,915 → (9+5) - (2+1) = 11, and 11 ÷ 11 = 1."
+            };
+            return examples[divisor] || "";
+        }
+
+        // Change difficulty level
+        function changeLevel(e) {
+            const selectedLevel = e.target.dataset.level;
+            
+            // Update active button
+            levelBtns.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            
+            // Update game state
+            gameState.level = selectedLevel;
+            currentLevelEl.textContent = getLevelName(selectedLevel);
+            
+            // Repopulate rules for new level
+            populateRules();
+            
+            // Generate new question for new level
+            generateQuestion();
+            
+            // Reset feedback
+            clearFeedback();
+        }
+
+        // Get level display name
+        function getLevelName(level) {
+            const names = {
+                easy: "Easy (2-5)",
+                medium: "Medium (2-8)",
+                hard: "Hard (2-11)"
+            };
+            return names[level];
+        }
+
+        // Generate a new question
+        function generateQuestion() {
+            // Clear previous feedback and selection
+            clearFeedback();
+            clearSelection();
+            
+            // Enable/disable buttons
+            submitBtn.disabled = false;
+            nextBtn.disabled = true;
+            
+            // Get divisors for current level
+            const divisors = gameState.divisorsByLevel[gameState.level];
+            
+            // Randomly select a divisor
+            const divisor = divisors[Math.floor(Math.random() * divisors.length)];
+            
+            // Generate a number that may or may not be divisible by the divisor
+            // To create a mix of divisible and non-divisible numbers
+            const isDivisible = Math.random() > 0.5;
+            let number;
+            
+            if (isDivisible) {
+                // Generate a number that IS divisible by the divisor
+                const multiplier = Math.floor(Math.random() * 50) + 10;
+                number = multiplier * divisor;
+            } else {
+                // Generate a number that is NOT divisible by the divisor
+                // Make sure it's close to a divisible number to make it tricky
+                const multiplier = Math.floor(Math.random() * 50) + 10;
+                const offset = Math.floor(Math.random() * (divisor - 1)) + 1;
+                number = (multiplier * divisor) + offset;
+            }
+            
+            // Update game state
+            gameState.currentQuestion = {
+                number: number,
+                divisor: divisor,
+                isDivisible: isDivisible
+            };
+            
+            // Update DOM
+            targetNumberEl.textContent = number.toLocaleString();
+            divisorEl.textContent = divisor;
+            
+            // Update question counter
+            gameState.questionCount++;
+            questionCountEl.textContent = gameState.questionCount;
+            
+            // Update progress bar
+            updateProgressBar();
+            
+            // Update explanation with rule for current divisor
+            updateExplanation(divisor);
+        }
+
+        // Update explanation section
+        function updateExplanation(divisor) {
+            explanationEl.innerHTML = `
+                <h3>How to determine divisibility by ${divisor}:</h3>
+                <p>${divisibilityRules[divisor]}</p>
+                <p class="rule-example">${getRuleExample(divisor)}</p>
+            `;
+        }
+
+        // Select an answer
+        function selectAnswer(e) {
+            // Clear previous selection
+            clearSelection();
+            
+            // Mark selected button
+            e.target.classList.add('selected');
+            gameState.selectedAnswer = e.target.dataset.answer;
+        }
+
+        // Clear selected answer
+        function clearSelection() {
+            optionsBtns.forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            gameState.selectedAnswer = null;
+        }
+
+        // Clear feedback
+        function clearFeedback() {
+            feedbackEl.textContent = '';
+            feedbackEl.className = 'feedback';
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            // Check if an answer is selected
+            if (gameState.selectedAnswer === null) {
+                feedbackEl.textContent = 'Please select an answer first!';
+                feedbackEl.className = 'feedback incorrect';
+                return;
+            }
+            
+            // Check if answer is correct
+            const isCorrect = (
+                (gameState.selectedAnswer === 'yes' && gameState.currentQuestion.isDivisible) ||
+                (gameState.selectedAnswer === 'no' && !gameState.currentQuestion.isDivisible)
+            );
+            
+            // Update game state
+            if (isCorrect) {
+                gameState.score += 10;
+                gameState.streak++;
+                gameState.correctCount++;
+                
+                feedbackEl.textContent = `Correct! ${gameState.currentQuestion.number} is ${gameState.currentQuestion.isDivisible ? '' : 'NOT '}divisible by ${gameState.currentQuestion.divisor}.`;
+                feedbackEl.className = 'feedback correct';
+                
+                // Add bonus for streaks
+                if (gameState.streak >= 3) {
+                    const bonus = Math.min(gameState.streak * 5, 25);
+                    gameState.score += bonus;
+                    feedbackEl.textContent += ` +${bonus} streak bonus!`;
+                }
+            } else {
+                gameState.streak = 0;
+                
+                feedbackEl.textContent = `Incorrect. ${gameState.currentQuestion.number} is ${gameState.currentQuestion.isDivisible ? '' : 'NOT '}divisible by ${gameState.currentQuestion.divisor}.`;
+                feedbackEl.className = 'feedback incorrect';
+            }
+            
+            // Update display
+            scoreEl.textContent = gameState.score;
+            streakEl.textContent = gameState.streak;
+            correctCountEl.textContent = gameState.correctCount;
+            
+            // Enable/disable buttons
+            submitBtn.disabled = true;
+            nextBtn.disabled = false;
+            
+            // Update progress
+            updateProgress();
+        }
+
+        // Update progress bar and percentage
+        function updateProgressBar() {
+            const percent = Math.min((gameState.questionCount % 10) * 10, 100);
+            progressFillEl.style.width = `${percent}%`;
+        }
+
+        // Update progress display
+        function updateProgress() {
+            const accuracy = gameState.questionCount > 0 
+                ? Math.round((gameState.correctCount / gameState.questionCount) * 100) 
+                : 0;
+            
+            progressPercentEl.textContent = `${accuracy}%`;
+        }
+
+        // Initialize the game when page loads
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
