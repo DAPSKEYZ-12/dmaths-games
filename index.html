@@ -132,34 +132,16 @@
                 </div>
             </div>
 
-            <div class="game-card bg-white rounded-3xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100">
-
-                <div class="rounded-2xl h-48 mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white relative overflow-hidden text-center p-4">
-
-                    <div class="text-2xl font-mono italic">ax² + bx + c = 0</div>
-
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white relative overflow-hidden text-center p-4">
+                    <div class="text-2xl font-mono italic z-10">ax² + bx + c = 0</div>
                 </div>
-
                 <div class="px-2">
-
-                    <span class="text-xs font-bold text-purple-600 uppercase tracking-widest bg-purple-50 px-3 py-1 rounded-full">Algebra</span>
-
+                    <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest bg-purple-50 dark:bg-purple-900/20 px-3 py-1 rounded-full">Algebra</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Quadratic Equation</h3>
-
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-
-                        Solve for 'x' using factorization, completing the square, or the quadratic formula in this fast-paced lab.
-
-                    </p>
-
-                    <a href="quadratic.html" class="flex items-center justify-center w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-indigo-600 transition-colors shadow-lg">
-
-                        Play Game
-
-                    </a>
-
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve for 'x' using factorization or the quadratic formula in this fast-paced lab.</p>
+                    <a href="quadratic.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Game</a>
                 </div>
-
             </div>
 
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800">
@@ -209,7 +191,6 @@
             }
         }
 
-        // Initialize theme based on preference
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
             document.getElementById('theme-icon').className = 'fas fa-sun';
@@ -217,6 +198,3 @@
     </script>
 </body>
 </html>
-
-
-
