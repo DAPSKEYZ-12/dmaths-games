@@ -1,141 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MathPortal | Interactive Learning</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        darker: '#020617',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
-        .game-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .game-card:hover { transform: scale(1.02) translateY(-10px); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
+        
+        /* Glassmorphism effects */
+        .glass-nav { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(12px); 
+        }
+        .dark .glass-nav { 
+            background: rgba(15, 23, 42, 0.8); 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .game-card { 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .game-card:hover { 
+            transform: scale(1.03) translateY(-12px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Pattern Background */
         .math-pattern {
             background-color: #f8fafc;
-            background-image: radial-gradient(#e2e8f0 0.5px, transparent 0.5px);
-            background-size: 24px 24px;
+            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
+        }
+        .dark .math-pattern {
+            background-color: #020617;
+            background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
         }
     </style>
 </head>
-<body class="math-pattern text-slate-900 min-h-screen">
+<body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen">
 
     <nav class="glass-nav sticky top-0 z-50 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-200">
+                <div class="w-10 h-10 hero-gradient rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/20">
                     π
                 </div>
-                <span class="text-2xl font-extrabold tracking-tight text-slate-800">DMaths-Games</span>
+                <span class="text-2xl font-extrabold tracking-tight dark:text-white">DMaths-Games</span>
             </div>
-            <div class="flex gap-4">
-                <span class="hidden md:inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full text-sm font-semibold">
-                    4 Games Live
+            
+            <div class="flex items-center gap-4">
+                <button onclick="toggleDarkMode()" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
+                    <i id="theme-icon" class="fas fa-moon"></i>
+                </button>
+                <span class="hidden md:inline-flex items-center px-4 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-full text-sm font-bold">
+                    5 Modules Active
                 </span>
             </div>
         </div>
     </nav>
 
     <header class="max-w-7xl mx-auto px-6 pt-16 pb-12 text-center">
-        <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 mb-4 tracking-tight">
-            Select Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Challenge</span>
+        <span class="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-900/20 rounded-full">
+            Ready to Play?
+        </span>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+            Select Your <span class="text-transparent bg-clip-text hero-gradient">Challenge</span>
         </h1>
-        <p class="text-slate-500 text-lg max-w-xl mx-auto">
-            Interactive, curriculum-aligned games designed to turn complex concepts into intuitive fun.
+        <p class="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            Gamified learning for the next generation. Master IGCSE & Further Maths through interactive logic and visual proofs.
         </p>
     </header>
 
     <main class="max-w-7xl mx-auto px-6 pb-24">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            <div class="game-card bg-white rounded-3xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100 group">
-                <div class="rounded-2xl h-48 mb-6 bg-gradient-to-br from-cyan-400 to-blue-500 flex flex-col items-center justify-center text-white relative overflow-hidden">
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-400 to-blue-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <span class="text-6xl z-10 font-bold">÷</span>
-                    <div class="absolute inset-0 opacity-10 text-xs font-mono p-2 overflow-hidden leading-tight select-none">
-                        1024 / 2, 81 / 9, 45 / 5, 128 / 4, 333 / 3
-                    </div>
                 </div>
                 <div class="px-2">
-                    <span class="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">Number Theory</span>
+                    <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full">Number Theory</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Divisibility Rules</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-                        Master the mental shortcuts! Identify if numbers are divisible by 2, 3, 4, 5, 6, 9, or 10 at lightning speed.
-                    </p>
-                    <a href="divisiblity.html" class="flex items-center justify-center w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-indigo-600 transition-colors shadow-lg">
-                        Play Game
-                    </a>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Master mental math shortcuts for speed and accuracy in IGCSE exams.</p>
+                    <a href="divisiblity.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Now</a>
                 </div>
             </div>
 
-            <div class="game-card bg-white rounded-3xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100">
-                <div class="rounded-2xl h-48 mb-6 bg-gradient-to-br from-rose-400 to-orange-500 flex items-center justify-center text-white relative overflow-hidden">
-                    <svg class="w-24 h-24 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="9" stroke-width="2"/>
-                        <path d="M12 3 L12 21 M3 12 L21 12" stroke-width="1" stroke-dasharray="2"/>
-                    </svg>
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-rose-400 to-orange-500 flex items-center justify-center text-white overflow-hidden">
+                    <i class="fas fa-circle-notch text-6xl opacity-80"></i>
                 </div>
                 <div class="px-2">
-                    <span class="text-xs font-bold text-rose-600 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full">Geometry</span>
+                    <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest bg-rose-50 dark:bg-rose-900/20 px-3 py-1 rounded-full">Geometry</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Circle Theorem</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-                        Explore angles in segments, cyclic quadrilaterals, and tangents through interactive visual proofs.
-                    </p>
-                    <a href="circle.html" class="flex items-center justify-center w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-indigo-600 transition-colors shadow-lg">
-                        Play Game
-                    </a>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Visual proofs for cyclic quadrilaterals, tangents, and chords.</p>
+                    <a href="circle.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Now</a>
                 </div>
             </div>
 
-            <div class="game-card bg-white rounded-3xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100">
-                <div class="rounded-2xl h-48 mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white relative overflow-hidden text-center p-4">
-                    <div class="text-2xl font-mono italic">ax² + bx + c = 0</div>
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-white overflow-hidden">
+                    <i class="fas fa-shapes text-6xl opacity-80"></i>
                 </div>
                 <div class="px-2">
-                    <span class="text-xs font-bold text-purple-600 uppercase tracking-widest bg-purple-50 px-3 py-1 rounded-full">Algebra</span>
-                    <h3 class="text-2xl font-bold mt-3 mb-2">Quadratic Equation</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-                        Solve for 'x' using factorization, completing the square, or the quadratic formula in this fast-paced lab.
-                    </p>
-                    <a href="quadratic.html" class="flex items-center justify-center w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-indigo-600 transition-colors shadow-lg">
-                        Play Game
-                    </a>
-                </div>
-            </div>
-
-            <div class="game-card bg-white rounded-3xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100">
-                <div class="rounded-2xl h-48 mb-6 bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-white relative overflow-hidden">
-                    <svg class="w-24 h-24 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M4 19 L12 5 L20 19 Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 5 L12 19" stroke-width="1" stroke-dasharray="3"/>
-                    </svg>
-                </div>
-                <div class="px-2">
-                    <span class="text-xs font-bold text-sky-600 uppercase tracking-widest bg-sky-50 px-3 py-1 rounded-full">IGCSE Year 10</span>
+                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Year 10 IGCSE</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Geometry Proofs</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-                        Master isosceles triangles, parallel lines, and exterior angle theorems with dynamic visual proofs and mastery tracking.
-                    </p>
-                    <a href="Geometry.html" class="flex items-center justify-center w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-indigo-600 transition-colors shadow-lg">
-                        Play Game
-                    </a>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Master angle properties in triangles and parallel line logic.</p>
+                    <a href="geometry.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Now</a>
                 </div>
             </div>
 
-        </div>
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800">
+                <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex items-center justify-center text-cyan-400 border border-slate-700 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-20 hero-gradient"></div>
+                    <i class="fas fa-microchip text-6xl z-10"></i>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Further Maths</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Flowchart Logic</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Analyze algorithms, trace variables, and solve iterative math loops.</p>
+                    <a href="logic.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200 dark:shadow-none">Solve Algorithms</a>
+                </div>
+            </div>
 
-        <div class="mt-12 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center">
-            <p class="text-slate-400 font-medium">New modules coming soon: Trigonometry & Calculus</p>
+            <div class="hidden lg:flex border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] items-center justify-center p-8 text-center">
+                <div>
+                    <i class="fas fa-plus-circle text-3xl text-slate-300 dark:text-slate-700 mb-4"></i>
+                    <p class="text-slate-400 text-sm font-medium italic">New modules coming soon: Trigonometry & Calculus</p>
+                </div>
+            </div>
+
         </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-10">
-        <div class="max-w-7xl mx-auto px-6 text-center text-slate-500 text-sm">
-            &copy; 2026 D-Maths Learning Environment. Made for the next generation of mathematicians.
+    <footer class="bg-white dark:bg-darker border-t border-slate-200 dark:border-slate-800 py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-slate-500 text-sm font-medium tracking-wide">
+                &copy; 2026 D-Maths Learning Environment. Built for future mathematicians.
+            </p>
         </div>
     </footer>
 
+    <script>
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fas fa-moon';
+                localStorage.theme = 'light';
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fas fa-sun';
+                localStorage.theme = 'dark';
+            }
+        }
+
+        // Initialize theme based on preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-icon').className = 'fas fa-sun';
+        }
+    </script>
 </body>
 </html>
-
-
-
