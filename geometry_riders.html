@@ -3,132 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Riders | Proof Master</title>
+    <title>Geometry Riders | Proof Master Elite</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: { extend: { colors: { dark: '#0f172a', gold: '#fbbf24' } } }
+            theme: { extend: { colors: { dark: '#0f172a', surface: '#1e293b', accent: '#6366f1' } } }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .dark .glass { background: rgba(15, 23, 42, 0.6); }
-        .geom-svg { filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3)); }
+        .math-font { font-family: 'JetBrains Mono', monospace; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); }
+        .dark .glass-card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.05); }
+        .geom-container { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); transition: all 0.5s ease; }
+        #diagram-area svg { max-width: 100%; height: auto; overflow: visible; }
+        .feedback-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-dark text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
+<body class="bg-slate-100 dark:bg-dark text-slate-900 dark:text-slate-100 min-h-screen">
 
     <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg">
-                <i class="fas fa-draw-polygon"></i>
-            </div>
-            <h1 class="text-xl font-bold tracking-tight">Proof<span class="text-indigo-500">Master</span></h1>
-        </div>
         <div class="flex items-center gap-4">
-            <div id="score-pill" class="px-4 py-1.5 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-sm font-bold">
-                Level <span id="lvl-num" class="text-indigo-500">1</span>/20
+            <div class="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 rotate-3">
+                <i class="fas fa-microscope text-xl"></i>
             </div>
-            <a href="index.html" class="w-10 h-10 flex items-center justify-center bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all">
-                <i class="fas fa-sign-out-alt"></i>
+            <div>
+                <h1 class="text-xl font-black tracking-tighter">PROOF<span class="text-accent">MASTER</span></h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Deductive Reasoning Lab</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="px-5 py-2 glass-card rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                <span class="text-[10px] uppercase font-black text-slate-400">Progress</span>
+                <div class="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-accent transition-all duration-700" style="width: 5%"></div>
+                </div>
+                <span id="lvl-num" class="text-sm font-black text-accent">1/20</span>
+            </div>
+            <a href="index.html" class="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-800 text-red-500 rounded-2xl shadow-sm hover:bg-red-500 hover:text-white transition-all group">
+                <i class="fas fa-times text-lg group-hover:rotate-90 transition-transform"></i>
             </a>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-2 gap-10">
+    <main class="max-w-7xl mx-auto px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <div class="glass rounded-[2.5rem] p-8 flex flex-col items-center justify-center min-h-[400px]">
-            <div id="diagram-area" class="w-full h-full flex items-center justify-center">
+        <div class="lg:col-span-7 space-y-6">
+            <div class="glass-card rounded-[3rem] p-10 min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden">
+                <div class="absolute top-8 left-8">
+                    <span class="bg-accent/10 text-accent text-[10px] font-black px-3 py-1 rounded-full uppercase">Figure <span id="fig-id">1.1</span></span>
                 </div>
-            <div class="mt-6 p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 text-xs text-center text-indigo-400 font-medium">
-                <i class="fas fa-info-circle mr-2"></i> Diagram is not drawn to scale. Use deductive logic.
+                <div id="diagram-area" class="geom-container w-full h-80 flex items-center justify-center">
+                    </div>
+                <div class="w-full mt-10 grid grid-cols-3 gap-4 border-t border-slate-200 dark:border-slate-800 pt-8">
+                    <div class="text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Status</p>
+                        <p id="status-tag" class="text-xs font-black text-emerald-500 italic">Static Analysis</p>
+                    </div>
+                    <div class="text-center border-x border-slate-200 dark:border-slate-800">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Complexity</p>
+                        <p id="complexity-tag" class="text-xs font-black">Level <span class="text-accent">I</span></p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Theorem</p>
+                        <p id="type-tag" class="text-xs font-black">Euclidean</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="space-y-6">
-            <div class="glass rounded-[2.5rem] p-8">
-                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-2 block">Deductive Proof Challenge</span>
-                <h2 id="question-title" class="text-2xl font-extrabold mb-4">Finding Alternate Angles</h2>
-                <p id="question-desc" class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8">
-                    Lines $L_1$ and $L_2$ are parallel. Given $\angle a = 65^\circ$, find the value of $\angle x$ and provide the theorem used.
-                </p>
+        <div class="lg:col-span-5 space-y-6">
+            <div class="glass-card rounded-[3rem] p-8 shadow-2xl">
+                <div id="question-content">
+                    <h2 id="question-title" class="text-3xl font-black mb-4 tracking-tight">--</h2>
+                    <div id="question-desc" class="text-slate-500 dark:text-slate-400 text-base leading-relaxed mb-8 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 italic">
+                        Initializing Proof Lab...
+                    </div>
+                </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">1. Calculate Magnitude</label>
-                        <input type="number" id="user-val" placeholder="Value of x..." class="w-full bg-slate-100 dark:bg-slate-800 p-4 rounded-2xl outline-none border-2 border-transparent focus:border-indigo-500 transition-all font-bold">
+                <div class="space-y-5">
+                    <div class="group">
+                        <label class="text-[10px] font-black text-slate-400 uppercase mb-2 ml-2 block">Deductive Magnitude</label>
+                        <div class="relative">
+                            <input type="number" id="user-val" placeholder="Result..." class="w-full bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl outline-none border-2 border-transparent focus:border-accent focus:bg-white dark:focus:bg-slate-900 transition-all font-black text-xl">
+                            <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 font-bold">° deg</span>
+                        </div>
                     </div>
                     
                     <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">2. Select Geometric Reason (Rider)</label>
-                        <select id="user-reason" class="w-full bg-slate-100 dark:bg-slate-800 p-4 rounded-2xl outline-none border-2 border-transparent focus:border-indigo-500 transition-all font-bold appearance-none">
-                            <option value="">-- Select Theorem --</option>
-                            <option value="alternate">Alternate Angles are equal</option>
-                            <option value="corresponding">Corresponding Angles are equal</option>
-                            <option value="co-interior">Co-interior Angles sum to 180°</option>
-                            <option value="vertically">Vertically Opposite Angles</option>
-                            <option value="triangle-sum">Angles in a Triangle sum to 180°</option>
-                        </select>
+                        <label class="text-[10px] font-black text-slate-400 uppercase mb-2 ml-2 block">Justification (Rider)</label>
+                        <div class="relative">
+                            <select id="user-reason" class="w-full bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl outline-none border-2 border-transparent focus:border-accent transition-all font-bold appearance-none cursor-pointer">
+                                <option value="">-- Choose Theorem --</option>
+                                <option value="alternate">Alternate Angles are equal</option>
+                                <option value="corresponding">Corresponding Angles are equal</option>
+                                <option value="co-interior">Co-interior Angles = 180°</option>
+                                <option value="vertically">Vertically Opposite Angles</option>
+                                <option value="triangle-sum">Δ Angle Sum = 180°</option>
+                                <option value="parallelogram">Opposite ∠ in Parallelogram</option>
+                                <option value="intercept">Intercept Theorem Ratio</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        </div>
                     </div>
 
-                    <button onclick="checkProof()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 transition-all active:scale-95">
-                        Submit Proof
+                    <button onclick="checkProof()" class="w-full py-6 bg-accent text-white rounded-[2rem] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/40 hover:scale-[1.02] active:scale-95 transition-all">
+                        Validate Proof
                     </button>
                 </div>
             </div>
 
-            <div id="feedback" class="hidden rounded-2xl p-4 text-center font-bold text-sm"></div>
+            <div id="feedback" class="hidden feedback-pop rounded-3xl p-6 text-center font-black text-sm border-2"></div>
         </div>
     </main>
 
     <script>
         let currentLevel = 1;
-        let answerValue = 65;
-        let answerReason = "alternate";
+        let answerValue = 0;
+        let answerReason = "";
 
         const levels = [
             {
-                title: "Parallel Transversals",
-                desc: "If $L_1 \\parallel L_2$ and $\\angle a = 65^\\circ$, find $\\angle x$.",
-                val: 65,
+                title: "Transversal Riders",
+                desc: "Lines $L_1$ and $L_2$ are strictly parallel ($L_1 \\parallel L_2$). If $\\angle a = 72^\\circ$, find the measure of $\\angle x$.",
+                val: 72,
                 reason: "alternate",
-                svg: `<svg viewBox="0 0 200 120" class="w-full h-48 geom-svg">
-                    <line x1="20" y1="30" x2="180" y2="30" stroke="currentColor" stroke-width="2" />
-                    <line x1="20" y1="90" x2="180" y2="90" stroke="currentColor" stroke-width="2" />
-                    <line x1="50" y1="110" x2="150" y2="10" stroke="indigo" stroke-width="2" />
-                    <text x="75" y="25" fill="currentColor" font-size="10">a=65°</text>
-                    <text x="120" y="85" fill="indigo" font-size="12" font-weight="bold">x</text>
-                    <path d="M 140 30 L 150 30 L 145 25" fill="none" stroke="currentColor" />
-                    <path d="M 140 90 L 150 90 L 145 85" fill="none" stroke="currentColor" />
-                </svg>`
+                complexity: "I",
+                svg: `<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+                            </marker>
+                        </defs>
+                        <line x1="50" y1="60" x2="350" y2="60" stroke="currentColor" stroke-width="3" marker-end="url(#arrow)" />
+                        <line x1="50" y1="140" x2="350" y2="140" stroke="currentColor" stroke-width="3" marker-end="url(#arrow)" />
+                        <text x="360" y="65" fill="currentColor" class="font-bold text-xs font-mono">L1</text>
+                        <text x="360" y="145" fill="currentColor" class="font-bold text-xs font-mono">L2</text>
+                        
+                        <line x1="100" y1="180" x2="300" y2="20" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+                        
+                        <path d="M 160 60 A 20 20 0 0 1 145 75" fill="none" stroke="#6366f1" stroke-width="2" />
+                        <text x="130" y="50" fill="currentColor" class="font-bold text-sm">a = 72°</text>
+                        
+                        <path d="M 240 140 A 20 20 0 0 0 255 125" fill="none" stroke="#6366f1" stroke-width="2" />
+                        <text x="260" y="155" fill="#6366f1" class="font-black text-lg">x</text>
+                    </svg>`
             },
             {
-                title: "Angles in Polygons",
-                desc: "In this regular pentagon, find the interior angle $x$.",
-                val: 108,
-                reason: "polygon", // Simplified for logic
-                svg: `<svg viewBox="0 0 100 100" class="w-full h-48 geom-svg">
-                    <polygon points="50,10 90,40 75,90 25,90 10,40" fill="none" stroke="currentColor" stroke-width="2" />
-                    <text x="45" y="80" fill="indigo" font-size="10" font-weight="bold">x</text>
-                </svg>`
+                title: "Polygon Summation",
+                desc: "Analyze the regular Hexagon provided. Deduce the interior angle $x$ using the polygon rider $(n-2) \\times 180^\\circ$.",
+                val: 120,
+                reason: "triangle-sum",
+                complexity: "II",
+                svg: `<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="200,30 270,70 270,130 200,170 130,130 130,70" fill="none" stroke="currentColor" stroke-width="3" />
+                        <path d="M 130 130 L 150 120" fill="none" stroke="#6366f1" stroke-width="2" />
+                        <text x="145" y="120" fill="#6366f1" class="font-black text-xl">x</text>
+                        <text x="200" y="105" fill="currentColor" class="font-mono text-[10px]">Regular n=6</text>
+                    </svg>`
             }
-            // More levels can be added here
         ];
 
         function loadLevel(idx) {
             const data = levels[idx - 1] || levels[0];
-            document.getElementById('diagram-area').innerHTML = data.svg;
-            document.getElementById('question-title').innerText = data.title;
-            document.getElementById('question-desc').innerHTML = data.desc;
-            answerValue = data.val;
-            answerReason = data.reason;
-            document.getElementById('lvl-num').innerText = currentLevel;
+            const area = document.getElementById('diagram-area');
+            
+            // Animate out
+            anime({
+                targets: area,
+                opacity: [1, 0],
+                translateY: [0, -20],
+                duration: 400,
+                easing: 'easeInOutQuad',
+                complete: () => {
+                    area.innerHTML = data.svg;
+                    document.getElementById('question-title').innerText = data.title;
+                    document.getElementById('question-desc').innerHTML = data.desc;
+                    document.getElementById('complexity-tag').innerHTML = `Level <span class="text-accent">${data.complexity}</span>`;
+                    answerValue = data.val;
+                    answerReason = data.reason;
+                    
+                    // Refresh KaTeX
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+
+                    // Animate in
+                    anime({
+                        targets: area,
+                        opacity: [0, 1],
+                        translateY: [20, 0],
+                        duration: 800
+                    });
+                }
+            });
+
+            // Update UI
+            document.getElementById('lvl-num').innerText = `${idx}/20`;
+            document.getElementById('progress-bar').style.width = `${(idx/20)*100}%`;
         }
 
         function checkProof() {
@@ -136,25 +219,36 @@
             const reason = document.getElementById('user-reason').value;
             const fb = document.getElementById('feedback');
             
-            fb.classList.remove('hidden', 'bg-green-500/10', 'text-green-500', 'bg-red-500/10', 'text-red-500');
+            fb.classList.remove('hidden', 'bg-emerald-500/10', 'text-emerald-500', 'border-emerald-500/20', 'bg-red-500/10', 'text-red-500', 'border-red-500/20');
 
-            if (parseInt(val) === answerValue && (reason === answerReason || answerReason === "polygon")) {
-                fb.innerText = "CORRECT: Q.E.D. Proof Validated!";
-                fb.classList.add('bg-green-500/10', 'text-green-500', 'block');
+            if (parseInt(val) === answerValue && reason === answerReason) {
+                fb.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Q.E.D. LOGIC VALIDATED!`;
+                fb.classList.add('bg-emerald-500/10', 'text-emerald-500', 'border-emerald-500/20', 'block');
+                
+                anime({ targets: '.geom-container', scale: [1, 1.05, 1], duration: 600 });
+                
                 currentLevel++;
                 setTimeout(() => {
                     fb.classList.add('hidden');
                     loadLevel(currentLevel);
                     document.getElementById('user-val').value = '';
+                    document.getElementById('user-reason').value = '';
                 }, 2000);
             } else {
-                fb.innerText = "ERROR: Logic or Calculation Faulty.";
-                fb.classList.add('bg-red-500/10', 'text-red-500', 'block');
+                fb.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i> PROOF REJECTED: Check Calculation or Reason.`;
+                fb.classList.add('bg-red-500/10', 'text-red-500', 'border-red-500/20', 'block');
+                anime({ targets: '.glass-card', translateX: [-10, 10, -10, 10, 0], duration: 400 });
             }
         }
 
-        // Initialize
-        loadLevel(1);
+        window.onload = () => loadLevel(1);
+
+        // Helper for KaTeX if library is not auto-running
+        function renderMathInElement(el, config) {
+            // KaTeX auto-render logic
+            if (window.renderMathInElement) window.renderMathInElement(el, config);
+        }
     </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 </body>
 </html>
