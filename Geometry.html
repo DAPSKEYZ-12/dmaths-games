@@ -1,1 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Proof Master | IGCSE Year 10</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at center, #1e293b, #0f172a);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
 
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .geometry-container svg {
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
+        }
+
+        .btn-hover {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-hover:active {
+            transform: scale(0.95);
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-sky-500 rounded-2xl shadow-lg shadow-sky-500/20">
+                    <i class="fas fa-draw-polygon text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight">GEOMETRY<span class="text-sky-400">PRO</span></h1>
+                    <p class="text-slate-400 text-xs uppercase tracking-widest font-semibold">IGCSE Year 10 Mastery</p>
+                </div>
+            </div>
+            <a href="index.html" class="glass px-5 py-2.5 rounded-xl text-slate-300 hover:text-red-400 hover:border-red-400/50 transition-all btn-hover flex items-center gap-2">
+                <i class="fas fa-door-open"></i>
+                <span class="hidden sm:inline">Exit Game</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass p-6 rounded-3xl">
+                    <div class="flex justify-between items-end mb-4">
+                        <span class="text-slate-400 text-sm font-bold uppercase">Mastery Progress</span>
+                        <span id="progress-val" class="text-sky-400 font-extrabold text-xl">0/30</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-3 p-1 overflow-hidden">
+                        <div id="progress-bar" class="bg-sky-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-8">
+                        <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+                            <span class="block text-slate-500 text-xs font-bold uppercase mb-1">Score</span>
+                            <span id="score" class="text-2xl font-black text-white">0</span>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+                            <span class="block text-slate-500 text-xs font-bold uppercase mb-1">Streak</span>
+                            <span id="streak" class="text-2xl font-black text-orange-400">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="hint-box" class="glass p-6 rounded-3xl border-l-4 border-l-amber-500 hidden">
+                    <h3 class="text-amber-500 font-bold flex items-center gap-2 mb-2">
+                        <i class="far fa-lightbulb"></i> Geometric Theorem
+                    </h3>
+                    <p id="hint-text" class="text-slate-300 text-sm leading-relaxed"></p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <div class="glass p-8 rounded-[2.5rem] relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="space-y-1">
+                            <span id="category" class="px-3 py-1 bg-sky-500/10 text-sky-400 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-sky-500/20">Circle Theorems</span>
+                            <h2 id="question-prompt" class="text-xl font-bold text-white">Find the missing angle \(x\).</h2>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-2xl border border-white/5">
+                            <i class="fas fa-stopwatch text-sky-500"></i>
+                            <span id="timer" class="font-mono font-bold text-xl">30</span>
+                        </div>
+                    </div>
+
+                    <div class="geometry-container bg-slate-950/50 rounded-3xl border border-white/5 flex items-center justify-center p-4 min-h-[320px] mb-8">
+                        <svg id="geo-svg" width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                            </svg>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="relative flex-grow">
+                            <input type="number" id="answer-input" placeholder="Enter value..." 
+                                class="w-full bg-slate-900/80 border-2 border-slate-700 rounded-2xl p-5 text-white text-xl font-bold focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 outline-none transition-all">
+                            <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 font-bold">deg</span>
+                        </div>
+                        <button id="check-btn" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black px-10 py-5 rounded-2xl btn-hover shadow-lg shadow-sky-500/20 uppercase tracking-wider">
+                            Verify
+                        </button>
+                    </div>
+
+                    <div id="feedback" class="mt-4 hidden p-4 rounded-2xl text-center font-bold animate-bounce"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let score = 0;
+        let streak = 0;
+        let questionIndex = 0;
+        let currentAnswer = 0;
+        let timerSeconds = 30;
+        let timerInterval;
+
+        const DOM = {
+            svg: document.getElementById('geo-svg'),
+            prompt: document.getElementById('question-prompt'),
+            category: document.getElementById('category'),
+            input: document.getElementById('answer-input'),
+            checkBtn: document.getElementById('check-btn'),
+            feedback: document.getElementById('feedback'),
+            score: document.getElementById('score'),
+            streak: document.getElementById('streak'),
+            progressVal: document.getElementById('progress-val'),
+            progressBar: document.getElementById('progress-bar'),
+            hintBox: document.getElementById('hint-box'),
+            hintText: document.getElementById('hint-text'),
+            timer: document.getElementById('timer')
+        };
+
+        const THEOREMS = [
+            {
+                name: "Isosceles Properties",
+                hint: "Base angles of an isosceles triangle are equal. The sum of interior angles is 180°.",
+                generate: () => {
+                    const baseAngle = Math.floor(Math.random() * 45) + 30; // 30-75
+                    const vertexAngle = 180 - (2 * baseAngle);
+                    const isXVertex = Math.random() > 0.5;
+                    
+                    // Triangle Points
+                    const p1 = [200, 50];  // Top
+                    const p2 = [100, 250]; // Left
+                    const p3 = [300, 250]; // Right
+
+                    drawPolygon([p1, p2, p3]);
+                    // Hash marks for equal sides
+                    drawHash(150, 150, -45);
+                    drawHash(250, 150, 45);
+
+                    if (isXVertex) {
+                        drawAngleLabel(p1[0], p1[1]+40, "x");
+                        drawAngleLabel(p2[0]+30, p2[1]-15, baseAngle + "°");
+                        return vertexAngle;
+                    } else {
+                        drawAngleLabel(p1[0], p1[1]+40, vertexAngle + "°");
+                        drawAngleLabel(p2[0]+30, p2[1]-15, "x");
+                        return baseAngle;
+                    }
+                }
+            },
+            {
+                name: "Parallel Lines",
+                hint: "Alternate angles (Z-angles) are equal when lines are parallel.",
+                generate: () => {
+                    const angle = Math.floor(Math.random() * 80) + 40;
+                    
+                    drawLine(50, 100, 350, 100); // Top line
+                    drawLine(50, 200, 350, 200); // Bottom line
+                    drawLine(100, 250, 300, 50);  // Transversal
+                    
+                    // Parallel Arrows
+                    drawArrow(200, 100);
+                    drawArrow(200, 200);
+
+                    drawAngleLabel(160, 125, angle + "°");
+                    drawAngleLabel(240, 175, "x");
+                    return angle;
+                }
+            },
+            {
+                name: "Exterior Angles",
+                hint: "The exterior angle of a triangle equals the sum of the two opposite interior angles.",
+                generate: () => {
+                    const int1 = Math.floor(Math.random() * 40) + 30;
+                    const int2 = Math.floor(Math.random() * 40) + 30;
+                    const ext = int1 + int2;
+
+                    const p1 = [100, 200];
+                    const p2 = [250, 200];
+                    const p3 = [150, 80];
+                    const pExt = [350, 200];
+
+                    drawPolygon([p1, p2, p3]);
+                    drawLine(p2[0], p2[1], pExt[0], pExt[1]);
+
+                    drawAngleLabel(130, 185, int1 + "°");
+                    drawAngleLabel(160, 115, int2 + "°");
+                    drawAngleLabel(275, 185, "x");
+                    
+                    return ext;
+                }
+            }
+        ];
+
+        function initQuestion() {
+            if (questionIndex >= 30) {
+                alert("Game Complete! Final Score: " + score);
+                location.reload();
+                return;
+            }
+
+            // Reset UI
+            DOM.svg.innerHTML = '';
+            DOM.input.value = '';
+            DOM.feedback.classList.add('hidden');
+            DOM.hintBox.classList.add('hidden');
+            clearInterval(timerInterval);
+            
+            // Pick Random Theorem
+            const theorem = THEOREMS[Math.floor(Math.random() * THEOREMS.length)];
+            DOM.category.innerText = theorem.name;
+            DOM.hintText.innerText = theorem.hint;
+            currentAnswer = theorem.generate();
+
+            // Refresh MathJax
+            MathJax.typesetPromise();
+            
+            startTimer();
+        }
+
+        function startTimer() {
+            timerSeconds = 30;
+            DOM.timer.innerText = timerSeconds;
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                DOM.timer.innerText = timerSeconds;
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    checkAnswer(true);
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(isTimeout = false) {
+            const userAns = parseInt(DOM.input.value);
+            const isCorrect = !isTimeout && (userAns === currentAnswer);
+
+            DOM.feedback.classList.remove('hidden', 'text-green-400', 'text-red-400');
+            
+            if (isCorrect) {
+                score += (100 + timerSeconds * 2);
+                streak++;
+                questionIndex++;
+                DOM.feedback.innerText = "EXCELLENT! +Correct Reason Applied";
+                DOM.feedback.classList.add('text-green-400');
+            } else {
+                streak = 0;
+                DOM.feedback.innerText = isTimeout ? `TIME'S UP! Answer was ${currentAnswer}°` : `INCORRECT. It was ${currentAnswer}°`;
+                DOM.feedback.classList.add('text-red-400');
+                DOM.hintBox.classList.remove('hidden');
+                questionIndex++; // Continue anyway for flow
+            }
+
+            updateStats();
+            clearInterval(timerInterval);
+            setTimeout(initQuestion, 3000);
+        }
+
+        function updateStats() {
+            DOM.score.innerText = score;
+            DOM.streak.innerText = streak;
+            DOM.progressVal.innerText = `${questionIndex}/30`;
+            DOM.progressBar.style.width = `${(questionIndex / 30) * 100}%`;
+        }
+
+        // --- SVG Drawing Helpers ---
+        function drawLine(x1, y1, x2, y2) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+            line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+            line.setAttribute("stroke", "#38bdf8");
+            line.setAttribute("stroke-width", "3");
+            line.setAttribute("stroke-linecap", "round");
+            DOM.svg.appendChild(line);
+        }
+
+        function drawPolygon(points) {
+            const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            const pStr = points.map(p => p.join(",")).join(" ");
+            poly.setAttribute("points", pStr);
+            poly.setAttribute("stroke", "#38bdf8");
+            poly.setAttribute("stroke-width", "3");
+            poly.setAttribute("fill", "rgba(56, 189, 248, 0.05)");
+            DOM.svg.appendChild(poly);
+        }
+
+        function drawAngleLabel(x, y, text) {
+            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.setAttribute("x", x); txt.setAttribute("y", y);
+            txt.setAttribute("fill", "#f8fafc");
+            txt.setAttribute("font-weight", "bold");
+            txt.setAttribute("text-anchor", "middle");
+            txt.textContent = text;
+            DOM.svg.appendChild(txt);
+        }
+
+        function drawHash(x, y, angle) {
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.setAttribute("transform", `translate(${x},${y}) rotate(${angle})`);
+            const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            l.setAttribute("x1", 0); l.setAttribute("y1", -8);
+            l.setAttribute("x2", 0); l.setAttribute("y2", 8);
+            l.setAttribute("stroke", "#fbbf24");
+            l.setAttribute("stroke-width", "2");
+            g.appendChild(l);
+            DOM.svg.appendChild(g);
+        }
+
+        function drawArrow(x, y) {
+            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.setAttribute("x", x); txt.setAttribute("y", y + 5);
+            txt.setAttribute("fill", "#fbbf24");
+            txt.setAttribute("font-size", "20");
+            txt.setAttribute("text-anchor", "middle");
+            txt.textContent = "»";
+            DOM.svg.appendChild(txt);
+        }
+
+        DOM.checkBtn.addEventListener('click', () => checkAnswer());
+        DOM.input.addEventListener('keypress', (e) => { if(e.key === 'Enter') checkAnswer(); });
+
+        // Start Game
+        initQuestion();
+    </script>
+</body>
+</html>
