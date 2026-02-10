@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowLogic: Further Maths Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap');
+        
+        :root {
+            --bg-dark: #020617;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #a855f7;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f1f5f9;
+        }
+
+        .code-font { font-family: 'Fira Code', monospace; }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .mermaid { background: white; border-radius: 1rem; padding: 1rem; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-cyan-500 to-purple-600 p-3 rounded-2xl shadow-lg">
+                    <i class="fas fa-project-diagram text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black tracking-tighter uppercase">Flow<span class="text-cyan-400">Logic</span></h1>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Further Mathematics v1.0</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 glass-panel px-6 py-3 rounded-2xl">
+                <div class="text-center">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Mastery</p>
+                    <p id="progress-text" class="text-xl font-black text-white">1/30</p>
+                </div>
+                <div class="h-8 w-[1px] bg-slate-700"></div>
+                <div class="text-center">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Score</p>
+                    <p id="score" class="text-xl font-black text-cyan-400">0000</p>
+                </div>
+                <a href="index.html" class="ml-4 p-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl transition-all">
+                    <i class="fas fa-power-off"></i>
+                </a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-7 space-y-6">
+                <div class="glass-panel rounded-[2rem] p-6 overflow-hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="difficulty-tag" class="px-3 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold rounded-lg border border-yellow-500/20 uppercase">Iterative Loop</span>
+                        <div class="flex gap-2">
+                            <button id="hint-btn" class="p-2 text-slate-400 hover:text-white transition-colors"><i class="far fa-lightbulb"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div id="diagram-container" class="flex justify-center transition-opacity duration-500">
+                        <div class="mermaid" id="mermaid-div">
+                            graph TD
+                            A([Start]) --> B[Input X]
+                            B --> C{X > 0}
+                            C -- Yes --> D[X = X - 1]
+                            D --> C
+                            C -- No --> E([End])
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-panel rounded-3xl p-6 border-t-4 border-cyan-500">
+                    <h3 class="text-lg font-bold mb-4 text-white">Algorithm Challenge</h3>
+                    <p id="question-text" class="text-slate-300 text-sm mb-6 leading-relaxed">
+                        If the input value is <span class="text-cyan-400 font-bold">n = 5</span>, what will be the final value of the variable <span class="text-purple-400 font-bold">Result</span>?
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <input type="number" id="ans-input" placeholder="Type your output..." 
+                            class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl p-4 text-white font-bold outline-none focus:border-cyan-500 transition-all">
+                        
+                        <button id="submit-btn" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-900 font-black py-4 rounded-2xl shadow-lg shadow-cyan-500/20 uppercase tracking-widest transition-all">
+                            Validate Execution
+                        </button>
+                    </div>
+                    <div id="feedback" class="mt-4 hidden p-3 rounded-xl text-center font-bold text-sm"></div>
+                </div>
+
+                <div class="glass-panel rounded-3xl p-6">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class="fas fa-table"></i> Variable Trace Monitor
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs code-font">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-800">
+                                    <th class="pb-2 px-2">Iteration</th>
+                                    <th id="var-1-head" class="pb-2 px-2">Var A</th>
+                                    <th id="var-2-head" class="pb-2 px-2">Var B</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trace-body" class="text-slate-300">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mermaid Initialization
+        mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+
+        // Game Configuration
+        let score = 0;
+        let currentLevel = 1;
+        let currentAnswer = 0;
+
+        const scenarios = [
+            {
+                type: "Summation Loop",
+                prompt: (n) => `Follow the flowchart for <span class="text-cyan-400 font-bold">n = ${n}</span>. What is the value of <span class="text-purple-400 font-bold">S</span> at the end?`,
+                generate: () => {
+                    const n = Math.floor(Math.random() * 5) + 3;
+                    let s = 0;
+                    const trace = [];
+                    for(let i=1; i<=n; i++) {
+                        s += i;
+                        trace.push({iter: i, v1: i, v2: s});
+                    }
+                    const code = `graph TD
+                        A([Start]) --> B[Input n = ${n}]
+                        B --> C[S = 0, i = 1]
+                        C --> D{i <= n}
+                        D -- Yes --> E[S = S + i]
+                        E --> F[i = i + 1]
+                        F --> D
+                        D -- No --> G([Output S])`;
+                    return { n, ans: s, code, trace, heads: ['i', 'S'] };
+                }
+            },
+            {
+                type: "Conditional Branch",
+                prompt: (x) => `Input <span class="text-cyan-400 font-bold">x = ${x}</span>. Track the flowchart. What is the final value of <span class="text-purple-400 font-bold">Y</span>?`,
+                generate: () => {
+                    const x = Math.floor(Math.random() * 20) + 1;
+                    let y = (x % 2 === 0) ? x / 2 : 3 * x + 1;
+                    const code = `graph TD
+                        A([Start]) --> B[Input x = ${x}]
+                        B --> C{x is Even?}
+                        C -- Yes --> D[Y = x / 2]
+                        C -- No --> E[Y = 3x + 1]
+                        D --> F([End])
+                        E --> F`;
+                    return { n: x, ans: y, code, trace: [{iter: 1, v1: x, v2: y}], heads: ['x', 'Y'] };
+                }
+            },
+            {
+                type: "Powers of 2",
+                prompt: (p) => `What is the value of <span class="text-purple-400 font-bold">V</span> when the loop ends for <span class="text-cyan-400 font-bold">limit = ${Math.pow(2, p)}</span>?`,
+                generate: () => {
+                    const p = Math.floor(Math.random() * 4) + 3;
+                    const limit = Math.pow(2, p);
+                    let v = 1;
+                    const trace = [];
+                    let i = 0;
+                    while(v < limit) {
+                        v = v * 2;
+                        i++;
+                        trace.push({iter: i, v1: i, v2: v});
+                    }
+                    const code = `graph TD
+                        A([Start]) --> B[Input limit = ${limit}]
+                        B --> C[V = 1]
+                        C --> D{V < limit}
+                        D -- Yes --> E[V = V * 2]
+                        E --> D
+                        D -- No --> F([Output V])`;
+                    return { n: p, ans: v, code, trace, heads: ['Iteration', 'V'] };
+                }
+            }
+        ];
+
+        async function loadQuestion() {
+            if(currentLevel > 30) {
+                alert("Mastery Complete! 30/30 Algorithms Decrypted.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            const data = scenario.generate();
+            
+            // Set data
+            currentAnswer = data.ans;
+            document.getElementById('question-text').innerHTML = scenario.prompt(data.n);
+            document.getElementById('difficulty-tag').innerText = scenario.type;
+            document.getElementById('progress-text').innerText = `${currentLevel}/30`;
+            
+            // Render Mermaid
+            const container = document.getElementById('diagram-container');
+            container.style.opacity = '0';
+            
+            setTimeout(async () => {
+                const { render } = mermaid;
+                const { svg } = await render('mermaid-svg', data.code);
+                document.getElementById('mermaid-div').innerHTML = svg;
+                container.style.opacity = '1';
+            }, 300);
+
+            // Setup Trace Table
+            document.getElementById('var-1-head').innerText = data.heads[0];
+            document.getElementById('var-2-head').innerText = data.heads[1];
+            const tbody = document.getElementById('trace-body');
+            tbody.innerHTML = '';
+            data.trace.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800/50 hover:bg-white/5 transition-colors";
+                tr.innerHTML = `<td class="py-2 px-2">${row.iter}</td><td class="py-2 px-2">${row.v1}</td><td class="py-2 px-2 text-cyan-400 font-bold">${row.v2}</td>`;
+                tbody.appendChild(tr);
+            });
+            
+            // Hide table rows initially to make user think
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(r => r.style.display = 'none');
+        }
+
+        function handleFeedback(isCorrect) {
+            const fb = document.getElementById('feedback');
+            fb.classList.remove('hidden', 'bg-green-500/10', 'text-green-500', 'bg-red-500/10', 'text-red-500');
+            
+            if(isCorrect) {
+                fb.innerText = "ALGORITHM VERIFIED: ACCESS GRANTED";
+                fb.classList.add('bg-green-500/10', 'text-green-500', 'hidden');
+                fb.style.display = 'block';
+                score += 150;
+                currentLevel++;
+                document.getElementById('score').innerText = score.toString().padStart(4, '0');
+                
+                // Show Trace Table on success
+                document.querySelectorAll('#trace-body tr').forEach(r => r.style.display = 'table-row');
+                
+                setTimeout(() => {
+                    fb.style.display = 'none';
+                    loadQuestion();
+                    document.getElementById('ans-input').value = '';
+                }, 2000);
+            } else {
+                fb.innerText = "LOGIC ERROR: CALCULATION MISMATCH";
+                fb.classList.add('bg-red-500/10', 'text-red-500');
+                fb.style.display = 'block';
+                setTimeout(() => fb.style.display = 'none', 2000);
+            }
+        }
+
+        document.getElementById('submit-btn').onclick = () => {
+            const val = parseInt(document.getElementById('ans-input').value);
+            handleFeedback(val === currentAnswer);
+        };
+
+        document.getElementById('hint-btn').onclick = () => {
+            alert("Symbol Guide:\n- Ovals: Start/End\n- Rectangles: Process (Calculations)\n- Diamonds: Decisions (Logic Gates)\n- Parallelograms: Input/Output");
+        };
+
+        // Initial Load
+        loadQuestion();
+    </script>
+</body>
+</html>
