@@ -32,8 +32,6 @@
         .dark .math-pattern { background-color: #020617; background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px); }
         .hero-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
         .filter-btn.active { background-color: #6366f1; color: white; border-color: #6366f1; }
-        
-        /* Side Menu Transition */
         #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
@@ -59,7 +57,7 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Stats</p>
                 <div class="p-4 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-2xl flex justify-between items-center">
                     <span class="font-bold">Active Modules</span>
-                    <span class="text-xl font-black">8</span>
+                    <span class="text-xl font-black">9</span>
                 </div>
             </div>
         </div>
@@ -109,6 +107,20 @@
 
     <main class="max-w-7xl mx-auto px-6 pb-24">
         <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
+            
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
+                    <i class="fas fa-bolt text-6xl z-10 opacity-90 animate-pulse"></i>
+                    <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/circuit-board.png')]"></div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest bg-orange-50 dark:bg-orange-900/20 px-3 py-1 rounded-full">UTME / WAEC Prep</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Speed Arithmetic</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">60 seconds on the clock. How many operations can you solve accurately?</p>
+                    <a href="speedaritmetic.html" class="flex items-center justify-center w-full py-4 bg-orange-600 text-white rounded-2xl font-bold hover:bg-orange-500 transition-all shadow-lg shadow-orange-200 dark:shadow-none">Start Blitz</a>
+                </div>
+            </div>
+
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-400 to-blue-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <span class="text-6xl z-10 font-bold">÷</span>
@@ -189,12 +201,10 @@
     </main>
 
     <script>
-        // --- Toggle Bar Logic ---
         function toggleMenu() {
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
             const isOpen = !menu.classList.contains('translate-x-full');
-            
             if (isOpen) {
                 menu.classList.add('translate-x-full');
                 overlay.classList.add('hidden');
@@ -202,11 +212,10 @@
             } else {
                 menu.classList.remove('translate-x-full');
                 overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Stop background scroll
+                document.body.style.overflow = 'hidden';
             }
         }
 
-        // --- Dark Mode Logic ---
         function toggleDarkMode() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -221,7 +230,6 @@
             }
         }
 
-        // --- FILTERING LOGIC ---
         const desktopSearch = document.getElementById('gameSearch');
         const mobileSearch = document.getElementById('mobileSearch');
         const cards = document.querySelectorAll('.game-card');
@@ -238,10 +246,8 @@
             applyFilters();
         }
 
-        // Sync both search inputs
         [desktopSearch, mobileSearch].forEach(input => {
             input.addEventListener('input', (e) => {
-                // Keep both inputs in sync
                 desktopSearch.value = e.target.value;
                 mobileSearch.value = e.target.value;
                 applyFilters();
@@ -249,17 +255,14 @@
         });
 
         function applyFilters() {
-            const searchTerm = desktopSearch.value.toLowerCase(); // Use the synced value
+            const searchTerm = desktopSearch.value.toLowerCase();
             let visibleCount = 0;
-
             cards.forEach(card => {
                 const title = card.querySelector('h3').innerText.toLowerCase();
                 const description = card.querySelector('p').innerText.toLowerCase();
                 const category = card.getAttribute('data-category');
-
                 const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
                 const matchesCategory = activeCategory === 'all' || category === activeCategory;
-
                 if (matchesSearch && matchesCategory) {
                     card.classList.remove('hidden');
                     visibleCount++;
@@ -267,11 +270,9 @@
                     card.classList.add('hidden');
                 }
             });
-
             noResults.classList.toggle('hidden', visibleCount > 0);
         }
 
-        // Init
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
             document.getElementById('theme-icon').className = 'fas fa-sun';
