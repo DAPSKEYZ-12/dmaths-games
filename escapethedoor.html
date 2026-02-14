@@ -9,15 +9,15 @@
             --neon-blue: #00f3ff;
             --neon-red: #ff003c;
             --neon-green: #00ff88;
-            --bg-dark: #0a0a0c;
-            --panel-bg: rgba(20, 20, 25, 0.9);
+            --bg-dark: #060608;
+            --panel-bg: rgba(10, 10, 15, 0.95);
         }
 
         body {
             margin: 0;
             background: var(--bg-dark);
             color: white;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Orbitron', 'Segoe UI', sans-serif;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -29,11 +29,11 @@
         #game-stage {
             position: relative;
             width: 100%;
-            max-width: 800px;
-            height: 600px;
-            background: radial-gradient(circle, #1a1a2e 0%, #000 100%);
-            border: 2px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            max-width: 900px;
+            height: 650px;
+            background: radial-gradient(circle at center, #111b2d 0%, #000 100%);
+            border: 1px solid #1a2a3a;
+            box-shadow: 0 0 100px rgba(0, 243, 255, 0.05);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -43,122 +43,184 @@
         .hud {
             display: flex;
             justify-content: space-between;
-            padding: 20px;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 1px solid var(--neon-blue);
+            align-items: center;
+            padding: 15px 25px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 2px solid #1a1a1a;
             z-index: 10;
         }
 
-        .stat-box { font-weight: bold; letter-spacing: 1px; }
-        #timer-display { color: var(--neon-red); }
+        .exit-btn {
+            background: transparent;
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 5px 12px;
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+        .exit-btn:hover { background: var(--neon-red); color: white; box-shadow: 0 0 10px var(--neon-red); }
+
+        .stat-box { font-size: 0.8rem; letter-spacing: 2px; color: #aaa; }
+        .stat-box span { color: white; font-weight: 900; }
+        #timer-display { color: var(--neon-red); font-size: 1.1rem; }
 
         /* The Door Visuals */
         .door-container {
             flex-grow: 1;
             display: flex;
-            justify-content: center;
+            justify-content: space-around;
             align-items: center;
-            perspective: 1000px;
-            position: relative;
+            padding: 0 40px;
+            perspective: 1200px;
         }
 
         #door {
-            width: 200px;
-            height: 300px;
-            background: #222;
-            border: 4px solid #444;
-            border-radius: 10px;
+            width: 220px;
+            height: 320px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 4px solid #333;
+            border-radius: 5px;
             position: relative;
             transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            box-shadow: inset 0 0 20px black;
         }
 
         .door-light {
-            width: 20px;
-            height: 20px;
+            position: absolute;
+            top: 20px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--neon-red);
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px var(--neon-red);
+            box-shadow: 0 0 15px var(--neon-red);
+        }
+
+        /* Scanner Line Animation */
+        #scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            top: 0;
+            animation: scan 3s infinite linear;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
 
         /* Animations */
         .unlocking {
-            transform: rotateY(-110deg) translateX(-50px);
+            transform: rotateY(-105deg) translateX(-60px);
             border-color: var(--neon-green) !important;
         }
 
-        .shake {
-            animation: shake 0.4s ease-in-out;
-        }
-
+        .shake { animation: shake 0.4s ease-in-out; }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
         }
 
         /* Terminal UI */
         .terminal {
             background: var(--panel-bg);
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid var(--neon-blue);
-            text-align: center;
-            width: 350px;
-            z-index: 5;
+            padding: 40px;
+            border-radius: 4px;
+            border: 1px solid #222;
+            border-left: 4px solid var(--neon-blue);
+            width: 380px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
+        #story-text { font-size: 0.7rem; color: var(--neon-blue); margin-bottom: 5px; letter-spacing: 3px; }
+
         #equation {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px var(--neon-blue);
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 5px rgba(255,255,255,0.2);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
 
         input {
             background: #000;
-            border: 1px solid var(--neon-blue);
+            border: 1px solid #333;
             color: var(--neon-blue);
-            padding: 10px;
-            font-size: 1.2rem;
-            width: 80px;
+            padding: 15px;
+            font-size: 1.5rem;
+            width: 100px;
             text-align: center;
             outline: none;
+            font-family: 'Orbitron', sans-serif;
         }
 
-        button {
+        input:focus { border-color: var(--neon-blue); }
+
+        .unlock-btn {
             background: var(--neon-blue);
             color: black;
             border: none;
-            padding: 10px 20px;
-            font-weight: bold;
+            padding: 0 25px;
+            font-weight: 900;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
         }
 
-        button:hover { background: white; box-shadow: 0 0 15px var(--neon-blue); }
+        .unlock-btn:hover { filter: brightness(1.2); letter-spacing: 1px; }
 
         /* Overlay Systems */
         #overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
+            text-align: center;
+        }
+
+        #overlay h1 { color: var(--neon-red); font-size: 3rem; margin-bottom: 0; }
+        
+        .reboot-btn {
+            margin-top: 20px;
+            background: white;
+            color: black;
+            padding: 15px 40px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div id="game-stage">
     <div class="hud">
+        <a href="index.html" class="exit-btn">Terminate Session</a>
         <div class="stat-box">SEC_LEVEL: <span id="level">1</span></div>
         <div class="stat-box">STABILITY: <span id="timer-display">30</span>s</div>
         <div class="stat-box">SCORE: <span id="score">0</span></div>
@@ -166,27 +228,41 @@
 
     <div class="door-container">
         <div id="door">
-            <div class="door-light" id="status-light"></div>
             <div id="scanner-line"></div>
+            <div class="door-light" id="status-light"></div>
+            <div style="color: #222; font-size: 0.5rem; transform: rotate(90deg)">PROPERTY OF LAB 404</div>
         </div>
 
         <div class="terminal" id="main-ui">
-            <h3 id="story-text">DECRYPT TO ESCAPE</h3>
+            <h3 id="story-text">DECRYPT ACCESS KEY</h3>
             <div id="equation">3x - 5 = 10</div>
-            <input type="number" id="ans-input" placeholder="?">
-            <button onclick="game.check()">UNLOCK</button>
+            <div class="input-group">
+                <input type="number" id="ans-input" placeholder="00" autofocus>
+                <button class="unlock-btn" onclick="game.check()">UNLOCK</button>
+            </div>
+            <p style="font-size: 0.6rem; color: #444; margin-top: 20px; text-align: left;">
+                > STABILITY BONUS: ACTIVE<br>
+                > PENALTY ON ERR: -5s
+            </p>
         </div>
     </div>
 
     <div id="overlay">
-        <h1 id="overlay-title">SYSTEM FAILURE</h1>
-        <p>Your score: <span id="final-score">0</span></p>
-        <button onclick="location.reload()">REBOOT SYSTEM</button>
-        <div id="leaderboard" style="margin-top: 20px; color: var(--neon-blue)"></div>
+        <h1 id="overlay-title">CRITICAL ERROR</h1>
+        <p style="color: #666">SESSION TIMED OUT</p>
+        <p style="font-size: 1.5rem">FINAL SCORE: <span id="final-score" style="color: var(--neon-blue)">0</span></p>
+        
+        <div id="leaderboard" style="margin: 20px 0; color: #888; background: #111; padding: 20px; border-radius: 5px; min-width: 200px"></div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="reboot-btn" onclick="location.reload()">REBOOT</button>
+            <button class="reboot-btn" style="background: transparent; color: white; border: 1px solid white;" onclick="location.href='index.html'">EXIT</button>
+        </div>
     </div>
 </div>
 
 <script>
+// Logic remains identical to your provided source
 class AlgebraGame {
     constructor() {
         this.level = 1;
@@ -195,14 +271,12 @@ class AlgebraGame {
         this.currentSolution = 0;
         this.timer = null;
         this.isGameOver = false;
-        
         this.init();
     }
 
     init() {
         this.nextLevel();
         this.startTimer();
-        // Leaderboard logic
         this.updateLeaderboardDisplay();
     }
 
@@ -215,50 +289,40 @@ class AlgebraGame {
     }
 
     generateEquation() {
-        // Advanced Scaling Logic: as level increases, complexity grows
         const a = Math.floor(Math.random() * (2 + this.level)) + 2;
         const x = Math.floor(Math.random() * 10) + 1;
         const b = Math.floor(Math.random() * 15) + 1;
-        
-        // Randomly choose between ax + b = c OR ax - b = c
         const isAddition = Math.random() > 0.5;
         const c = isAddition ? (a * x) + b : (a * x) - b;
-        
         this.currentSolution = x;
         return `${a}x ${isAddition ? '+' : '-'} ${b} = ${c}`;
     }
 
     check() {
         if (this.isGameOver) return;
-
         const input = document.getElementById('ans-input');
         const door = document.getElementById('door');
         const light = document.getElementById('status-light');
 
         if (parseInt(input.value) === this.currentSolution) {
-            // Success Path
             this.score += 10 + (this.timeLeft);
             this.level++;
-            this.timeLeft += 10; // Bonus time
-            
-            // Visual feedback
+            this.timeLeft += 10;
             light.style.background = 'var(--neon-green)';
-            light.style.boxShadow = '0 0 15px var(--neon-green)';
+            light.style.boxShadow = '0 0 20px var(--neon-green)';
             door.classList.add('unlocking');
-            
             setTimeout(() => {
                 door.classList.remove('unlocking');
                 light.style.background = 'var(--neon-red)';
-                light.style.boxShadow = '0 0 10px var(--neon-red)';
+                light.style.boxShadow = '0 0 15px var(--neon-red)';
                 this.nextLevel();
                 input.value = '';
+                input.focus();
             }, 1000);
-
         } else {
-            // Failure Path
             door.classList.add('shake');
             setTimeout(() => door.classList.remove('shake'), 400);
-            this.timeLeft -= 5; // Penalty
+            this.timeLeft -= 5;
         }
     }
 
@@ -286,15 +350,13 @@ class AlgebraGame {
 
     updateLeaderboardDisplay() {
         const board = JSON.parse(localStorage.getItem('math_ranks') || "[]");
-        const html = board.map((s, i) => `<div>#${i+1} - ${s} PTS</div>`).join('');
-        document.getElementById('leaderboard').innerHTML = `<b>TOP AGENTS:</b><br>${html}`;
+        const html = board.map((s, i) => `<div style="margin: 5px 0">RANK_${i+1} // ${s} PTS</div>`).join('');
+        document.getElementById('leaderboard').innerHTML = `<b style="color:var(--neon-blue)">TOP_AGENTS</b><br>${html}`;
     }
 }
 
-// Global scope initialization
 const game = new AlgebraGame();
 
-// Handle "Enter" key for better UX
 document.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') game.check();
 });
