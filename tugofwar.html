@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -26,12 +26,31 @@
             background: #0f172a;
         }
 
+        /* Forced Landscape UI/UX */
+        #landscape-notice {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #0f172a;
+            color: white;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (orientation: portrait) {
+            #landscape-notice { display: flex; }
+        }
+
         .bg-gradient-dynamic {
             transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .rope-lane {
-            height: 120px;
+            height: 100px;
             background: rgba(0,0,0,0.2);
             border-top: 2px solid rgba(255,255,255,0.05);
             border-bottom: 2px solid rgba(255,255,255,0.05);
@@ -60,7 +79,7 @@
                 #92400e 30px
             );
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            height: 20px;
+            height: 16px;
             width: 100%;
             border-top: 2px solid #b45309;
             border-bottom: 2px solid #451a03;
@@ -69,7 +88,7 @@
 
         .puller {
             position: absolute;
-            font-size: 50px;
+            font-size: 40px;
             top: 50%;
             transform: translateY(-50%);
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
@@ -96,16 +115,17 @@
             100% { transform: translateY(-50%) scaleX(-1) translateX(-10px) rotate(5deg); }
         }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100px); opacity: 0; }
-        }
         .pull-indicator {
             position: absolute;
             animation: floatUp 0.8s ease-out forwards;
             pointer-events: none;
             font-weight: 900;
             z-index: 50;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
         }
 
         .math-btn {
@@ -134,87 +154,81 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col relative">
+<body class="h-screen w-screen flex flex-col relative overflow-hidden">
+
+    <div id="landscape-notice">
+        <div class="text-6xl mb-4">🔄</div>
+        <h2 class="text-2xl font-bold">Please Rotate Your Device</h2>
+        <p class="opacity-60">This battle requires landscape mode</p>
+    </div>
 
     <div class="absolute inset-0 flex">
         <div id="bar-blue" class="bg-blue-600/20 h-full border-r-2 border-blue-400/30" style="width: 50%"></div>
         <div id="bar-red" class="bg-red-600/20 h-full flex-1 border-l-2 border-red-400/30"></div>
     </div>
 
-    <header class="relative z-30 flex justify-center pt-4">
-        <div class="glass-card px-8 py-3 rounded-full shadow-2xl flex items-center gap-10 border-2 border-white/50">
+    <header class="relative z-30 flex justify-center pt-2">
+        <div class="glass-card px-6 py-2 rounded-full shadow-2xl flex items-center gap-8 border-2 border-white/50 scale-90 md:scale-100">
             <div class="text-center">
-                <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Team Blue</p>
-                <div id="score-blue" class="text-3xl font-black text-blue-700">0</div>
+                <p class="text-[8px] font-bold text-blue-500 uppercase tracking-widest">Blue</p>
+                <div id="score-blue" class="text-2xl font-black text-blue-700">0</div>
             </div>
             
             <div class="flex flex-col items-center">
-                <div id="leader-tag" class="text-[10px] font-extrabold text-gray-400 uppercase mb-1 tracking-tighter">Deadlocked</div>
-                <div class="bg-gray-900 text-yellow-400 px-6 py-2 rounded-2xl font-black text-3xl shadow-inner border-b-4 border-yellow-600" id="timer">
+                <div id="leader-tag" class="text-[8px] font-extrabold text-gray-400 uppercase mb-1">Deadlocked</div>
+                <div class="bg-gray-900 text-yellow-400 px-4 py-1 rounded-xl font-black text-2xl shadow-inner border-b-4 border-yellow-600" id="timer">
                     60
                 </div>
             </div>
 
             <div class="text-center">
-                <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Team Red</p>
-                <div id="score-red" class="text-3xl font-black text-red-700">0</div>
+                <p class="text-[8px] font-bold text-red-500 uppercase tracking-widest">Red</p>
+                <div id="score-red" class="text-2xl font-black text-red-700">0</div>
             </div>
         </div>
     </header>
 
     <main class="flex-1 flex flex-col relative z-20">
-        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
-            <section id="panel-blue" class="flex-1 flex flex-col items-center justify-center p-6 transition-all duration-500 z-20">
-                <div class="w-full max-w-sm">
-                    <div class="glass-card p-6 rounded-3xl shadow-2xl mb-6 transform transition-transform" id="card-blue">
-                        <div id="q-blue" class="text-3xl font-bold text-gray-800 text-center min-h-[60px] flex items-center justify-center">
-                            Ready?
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <input type="text" id="input-blue" readonly class="w-full bg-white/50 backdrop-blur text-blue-900 text-3xl font-black p-4 rounded-2xl text-center mb-4 border-2 border-blue-200" placeholder="?">
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="inputKey('blue', 1)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">1</button>
-                            <button onclick="inputKey('blue', 2)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">2</button>
-                            <button onclick="inputKey('blue', 3)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">3</button>
-                            <button onclick="inputKey('blue', 4)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">4</button>
-                            <button onclick="inputKey('blue', 5)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">5</button>
-                            <button onclick="inputKey('blue', 6)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">6</button>
-                            <button onclick="inputKey('blue', 7)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">7</button>
-                            <button onclick="inputKey('blue', 8)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">8</button>
-                            <button onclick="inputKey('blue', 9)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">9</button>
-                            <button onclick="clearInput('blue')" class="math-btn bg-red-100 text-red-600 p-4 rounded-xl font-black">C</button>
-                            <button onclick="inputKey('blue', 0)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">0</button>
-                            <button onclick="submitAnswer('blue')" class="math-btn bg-blue-600 text-white p-4 rounded-xl font-black">GO</button>
-                        </div>
-                    </div>
+        <div class="flex-1 flex flex-row items-center justify-around px-4 gap-4">
+            <section id="panel-blue" class="flex-1 flex flex-col items-center justify-center max-w-[45%]">
+                <div class="glass-card p-3 rounded-2xl shadow-xl mb-3 w-full text-center" id="card-blue">
+                    <div id="q-blue" class="text-xl font-bold text-gray-800 h-10 flex items-center justify-center">Ready?</div>
+                </div>
+                <input type="text" id="input-blue" readonly class="w-full bg-white/50 text-blue-900 text-xl font-black p-2 rounded-xl text-center mb-2 border-2 border-blue-200" placeholder="?">
+                <div class="grid grid-cols-4 gap-1 w-full">
+                    <button onclick="inputKey('blue', 1)" class="math-btn bg-white p-2 rounded-lg font-bold">1</button>
+                    <button onclick="inputKey('blue', 2)" class="math-btn bg-white p-2 rounded-lg font-bold">2</button>
+                    <button onclick="inputKey('blue', 3)" class="math-btn bg-white p-2 rounded-lg font-bold">3</button>
+                    <button onclick="clearInput('blue')" class="math-btn bg-red-100 text-red-600 p-2 rounded-lg font-black">C</button>
+                    <button onclick="inputKey('blue', 4)" class="math-btn bg-white p-2 rounded-lg font-bold">4</button>
+                    <button onclick="inputKey('blue', 5)" class="math-btn bg-white p-2 rounded-lg font-bold">5</button>
+                    <button onclick="inputKey('blue', 6)" class="math-btn bg-white p-2 rounded-lg font-bold">6</button>
+                    <button onclick="inputKey('blue', 0)" class="math-btn bg-white p-2 rounded-lg font-bold">0</button>
+                    <button onclick="inputKey('blue', 7)" class="math-btn bg-white p-2 rounded-lg font-bold">7</button>
+                    <button onclick="inputKey('blue', 8)" class="math-btn bg-white p-2 rounded-lg font-bold">8</button>
+                    <button onclick="inputKey('blue', 9)" class="math-btn bg-white p-2 rounded-lg font-bold">9</button>
+                    <button onclick="submitAnswer('blue')" class="math-btn bg-blue-600 text-white p-2 rounded-lg font-black">GO</button>
                 </div>
             </section>
 
-            <section id="panel-red" class="flex-1 flex flex-col items-center justify-center p-6 transition-all duration-500 z-20">
-                <div class="w-full max-w-sm">
-                    <div class="glass-card p-6 rounded-3xl shadow-2xl mb-6 border-r-8 border-red-500" id="card-red">
-                        <div id="q-red" class="text-3xl font-bold text-gray-800 text-center min-h-[60px] flex items-center justify-center">
-                            Ready?
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <input type="text" id="input-red" readonly class="w-full bg-white/50 backdrop-blur text-red-900 text-3xl font-black p-4 rounded-2xl text-center mb-4 border-2 border-red-200" placeholder="?">
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="inputKey('red', 1)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">1</button>
-                            <button onclick="inputKey('red', 2)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">2</button>
-                            <button onclick="inputKey('red', 3)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">3</button>
-                            <button onclick="inputKey('red', 4)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">4</button>
-                            <button onclick="inputKey('red', 5)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">5</button>
-                            <button onclick="inputKey('red', 6)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">6</button>
-                            <button onclick="inputKey('red', 7)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">7</button>
-                            <button onclick="inputKey('red', 8)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">8</button>
-                            <button onclick="inputKey('red', 9)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">9</button>
-                            <button onclick="clearInput('red')" class="math-btn bg-red-100 text-red-600 p-4 rounded-xl font-black">C</button>
-                            <button onclick="inputKey('red', 0)" class="math-btn bg-white p-4 rounded-xl font-bold text-xl">0</button>
-                            <button onclick="submitAnswer('red')" class="math-btn bg-red-600 text-white p-4 rounded-xl font-black">GO</button>
-                        </div>
-                    </div>
+            <section id="panel-red" class="flex-1 flex flex-col items-center justify-center max-w-[45%]">
+                <div class="glass-card p-3 rounded-2xl shadow-xl mb-3 w-full text-center border-r-4 border-red-500" id="card-red">
+                    <div id="q-red" class="text-xl font-bold text-gray-800 h-10 flex items-center justify-center">Ready?</div>
+                </div>
+                <input type="text" id="input-red" readonly class="w-full bg-white/50 text-red-900 text-xl font-black p-2 rounded-xl text-center mb-2 border-2 border-red-200" placeholder="?">
+                <div class="grid grid-cols-4 gap-1 w-full">
+                    <button onclick="inputKey('red', 1)" class="math-btn bg-white p-2 rounded-lg font-bold">1</button>
+                    <button onclick="inputKey('red', 2)" class="math-btn bg-white p-2 rounded-lg font-bold">2</button>
+                    <button onclick="inputKey('red', 3)" class="math-btn bg-white p-2 rounded-lg font-bold">3</button>
+                    <button onclick="clearInput('red')" class="math-btn bg-red-100 text-red-600 p-2 rounded-lg font-black">C</button>
+                    <button onclick="inputKey('red', 4)" class="math-btn bg-white p-2 rounded-lg font-bold">4</button>
+                    <button onclick="inputKey('red', 5)" class="math-btn bg-white p-2 rounded-lg font-bold">5</button>
+                    <button onclick="inputKey('red', 6)" class="math-btn bg-white p-2 rounded-lg font-bold">6</button>
+                    <button onclick="inputKey('red', 0)" class="math-btn bg-white p-2 rounded-lg font-bold">0</button>
+                    <button onclick="inputKey('red', 7)" class="math-btn bg-white p-2 rounded-lg font-bold">7</button>
+                    <button onclick="inputKey('red', 8)" class="math-btn bg-white p-2 rounded-lg font-bold">8</button>
+                    <button onclick="inputKey('red', 9)" class="math-btn bg-white p-2 rounded-lg font-bold">9</button>
+                    <button onclick="submitAnswer('red')" class="math-btn bg-red-600 text-white p-2 rounded-lg font-black">GO</button>
                 </div>
             </section>
         </div>
@@ -224,8 +238,8 @@
                 <div class="rope-strand"></div>
                 <div id="icon-blue" class="puller puller-blue pulling-anim">🦾</div>
                 <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center z-30">
-                    <div class="w-16 h-16 bg-yellow-400 rounded-2xl rotate-45 border-4 border-white flex items-center justify-center shadow-[0_0_30px_rgba(250,204,21,0.5)]">
-                        <span class="rotate-[-45deg] font-black text-2xl">VS</span>
+                    <div class="w-12 h-12 bg-yellow-400 rounded-xl rotate-45 border-4 border-white flex items-center justify-center shadow-lg">
+                        <span class="rotate-[-45deg] font-black text-lg">VS</span>
                     </div>
                 </div>
                 <div id="icon-red" class="puller puller-red pulling-anim">🦿</div>
@@ -234,31 +248,30 @@
     </main>
 
     <div id="modal-overlay" class="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center">
-        <div class="bg-white p-10 rounded-[3rem] text-center max-w-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-b-8 border-gray-200">
-            <h1 class="text-5xl font-black text-slate-900 mb-2 italic">TUG OF</h1>
-            <h1 class="text-6xl font-black text-blue-600 mb-8 tracking-tighter">MATHS</h1>
+        <div class="bg-white p-8 rounded-[2rem] text-center max-w-xs shadow-2xl border-b-8 border-gray-200">
+            <h1 class="text-3xl font-black text-slate-900 italic">TUG OF MATHS</h1>
             
             <div id="start-content">
-                <p class="text-gray-500 mb-8 font-medium">Solve fast to pull the rope!</p>
-                <button onclick="startGame()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black py-5 rounded-2xl shadow-[0_8px_0_rgb(202,138,4)] active:translate-y-1 active:shadow-none transition-all text-xl">
+                <p class="text-gray-500 mb-6 font-medium">Fastest solver pulls the rope!</p>
+                <button onclick="startGame()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black py-4 rounded-xl shadow-[0_6px_0_rgb(202,138,4)] active:translate-y-1 active:shadow-none transition-all text-lg">
                     START BATTLE
                 </button>
             </div>
 
             <div id="end-content" class="hidden">
-                <div id="victory-icon" class="text-6xl mb-4">🏆</div>
-                <h2 id="winner-text" class="text-4xl font-black mb-1 uppercase"></h2>
-                <p id="result-detail" class="text-gray-500 font-bold mb-6 uppercase tracking-widest text-sm"></p>
-                <div id="final-scores" class="bg-gray-100 rounded-2xl p-6 mb-6 font-black text-2xl text-gray-800 flex justify-around items-center border-2 border-gray-200">
-                </div>
-                <button onclick="location.reload()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-slate-800 transition-colors">REMATCH</button>
+                <div id="victory-icon" class="text-5xl mb-2">🏆</div>
+                <h2 id="winner-text" class="text-3xl font-black mb-1 uppercase"></h2>
+                <p id="result-detail" class="text-gray-500 font-bold mb-4 uppercase text-xs"></p>
+                <div id="final-scores" class="bg-gray-100 rounded-xl p-4 mb-4 font-black text-xl text-gray-800 flex justify-around items-center"></div>
+                <button onclick="location.reload()" class="w-full bg-slate-900 text-white font-black py-3 rounded-xl">REMATCH</button>
             </div>
         </div>
     </div>
 
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioCtx;
         const SoundFX = {
+            init: () => { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); },
             play: (freq, type, duration, vol=0.1) => {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
@@ -284,17 +297,15 @@
         let questionsBank = [];
 
         async function loadQuestionsFromSheet() {
+            // Updated Proxy handling
             const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_0xR5UpptDkfba9t5yv0UM2phre9JFU2sYU0JX2YZr442xO7kI5LxhqyxcDgetYj5bkE6kVWPNJ-u/pub?output=csv`;
-            const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-
             try {
-                const res = await fetch(proxy);
+                const res = await fetch(url);
                 const csv = await res.text();
                 const rows = csv.split('\n').slice(1);
                 questionsBank = rows.map(row => {
                     const cols = row.split(',');
-                    let rawQ = cols[1];
-                    return { q: rawQ, a: parseFloat(cols[cols.length-1]) };
+                    return { q: cols[1], a: parseFloat(cols[cols.length-1]) };
                 }).filter(q => !isNaN(q.a));
             } catch (e) {
                 questionsBank = [
@@ -308,10 +319,10 @@
         function createPullEffect(team) {
             const container = document.getElementById(`panel-${team}`);
             const el = document.createElement('div');
-            el.className = `pull-indicator ${team === 'blue' ? 'text-blue-500' : 'text-red-500'} text-4xl`;
+            el.className = `pull-indicator ${team === 'blue' ? 'text-blue-500' : 'text-red-500'} text-2xl`;
             el.innerText = 'PULL!';
-            el.style.left = Math.random() * 80 + 10 + '%';
-            el.style.top = '40%';
+            el.style.left = '50%';
+            el.style.top = '20%';
             container.appendChild(el);
             setTimeout(() => el.remove(), 800);
         }
@@ -331,7 +342,6 @@
                 updateRope();
                 inputEl.value = '';
                 renderQ(team);
-                
                 const card = document.getElementById(`card-${team}`);
                 card.style.transform = 'scale(1.05)';
                 setTimeout(() => card.style.transform = 'scale(1)', 100);
@@ -348,22 +358,12 @@
             document.documentElement.style.setProperty('--rope-position', `${visualPos}%`);
             document.getElementById('bar-blue').style.width = `${visualPos}%`;
             
-            // Real-time Leadership Dashboard logic
             const leaderTag = document.getElementById('leader-tag');
-            if (gameState.ropePos < -10) {
-                leaderTag.innerText = "Blue Leading";
-                leaderTag.className = "text-[10px] font-extrabold text-blue-500 uppercase mb-1 tracking-tighter";
-            } else if (gameState.ropePos > 10) {
-                leaderTag.innerText = "Red Leading";
-                leaderTag.className = "text-[10px] font-extrabold text-red-500 uppercase mb-1 tracking-tighter";
-            } else {
-                leaderTag.innerText = "Deadlocked";
-                leaderTag.className = "text-[10px] font-extrabold text-gray-400 uppercase mb-1 tracking-tighter";
-            }
+            if (gameState.ropePos < -10) leaderTag.innerText = "Blue Leading";
+            else if (gameState.ropePos > 10) leaderTag.innerText = "Red Leading";
+            else leaderTag.innerText = "Deadlocked";
 
-            if (Math.abs(gameState.ropePos) >= MAX_ROPE) {
-                endGame(gameState.ropePos < 0 ? 'Blue' : 'Red');
-            }
+            if (Math.abs(gameState.ropePos) >= MAX_ROPE) endGame(gameState.ropePos < 0 ? 'Blue' : 'Red');
         }
 
         function inputKey(team, key) {
@@ -371,22 +371,18 @@
             if (input.value.length < 8) input.value += key;
         }
 
-        function clearInput(team) {
-            document.getElementById(`input-${team}`).value = '';
-        }
+        function clearInput(team) { document.getElementById(`input-${team}`).value = ''; }
 
         function renderQ(team) {
             const qData = questionsBank[Math.floor(Math.random() * questionsBank.length)];
             gameState.currentQ[team] = qData;
             const el = document.getElementById(`q-${team}`);
             el.innerHTML = qData.q;
-            
-            if (window.MathJax) {
-                MathJax.typesetPromise([el]);
-            }
+            if (window.MathJax) MathJax.typesetPromise([el]);
         }
 
         async function startGame() {
+            SoundFX.init(); // Initialize Audio on Click
             await loadQuestionsFromSheet();
             document.getElementById('modal-overlay').classList.add('hidden');
             gameState.active = true;
@@ -396,64 +392,37 @@
             const timerInterval = setInterval(() => {
                 gameState.time--;
                 document.getElementById('timer').innerText = gameState.time;
-                if (gameState.time <= 0) {
-                    // Logic to determine winner if timer runs out
-                    let winner = 'Draw';
-                    if (gameState.ropePos < -5) winner = 'Blue';
-                    else if (gameState.ropePos > 5) winner = 'Red';
-                    else if (gameState.scores.blue > gameState.scores.red) winner = 'Blue';
-                    else if (gameState.scores.red > gameState.scores.blue) winner = 'Red';
-                    endGame(winner);
+                if (gameState.time <= 0 || !gameState.active) {
+                    clearInterval(timerInterval);
+                    if(gameState.time <= 0) {
+                        let winner = 'Draw';
+                        if (gameState.ropePos < -5) winner = 'Blue';
+                        else if (gameState.ropePos > 5) winner = 'Red';
+                        endGame(winner);
+                    }
                 }
-                if (!gameState.active) clearInterval(timerInterval);
             }, 1000);
         }
 
         function endGame(winner) {
             gameState.active = false;
             SoundFX.win();
-            
             if (winner !== 'Draw') {
                 confetti({
                     particleCount: 150,
-                    spread: 70,
                     origin: { y: 0.6 },
                     colors: winner === 'Blue' ? ['#2563eb', '#ffffff'] : ['#dc2626', '#ffffff']
                 });
             }
-
             document.getElementById('modal-overlay').classList.remove('hidden');
             document.getElementById('start-content').classList.add('hidden');
             document.getElementById('end-content').classList.remove('hidden');
-            
             const winText = document.getElementById('winner-text');
-            const resultDetail = document.getElementById('result-detail');
-            const scoreBoard = document.getElementById('final-scores');
-            const victoryIcon = document.getElementById('victory-icon');
-
-            if (winner === 'Draw') {
-                victoryIcon.innerText = "🤝";
-                winText.innerText = "STALEMATE!";
-                winText.className = "text-4xl font-black mb-1 uppercase text-gray-600";
-                resultDetail.innerText = "Tied on points and power";
-            } else {
-                victoryIcon.innerText = "🏆";
-                winText.innerText = winner + " WINS!";
-                winText.className = `text-4xl font-black mb-1 uppercase ${winner === 'Blue' ? 'text-blue-600' : 'text-red-600'}`;
-                resultDetail.innerText = winner === 'Blue' ? "Team Red was Pulled!" : "Team Blue was Pulled!";
-            }
-
-            scoreBoard.innerHTML = `
-                <div class="text-blue-600">
-                    <span class="block text-xs uppercase opacity-50">Blue Score</span>
-                    ${gameState.scores.blue}
-                </div>
-                <div class="text-gray-300">|</div>
-                <div class="text-red-600">
-                    <span class="block text-xs uppercase opacity-50">Red Score</span>
-                    ${gameState.scores.red}
-                </div>
-            `;
+            winText.innerText = winner === 'Draw' ? "STALEMATE!" : winner + " WINS!";
+            document.getElementById('final-scores').innerHTML = `
+                <div class="text-blue-600">${gameState.scores.blue}</div>
+                <div class="text-gray-300">VS</div>
+                <div class="text-red-600">${gameState.scores.red}</div>`;
         }
     </script>
 </body>
