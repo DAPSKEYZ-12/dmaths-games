@@ -25,7 +25,6 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
         
-        /* Glassmorphism effects */
         .glass-nav { 
             background: rgba(255, 255, 255, 0.7); 
             backdrop-filter: blur(12px); 
@@ -43,7 +42,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Pattern Background */
         .math-pattern {
             background-color: #f8fafc;
             background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
@@ -75,7 +73,7 @@
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
                 <span class="hidden md:inline-flex items-center px-4 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-full text-sm font-bold">
-                    6 Modules Active
+                    7 Modules Active
                 </span>
             </div>
         </div>
@@ -105,6 +103,19 @@
                     <h3 class="text-2xl font-bold mt-3 mb-2">Divisibility Rules</h3>
                     <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Master mental math shortcuts for speed and accuracy in IGCSE exams.</p>
                     <a href="divisiblity.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Now</a>
+                </div>
+            </div>
+
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800 ring-2 ring-indigo-500/20">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-red-500 to-indigo-600 flex items-center justify-center text-white overflow-hidden relative">
+                    <i class="fas fa-hands-helping text-6xl opacity-80 rotate-12"></i>
+                    <div class="absolute bottom-2 right-4 text-xs font-black bg-white/20 px-2 py-1 rounded">MULTIPLAYER</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-widest bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-full">Arithmetic Battle</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Tug of War</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Fast-paced mental math battle. Solve correctly to pull the rope to your side!</p>
+                    <a href="Tug-of-War.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200 dark:shadow-none">Enter Arena</a>
                 </div>
             </div>
 
@@ -184,7 +195,6 @@
         function toggleDarkMode() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
-            
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
                 icon.className = 'fas fa-moon';
