@@ -33,29 +33,36 @@
         .hero-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
         .filter-btn.active { background-color: #6366f1; color: white; border-color: #6366f1; }
         
-        /* Mobile Menu Transition */
-        #mobile-menu { transition: transform 0.3s ease-in-out; }
+        /* Side Menu Transition */
+        #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen overflow-x-hidden">
+<body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen">
 
-    <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-[60] hidden backdrop-blur-sm"></div>
+    <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></div>
 
-    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-72 bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl p-6">
-        <div class="flex justify-between items-center mb-10">
-            <span class="font-bold text-lg">Menu</span>
-            <button onclick="toggleMenu()" class="text-2xl">&times;</button>
+    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-xl font-extrabold">Settings & Search</h2>
+            <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-2xl">&times;</button>
         </div>
-        <nav class="flex flex-col gap-6">
-            <a href="#" class="font-bold hover:text-indigo-500 transition-colors">Home</a>
-            <a href="#" class="font-bold hover:text-indigo-500 transition-colors">Leaderboard</a>
-            <a href="#" class="font-bold hover:text-indigo-500 transition-colors">Profile</a>
-            <hr class="border-slate-100 dark:border-slate-800">
-            <div class="flex items-center justify-between">
-                <span class="text-sm font-bold opacity-50">Active Modules</span>
-                <span class="px-2 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-lg text-xs font-black">8</span>
+
+        <div class="space-y-4">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Quick Find</p>
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="mobileSearch" placeholder="Search challenges..." 
+                    class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
-        </nav>
+            
+            <div class="pt-6">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Stats</p>
+                <div class="p-4 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-2xl flex justify-between items-center">
+                    <span class="font-bold">Active Modules</span>
+                    <span class="text-xl font-black">8</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <nav class="glass-nav sticky top-0 z-50 border-b border-slate-200">
@@ -65,16 +72,12 @@
                 <span class="text-2xl font-extrabold tracking-tight dark:text-white">DMaths-Games</span>
             </div>
             
-            <div class="flex items-center gap-2 md:gap-4">
+            <div class="flex items-center gap-3">
                 <button onclick="toggleDarkMode()" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
-                
-                <span class="hidden md:inline-flex items-center px-4 py-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-full text-sm font-bold">
-                    8 Modules Active
-                </span>
 
-                <button onclick="toggleMenu()" class="md:hidden p-3 rounded-xl bg-indigo-600 text-white shadow-lg">
+                <button onclick="toggleMenu()" class="p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -83,14 +86,14 @@
 
     <header class="max-w-7xl mx-auto px-6 pt-16 pb-8 text-center">
         <span class="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-900/20 rounded-full">Ready to Play?</span>
-        <h1 class="text-4xl md:text-7xl font-extrabold mb-8 tracking-tight">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight">
             Select Your <span class="text-transparent bg-clip-text hero-gradient">Challenge</span>
         </h1>
 
         <div class="max-w-2xl mx-auto space-y-6">
-            <div class="relative group">
+            <div class="relative group hidden md:block">
                 <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
-                <input type="text" id="gameSearch" placeholder="Search for a topic..." 
+                <input type="text" id="gameSearch" placeholder="Search for a topic (e.g. Algebra)..." 
                     class="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white">
             </div>
 
@@ -99,13 +102,13 @@
                 <button onclick="filterGames('arithmetic')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Arithmetic</button>
                 <button onclick="filterGames('algebra')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Algebra</button>
                 <button onclick="filterGames('geometry')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Geometry</button>
-                <button onclick="filterGames('logic')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Logic</button>
+                <button onclick="filterGames('logic')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Logic & Algorithms</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-6 pb-24">
-        <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-400 to-blue-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <span class="text-6xl z-10 font-bold">÷</span>
@@ -117,27 +120,89 @@
                     <a href="divisiblity.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Now</a>
                 </div>
             </div>
+
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-red-500 to-indigo-600 flex items-center justify-center text-white overflow-hidden relative">
+                    <i class="fas fa-hands-helping text-6xl opacity-80 rotate-12"></i>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-widest bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-full">Arithmetic Battle</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Tug of War</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Fast-paced mental math battle. Pull the rope to your side!</p>
+                    <a href="tugofwar.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200">Enter Arena</a>
+                </div>
             </div>
+
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white overflow-hidden relative">
+                    <i class="fas fa-door-open text-6xl opacity-80"></i>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Logic Puzzle</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Escape Algebra</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Solve algebraic equations to unlock doors and find the exit.</p>
+                    <a href="escapethedoor.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all">Start Escape</a>
+                </div>
+            </div>
+
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-white overflow-hidden">
+                    <i class="fas fa-shapes text-6xl opacity-80"></i>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Year 10 IGCSE</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Geometry Proofs</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Master angle properties in triangles and parallel line logic.</p>
+                    <a href="Geometry.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Now</a>
+                </div>
+            </div>
+
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white relative overflow-hidden">
+                    <div class="text-2xl font-mono italic z-10">ax² + bx + c = 0</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest bg-purple-50 dark:bg-purple-900/20 px-3 py-1 rounded-full">Algebra</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Quadratic Equation</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Solve for 'x' using factorization or the formula.</p>
+                    <a href="quadratic.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Play Game</a>
+                </div>
+            </div>
+
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
+                <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex items-center justify-center text-cyan-400 border border-slate-700 relative overflow-hidden">
+                    <i class="fas fa-microchip text-6xl z-10"></i>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Further Maths</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Flowchart Logic</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Analyze algorithms and iterative math loops.</p>
+                    <a href="loop.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all">Solve Algorithms</a>
+                </div>
+            </div>
+        </div>
+
         <div id="noResults" class="hidden text-center py-20">
+            <i class="fas fa-search text-4xl text-slate-300 mb-4"></i>
             <h3 class="text-xl font-bold text-slate-500">No matching challenges found.</h3>
         </div>
     </main>
 
     <script>
-        // --- Mobile Menu Toggle ---
+        // --- Toggle Bar Logic ---
         function toggleMenu() {
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
-            const isHidden = menu.classList.contains('translate-x-full');
+            const isOpen = !menu.classList.contains('translate-x-full');
             
-            if (isHidden) {
-                menu.classList.remove('translate-x-full');
-                overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Stop scrolling when menu is open
-            } else {
+            if (isOpen) {
                 menu.classList.add('translate-x-full');
                 overlay.classList.add('hidden');
-                document.body.style.overflow = 'auto';
+                document.body.style.overflow = '';
+            } else {
+                menu.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Stop background scroll
             }
         }
 
@@ -156,8 +221,9 @@
             }
         }
 
-        // --- Filtering Logic ---
-        const searchInput = document.getElementById('gameSearch');
+        // --- FILTERING LOGIC ---
+        const desktopSearch = document.getElementById('gameSearch');
+        const mobileSearch = document.getElementById('mobileSearch');
         const cards = document.querySelectorAll('.game-card');
         const filterBtns = document.querySelectorAll('.filter-btn');
         const noResults = document.getElementById('noResults');
@@ -172,15 +238,26 @@
             applyFilters();
         }
 
-        searchInput.addEventListener('input', applyFilters);
+        // Sync both search inputs
+        [desktopSearch, mobileSearch].forEach(input => {
+            input.addEventListener('input', (e) => {
+                // Keep both inputs in sync
+                desktopSearch.value = e.target.value;
+                mobileSearch.value = e.target.value;
+                applyFilters();
+            });
+        });
 
         function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase();
+            const searchTerm = desktopSearch.value.toLowerCase(); // Use the synced value
             let visibleCount = 0;
+
             cards.forEach(card => {
                 const title = card.querySelector('h3').innerText.toLowerCase();
+                const description = card.querySelector('p').innerText.toLowerCase();
                 const category = card.getAttribute('data-category');
-                const matchesSearch = title.includes(searchTerm);
+
+                const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
                 const matchesCategory = activeCategory === 'all' || category === activeCategory;
 
                 if (matchesSearch && matchesCategory) {
@@ -190,9 +267,11 @@
                     card.classList.add('hidden');
                 }
             });
+
             noResults.classList.toggle('hidden', visibleCount > 0);
         }
 
+        // Init
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
             document.getElementById('theme-icon').className = 'fas fa-sun';
