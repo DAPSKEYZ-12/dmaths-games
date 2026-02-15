@@ -80,12 +80,26 @@
         let gameTimer = 10;
         let snake = [{x: 8 * box, y: 8 * box}];
         let food = [];
+        let particles = []; // Array for explosion effect
         let d = "RIGHT";
-        let nextD = "RIGHT"; // Buffer to prevent self-collision on rapid taps
+        let nextD = "RIGHT"; 
         let currentAnswer = 0;
         let gameInterval;
         let timerInterval;
         let currentDifficulty = 'easy';
+
+        function createExplosion(x, y) {
+            for(let i = 0; i < 20; i++) {
+                particles.push({
+                    x: x + box/2,
+                    y: y + box/2,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    alpha: 1,
+                    color: "#22c55e"
+                });
+            }
+        }
 
         function generateProblem() {
             let x, a, b, result, problemStr;
@@ -157,13 +171,13 @@
 
             const newHead = {x: headX, y: headY};
 
-            // 1. Check Wall Collision (End exactly when hitting)
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || collision(newHead, snake)) {
-                gameOver();
+                createExplosion(snake[0].x, snake[0].y);
+                render();
+                setTimeout(gameOver, 300);
                 return;
             }
 
-            // 2. Check Food Collision
             let ateCorrect = false;
             for(let i = 0; i < food.length; i++) {
                 if(headX === food[i].x && headY === food[i].y) {
@@ -174,10 +188,10 @@
                         generateProblem();
                         break;
                     } else {
-                        // Move head onto wrong answer before ending
+                        createExplosion(headX, headY);
                         snake.unshift(newHead);
                         render();
-                        setTimeout(gameOver, 50); 
+                        setTimeout(gameOver, 300); 
                         return;
                     }
                 }
@@ -190,6 +204,19 @@
 
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw particles
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.02;
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 4, 4);
+                if(p.alpha <= 0) particles.splice(i, 1);
+            });
+            ctx.globalAlpha = 1;
+
             for(let i=0; i<snake.length; i++) {
                 ctx.fillStyle = (i == 0) ? "#22c55e" : "#166534";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
