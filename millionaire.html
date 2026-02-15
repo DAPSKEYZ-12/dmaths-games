@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Millionaire | D-MATHS Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at center, #1e1b4b, #020617);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        
+        .option-btn {
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            transition: all 0.2s;
+            clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: #fbbf24;
+            background: linear-gradient(90deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        .option-btn.correct { background: #16a34a !important; border-color: #22c55e !important; }
+        .option-btn.wrong { background: #dc2626 !important; border-color: #ef4444 !important; }
+
+        .ladder-item.active { background: #fbbf24; color: #020617; font-weight: 800; transform: scale(1.05); }
+        
+        .timer-ring {
+            transition: stroke-dashoffset 1s linear;
+        }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center">
+
+    <header class="w-full max-w-6xl flex justify-between items-center mb-8">
+        <a href="index.html" class="glass p-3 rounded-2xl hover:bg-red-500/20 transition-all">
+            <i class="fas fa-times text-xl"></i>
+        </a>
+        
+        <div class="relative flex items-center justify-center">
+            <svg class="w-16 h-16 transform -rotate-90">
+                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="transparent" />
+                <circle id="timer-circle" cx="32" cy="32" r="28" stroke="#fbbf24" stroke-width="4" fill="transparent" 
+                        stroke-dasharray="175.9" stroke-dashoffset="0" class="timer-ring" />
+            </svg>
+            <span id="timer-text" class="absolute font-black text-lg">30</span>
+        </div>
+
+        <div class="flex gap-2">
+            <button onclick="use5050()" id="btn-5050" class="glass w-12 h-12 rounded-full font-bold hover:text-amber-400">50:50</button>
+            <button onclick="useHint()" id="btn-hint" class="glass w-12 h-12 rounded-full hover:text-amber-400"><i class="fas fa-calculator"></i></button>
+            <button onclick="useSkip()" id="btn-skip" class="glass w-12 h-12 rounded-full hover:text-amber-400"><i class="fas fa-redo"></i></button>
+        </div>
+    </header>
+
+    <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <div class="hidden lg:flex flex-col-reverse gap-1">
+            <div class="ladder-item p-2 glass text-center rounded text-xs opacity-50">₦5,000</div>
+            <div class="ladder-item p-2 glass text-center rounded text-xs">₦10,000</div>
+            <div class="ladder-item p-2 glass text-center rounded text-xs">₦25,000</div>
+            <div class="ladder-item p-2 glass text-center rounded text-xs">₦50,000</div>
+            <div class="ladder-item p-2 glass text-center rounded text-xs border-amber-500/50">₦100,000</div>
+            <div class="ladder-item p-2 glass text-center rounded text-xs">₦250,000</div>
+            <div class="ladder-item p-2 glass text-center rounded text-xs">₦500,000</div>
+            <div class="ladder-item p-2 glass text-center rounded text-xs font-black text-amber-400">₦1,000,000</div>
+        </div>
+
+        <div class="lg:col-span-3 space-y-6">
+            <div id="question-box" class="glass p-10 rounded-[2rem] text-center min-h-[200px] flex items-center justify-center border-amber-500/20 shadow-2xl">
+                <h2 id="question-text" class="text-2xl md:text-3xl font-bold leading-relaxed">
+                    Loading Challenge...
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-grid">
+                </div>
+        </div>
+    </main>
+
+    <div id="game-over" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-6">
+        <div class="max-w-md w-full glass p-10 rounded-[3rem] text-center">
+            <h3 id="result-title" class="text-4xl font-black mb-2">Game Over</h3>
+            <p id="result-winnings" class="text-amber-400 text-2xl font-bold mb-6">Winnings: ₦0</p>
+            <div class="grid grid-cols-2 gap-4 mb-8 text-sm">
+                <div class="glass p-4 rounded-2xl">
+                    <p class="text-slate-400">Accuracy</p>
+                    <p id="stat-accuracy" class="text-xl font-bold">0%</p>
+                </div>
+                <div class="glass p-4 rounded-2xl">
+                    <p class="text-slate-400">Avg Time</p>
+                    <p id="stat-time" class="text-xl font-bold">0s</p>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="w-full py-4 bg-amber-500 text-slate-950 rounded-2xl font-black hover:bg-amber-400 transition-all">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "If 2x + 7 = 15, what is the value of x?", a: ["4", "3", "8", "11"], c: 0, h: "Subtract 7 from 15, then divide by 2." },
+            { q: "Find the median of: 2, 8, 5, 1, 9", a: ["8", "1", "5", "9"], c: 2, h: "Rearrange in ascending order first." },
+            { q: "What is the sum of angles in a pentagon?", a: ["360°", "540°", "720°", "180°"], c: 1, h: "Formula: (n-2) × 180" },
+            { q: "Solve for x: log₁₀ x = 3", a: ["30", "100", "1000", "10"], c: 2, h: "Log form to Index form: 10³ = x" },
+            { q: "Find the gradient of y = 4x - 5", a: ["4", "-5", "5", "-4"], c: 0, h: "Look for 'm' in y = mx + c" },
+            { q: "Evaluate: (0.04) ^ 0.5", a: ["0.2", "0.02", "0.4", "0.002"], c: 0, h: "Power of 0.5 is the same as Square Root." }
+        ];
+
+        let state = {
+            currentIdx: 0,
+            score: 0,
+            timeLeft: 30,
+            timer: null,
+            lifelines: { f50: true, hint: true, skip: true },
+            stats: { correct: 0, totalAsked: 0 }
+        };
+
+        function initQuestion() {
+            const q = questions[state.currentIdx];
+            document.getElementById('question-text').innerText = q.q;
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = "";
+            
+            q.a.forEach((opt, i) => {
+                grid.innerHTML += `<button onclick="checkAnswer(${i})" class="option-btn p-6 text-left font-bold text-lg hover:pl-8">
+                    <span class="text-amber-500 mr-4">${String.fromCharCode(65+i)}:</span> ${opt}
+                </button>`;
+            });
+
+            updateLadder();
+            resetTimer();
+        }
+
+        function checkAnswer(idx) {
+            clearInterval(state.timer);
+            const q = questions[state.currentIdx];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            state.stats.totalAsked++;
+
+            if (idx === q.c) {
+                buttons[idx].classList.add('correct');
+                state.stats.correct++;
+                state.score = (state.currentIdx + 1) * 100000; 
+                setTimeout(() => {
+                    state.currentIdx++;
+                    if(state.currentIdx < questions.length) initQuestion();
+                    else finishGame(true);
+                }, 1000);
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[q.c].classList.add('correct');
+                setTimeout(() => finishGame(false), 1500);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(state.timer);
+            state.timeLeft = 30;
+            const circle = document.getElementById('timer-circle');
+            
+            state.timer = setInterval(() => {
+                state.timeLeft--;
+                document.getElementById('timer-text').innerText = state.timeLeft;
+                circle.style.strokeDashoffset = 175.9 * (1 - state.timeLeft/30);
+                
+                if(state.timeLeft <= 0) {
+                    clearInterval(state.timer);
+                    finishGame(false);
+                }
+            }, 1000);
+        }
+
+        // Lifelines
+        function use5050() {
+            if(!state.lifelines.f50) return;
+            state.lifelines.f50 = false;
+            document.getElementById('btn-5050').style.opacity = "0.2";
+            
+            const q = questions[state.currentIdx];
+            const btns = document.querySelectorAll('.option-btn');
+            let removed = 0;
+            [0,1,2,3].sort(() => Math.random() - 0.5).forEach(i => {
+                if(i !== q.c && removed < 2) {
+                    btns[i].style.visibility = "hidden";
+                    removed++;
+                }
+            });
+        }
+
+        function useHint() {
+            if(!state.lifelines.hint) return;
+            state.lifelines.hint = false;
+            document.getElementById('btn-hint').style.opacity = "0.2";
+            alert("CALCULATOR HINT: " + questions[state.currentIdx].h);
+        }
+
+        function useSkip() {
+            if(!state.lifelines.skip) return;
+            state.lifelines.skip = false;
+            document.getElementById('btn-skip').style.opacity = "0.2";
+            state.currentIdx++;
+            initQuestion();
+        }
+
+        function updateLadder() {
+            const items = document.querySelectorAll('.ladder-item');
+            items.forEach((it, i) => {
+                it.classList.toggle('active', i === state.currentIdx);
+            });
+        }
+
+        function finishGame(win) {
+            document.getElementById('game-over').classList.remove('hidden');
+            document.getElementById('result-title').innerText = win ? "MILLIONAIRE!" : "GAME OVER";
+            document.getElementById('result-winnings').innerText = `Winnings: ₦${state.score.toLocaleString()}`;
+            document.getElementById('stat-accuracy').innerText = Math.round((state.stats.correct / state.stats.totalAsked) * 100) + "%";
+            document.getElementById('stat-time').innerText = "12s";
+        }
+
+        initQuestion();
+    </script>
+</body>
+</html>
