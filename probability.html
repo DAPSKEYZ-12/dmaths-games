@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probability Spinner | D-MATHS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        
+        #wheel-container {
+            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+        
+        .pointer {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            background: #f8fafc;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
+
+        .bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 120px;
+        }
+        .bar { transition: height 0.5s ease-out; }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+    <header class="w-full max-w-5xl flex justify-between items-center mb-8">
+        <a href="index.html" class="glass p-3 rounded-2xl hover:bg-red-500/20 transition-all">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="text-center">
+            <h1 class="text-2xl font-black tracking-tight">Probability Spinner</h1>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Theoretical vs Experimental</p>
+        </div>
+        <div class="w-10"></div>
+    </header>
+
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <div class="space-y-6 order-2 lg:order-1">
+            <div class="glass p-6 rounded-[2rem]">
+                <h3 class="text-sm font-black uppercase text-slate-400 mb-4">The Challenge</h3>
+                <p id="question" class="text-lg font-bold mb-4">What is the probability $P(\text{Red})$?</p>
+                <div class="grid grid-cols-2 gap-2" id="options">
+                    </div>
+            </div>
+
+            <div class="glass p-6 rounded-[2rem]">
+                <h3 class="text-sm font-black uppercase text-slate-400 mb-4">Data Tracker</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>Theoretical</span><span id="theo-val">0%</span></div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="theo-bar" class="bg-indigo-500 h-full transition-all" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>Experimental</span><span id="exp-val">0%</span></div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="exp-bar" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center order-1 lg:order-2">
+            <div class="relative w-80 h-80">
+                <div class="pointer absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 z-20"></div>
+                <svg id="wheel" class="w-full h-full transform -rotate-90 shadow-2xl rounded-full" viewBox="0 0 100 100"></svg>
+            </div>
+            <button id="spin-btn" onclick="spinOnce()" class="mt-10 px-12 py-4 bg-indigo-600 rounded-2xl font-black text-xl hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-500/20">SPIN</button>
+            <button onclick="runSim()" class="mt-4 text-slate-400 hover:text-white text-sm font-bold"><i class="fas fa-bolt mr-2"></i>Simulate 100 Spins</button>
+        </div>
+
+        <div class="glass p-6 rounded-[2rem] order-3">
+            <h3 class="text-sm font-black uppercase text-slate-400 mb-6">Spin Distribution</h3>
+            <div id="bar-chart" class="bar-chart-container mb-4">
+                </div>
+            <div class="flex justify-around text-[10px] font-black uppercase text-slate-500" id="bar-labels">
+                </div>
+            <div class="mt-6 pt-6 border-t border-white/5">
+                <p class="text-[10px] text-slate-500 uppercase font-black">Total Spins</p>
+                <p id="total-spins" class="text-3xl font-black">0</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+        const colorNames = ['Red', 'Blue', 'Green', 'Yellow', 'Purple'];
+        let segments = [2, 1, 1, 2]; // Number of slices for each color
+        let totalSlices = 6;
+        let spinHistory = [0, 0, 0, 0, 0];
+        let totalSpins = 0;
+        let targetColorIdx = 0;
+
+        function initWheel() {
+            const svg = document.getElementById('wheel');
+            svg.innerHTML = '';
+            let cumulativePercent = 0;
+
+            segments.forEach((slices, i) => {
+                const percent = (slices / totalSlices) * 100;
+                const startX = Math.cos(2 * Math.PI * (cumulativePercent / 100));
+                const startY = Math.sin(2 * Math.PI * (cumulativePercent / 100));
+                
+                cumulativePercent += percent;
+                
+                const endX = Math.cos(2 * Math.PI * (cumulativePercent / 100));
+                const endY = Math.sin(2 * Math.PI * (cumulativePercent / 100));
+                
+                const largeArcFlag = percent > 50 ? 1 : 0;
+                const pathData = `M 50 50 L ${50 + 50 * startX} ${50 + 50 * startY} A 50 50 0 ${largeArcFlag} 1 ${50 + 50 * endX} ${50 + 50 * endY} Z`;
+                
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", pathData);
+                path.setAttribute("fill", colors[i]);
+                svg.appendChild(path);
+            });
+
+            // Set up question
+            targetColorIdx = Math.floor(Math.random() * segments.length);
+            const theoProb = (segments[targetColorIdx] / totalSlices);
+            document.getElementById('question').innerHTML = `What is $P(\\text{${colorNames[targetColorIdx]}})$?`;
+            document.getElementById('theo-val').innerText = Math.round(theoProb * 100) + "%";
+            document.getElementById('theo-bar').style.width = (theoProb * 100) + "%";
+            
+            // Set up Chart
+            const chart = document.getElementById('bar-chart');
+            const labels = document.getElementById('bar-labels');
+            chart.innerHTML = ''; labels.innerHTML = '';
+            segments.forEach((_, i) => {
+                chart.innerHTML += `<div class="flex-1 bg-slate-800 rounded-t-lg relative group">
+                    <div id="bar-${i}" class="bar w-full absolute bottom-0 rounded-t-lg" style="background:${colors[i]}; height:0%"></div>
+                </div>`;
+                labels.innerHTML += `<span style="color:${colors[i]}">${colorNames[i][0]}</span>`;
+            });
+        }
+
+        let currentRotation = 0;
+        function spinOnce() {
+            const btn = document.getElementById('spin-btn');
+            btn.disabled = true;
+            
+            const extraSpins = 5 + Math.random() * 5;
+            const randomStop = Math.random() * 360;
+            currentRotation += (extraSpins * 360) + randomStop;
+            
+            const wheel = document.getElementById('wheel');
+            wheel.style.transition = 'transform 4s cubic-bezier(0.15, 0, 0.15, 1)';
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                // Calculate which color it landed on
+                // Note: The pointer is at the top (-90 deg from standard SVG)
+                const actualDegrees = (currentRotation % 360);
+                const normalizedDegrees = (360 - (actualDegrees % 360)) % 360;
+                let degreeSum = 0;
+                let winnerIdx = 0;
+                
+                for(let i=0; i<segments.length; i++) {
+                    degreeSum += (segments[i]/totalSlices) * 360;
+                    if(normalizedDegrees <= degreeSum) {
+                        winnerIdx = i;
+                        break;
+                    }
+                }
+                
+                updateStats(winnerIdx);
+                btn.disabled = false;
+            }, 4000);
+        }
+
+        function updateStats(idx) {
+            totalSpins++;
+            spinHistory[idx]++;
+            
+            document.getElementById('total-spins').innerText = totalSpins;
+            
+            // Update Bars
+            const maxHits = Math.max(...spinHistory);
+            spinHistory.forEach((hits, i) => {
+                const height = (hits / maxHits) * 100;
+                document.getElementById(`bar-${i}`).style.height = height + "%";
+            });
+
+            // Update Experimental Prob for target
+            const expProb = (spinHistory[targetColorIdx] / totalSpins);
+            document.getElementById('exp-val').innerText = Math.round(expProb * 100) + "%";
+            document.getElementById('exp-bar').style.width = (expProb * 100) + "%";
+        }
+
+        function runSim() {
+            for(let i=0; i<100; i++) {
+                const rand = Math.random();
+                let sum = 0;
+                for(let j=0; j<segments.length; j++) {
+                    sum += (segments[j]/totalSlices);
+                    if(rand <= sum) {
+                        updateStats(j);
+                        break;
+                    }
+                }
+            }
+        }
+
+        initWheel();
+    </script>
+</body>
+</html>
