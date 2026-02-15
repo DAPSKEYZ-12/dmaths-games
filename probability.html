@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vault Breach | Probability Edition</title>
+    <title>Vault Breach | Probability Protocol</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -14,19 +16,23 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: #020617;
             color: white;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         
+        /* Responsive Grid: 3 cols on mobile, 4 on tablet, 6 on desktop */
         .vault-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
         }
+        @media (min-width: 640px) { .vault-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; } }
+        @media (min-width: 1024px) { .vault-grid { grid-template-columns: repeat(6, 1fr); } }
         
         .item-card { aspect-ratio: 1; perspective: 1000px; }
         .item-inner {
@@ -50,80 +56,104 @@
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
         input:focus { outline: none; border-color: var(--neon); box-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
+        
+        /* MathJax Custom Style */
+        .mjx-chtml { color: #22c55e !important; font-size: 1.1em !important; }
     </style>
 </head>
-<body class="p-4">
+<body class="p-4 md:p-8">
 
-    <div id="guide-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950 p-6">
-        <div class="max-w-md w-full glass p-8 rounded-[2.5rem] border-t-4 border-emerald-500">
+    <div id="guide-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950 p-4">
+        <div class="max-w-md w-full glass p-8 rounded-[2.5rem] border-t-4 border-emerald-500 shadow-2xl">
             <h2 class="text-2xl font-black mb-4 flex items-center gap-3">
                 <i class="fas fa-user-secret text-emerald-500"></i> BREACH PROTOCOL
             </h2>
             <div class="space-y-4 text-slate-300 text-sm leading-relaxed mb-8">
-                <p>1. The vault contains 12 hidden items (<span class="text-amber-400 font-bold">Gold Bars</span> and <span class="text-slate-400 font-bold">Bombs</span>).</p>
-                <p>2. Use the "Data Tracker" to see how many items are inside.</p>
-                <p>3. Calculate the probability of picking a <span class="text-amber-400 font-bold">Gold Bar</span>.</p>
-                <p>4. Type your answer as a <b>fraction</b> (e.g., <span class="mono text-emerald-400">3/12</span> or <span class="mono text-emerald-400">1/4</span>).</p>
+                <p>To breach the vault, you must calculate the <b>Probability</b> of selecting a Gold Bar at random.</p>
+                <div class="bg-black/40 p-3 rounded-xl border border-white/5 mono text-[11px]">
+                    $$P(E) = \frac{\text{favorable outcomes}}{\text{total outcomes}}$$
+                </div>
+                <p>1. Count the <span class="text-amber-400 font-bold">Gold Bars</span>.</p>
+                <p>2. Count the <b>Total</b> items.</p>
+                <p>3. Enter your answer as a fraction (e.g., <span class="text-emerald-400">4/12</span>).</p>
             </div>
-            <button onclick="startGame()" class="w-full py-4 bg-emerald-500 text-slate-950 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-400 transition-all">
+            <button onclick="startGame()" class="w-full py-4 bg-emerald-500 text-slate-950 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20">
                 INITIALIZE HACK
             </button>
         </div>
     </div>
 
-    <header class="flex justify-between items-center mb-6">
-        <a href="index.html" class="glass w-12 h-12 rounded-xl flex items-center justify-center hover:bg-red-500/20">
+    <header class="max-w-5xl mx-auto w-full flex justify-between items-center mb-8">
+        <a href="index.html" class="glass w-12 h-12 rounded-xl flex items-center justify-center hover:bg-red-500/20 transition-colors">
             <i class="fas fa-power-off text-red-500"></i>
         </a>
-        <div class="glass px-6 py-2 rounded-2xl border-b-2 border-emerald-500">
-            <span class="text-[10px] font-black uppercase text-slate-500 block">System Score</span>
-            <span id="score" class="text-xl font-black mono text-emerald-500">0000</span>
+        <div class="flex gap-4">
+            <div class="glass px-4 md:px-6 py-2 rounded-2xl border-b-2 border-emerald-500 text-center">
+                <span class="text-[9px] font-black uppercase text-slate-500 block">System Score</span>
+                <span id="score" class="text-lg md:text-xl font-black mono text-emerald-500">0000</span>
+            </div>
         </div>
-        <div class="text-right">
+        <div class="text-right hidden sm:block">
             <span id="level-tag" class="text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">Level 01</span>
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col gap-6 max-w-lg mx-auto w-full">
+    <main class="flex-1 flex flex-col gap-6 max-w-5xl mx-auto w-full">
         
-        <div class="glass p-6 rounded-[2rem] relative overflow-hidden border-l-4 border-emerald-500">
-            <div class="scanline"></div>
-            <p class="mono text-emerald-500 text-xs mb-2 uppercase font-bold tracking-widest">>> Probability Protocol</p>
-            <h2 id="mission-text" class="text-xl font-bold leading-tight">
-                Calculate $P(\text{GOLD BAR})$
-            </h2>
-            <div class="mt-4 flex gap-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 bg-amber-400 rounded-sm"></div>
-                    <span id="count-gold" class="mono text-sm">-- Gold</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 bg-slate-500 rounded-sm"></div>
-                    <span id="count-total" class="mono text-sm">-- Total</span>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <div class="lg:col-span-4 glass p-6 rounded-[2rem] relative overflow-hidden border-l-4 border-emerald-500">
+                <div class="scanline"></div>
+                <p class="mono text-emerald-500 text-xs mb-2 uppercase font-bold tracking-widest">>> Probability Protocol</p>
+                <h2 class="text-xl font-bold leading-tight mb-4">
+                    Find: $$P(\text{Gold Bar})$$
+                </h2>
+                <div class="grid grid-cols-2 gap-4 lg:grid-cols-1">
+                    <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                        <div class="w-8 h-8 bg-amber-500/20 flex items-center justify-center rounded-lg">
+                            <i class="fas fa-bars text-amber-500"></i>
+                        </div>
+                        <div>
+                            <span id="count-gold" class="mono text-lg block font-bold leading-none">--</span>
+                            <span class="text-[9px] uppercase text-slate-500 font-bold">Gold Found</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                        <div class="w-8 h-8 bg-slate-500/20 flex items-center justify-center rounded-lg">
+                            <i class="fas fa-boxes text-slate-400"></i>
+                        </div>
+                        <div>
+                            <span id="count-total" class="mono text-lg block font-bold leading-none">--</span>
+                            <span class="text-[9px] uppercase text-slate-500 font-bold">Total Items</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div id="vault" class="lg:col-span-8 vault-grid"></div>
         </div>
 
-        <div id="vault" class="vault-grid flex-1 items-center content-center"></div>
-
-        <div class="pb-6">
-            <div class="flex gap-2">
+        <div class="max-w-md mx-auto w-full mt-auto pb-8">
+            <div class="flex gap-3">
                 <input type="text" id="user-input" inputmode="text" 
-                       class="flex-1 bg-slate-900 border-2 border-slate-700 rounded-2xl px-6 py-4 text-center mono text-2xl font-bold text-emerald-400 focus:border-emerald-500 transition-all" 
-                       placeholder="Numerator/Denominator">
-                <button onclick="manualCheck()" class="bg-emerald-500 text-slate-950 px-8 rounded-2xl font-black hover:bg-emerald-400">
-                    <i class="fas fa-unlock"></i>
+                       class="flex-1 bg-slate-900 border-2 border-slate-700 rounded-2xl px-6 py-5 text-center mono text-2xl font-bold text-emerald-400 focus:border-emerald-500 transition-all shadow-inner" 
+                       placeholder="e.g. 1/2">
+                <button onclick="manualCheck()" class="bg-emerald-500 text-slate-950 px-8 rounded-2xl font-black text-xl hover:bg-emerald-400 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-emerald-500/20">
+                    <i class="fas fa-unlock-alt"></i>
                 </button>
             </div>
-            <p class="text-center text-[10px] text-slate-500 mt-2 uppercase font-black tracking-widest">Type fraction (e.g. 5/12)</p>
+            <p class="text-center text-[10px] text-slate-500 mt-4 uppercase font-black tracking-widest opacity-60">Enter the fraction to unlock</p>
         </div>
     </main>
 
-    <div id="overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 hidden backdrop-blur-md">
-        <div class="text-center p-8">
-            <i id="result-icon" class="fas fa-check-circle text-7xl mb-4"></i>
-            <h2 id="result-text" class="text-3xl font-black mb-6 uppercase">VAULT BREACHED</h2>
-            <button onclick="nextLevel()" class="bg-emerald-500 text-slate-950 px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform">
+    <div id="overlay" class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/95 hidden backdrop-blur-xl">
+        <div class="text-center p-8 max-w-sm">
+            <div id="result-icon-bg" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i id="result-icon" class="fas fa-check text-4xl"></i>
+            </div>
+            <h2 id="result-text" class="text-3xl font-black mb-2 uppercase tracking-tight">VAULT BREACHED</h2>
+            <p id="result-math" class="mono text-slate-400 text-sm mb-8"></p>
+            <button onclick="nextLevel()" class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-400 transition-all">
                 Next Sector
             </button>
         </div>
@@ -149,11 +179,12 @@
             inputField.value = "";
             vault.innerHTML = "";
             
-            currentGold = Math.floor(Math.random() * 8) + 2; // 2 to 9
-            currentTotal = 12;
+            // Adjust difficulty: more items as levels increase
+            currentTotal = level < 5 ? 12 : 18;
+            currentGold = Math.floor(Math.random() * (currentTotal - 4)) + 2;
 
-            document.getElementById('count-gold').innerText = `${currentGold} Gold`;
-            document.getElementById('count-total').innerText = `${currentTotal} Total`;
+            document.getElementById('count-gold').innerText = currentGold;
+            document.getElementById('count-total').innerText = currentTotal;
             document.getElementById('level-tag').innerText = `Level ${level.toString().padStart(2, '0')}`;
 
             for (let i = 0; i < currentTotal; i++) {
@@ -162,15 +193,16 @@
                 card.className = 'item-card';
                 card.innerHTML = `
                     <div class="item-inner">
-                        <div class="item-front"><i class="fas fa-lock text-slate-600"></i></div>
-                        <div class="item-back ${isGold ? 'bg-amber-500' : 'bg-slate-700'}">
-                            <i class="fas ${isGold ? 'fa-bars' : 'fa-bomb'} text-2xl"></i>
+                        <div class="item-front"><i class="fas fa-shield-halved text-slate-700 md:text-xl"></i></div>
+                        <div class="item-back ${isGold ? 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'bg-slate-700'}">
+                            <i class="fas ${isGold ? 'fa-bars' : 'fa-bomb'} text-xl md:text-2xl text-white"></i>
                         </div>
                     </div>
                 `;
                 vault.appendChild(card);
             }
 
+            // Shuffle
             for (let i = vault.children.length; i >= 0; i--) {
                 vault.appendChild(vault.children[Math.random() * i | 0]);
             }
@@ -178,39 +210,42 @@
 
         function manualCheck() {
             const input = document.getElementById('user-input').value.trim();
-            if(!input.includes('/')) return alert("Enter fraction using '/' (e.g. 1/2)");
+            if(!input.includes('/')) return;
 
             const [num, den] = input.split('/').map(Number);
-            if(isNaN(num) || isNaN(den) || den === 0) return alert("Invalid fraction format.");
+            if(isNaN(num) || isNaN(den) || den === 0) return;
 
-            // Verify probability
             const userProb = num / den;
             const actualProb = currentGold / currentTotal;
-
-            // Allow for simplified and unsimplified fractions (approximate for floating point)
-            const isCorrect = Math.abs(userProb - actualProb) < 0.001;
+            const isCorrect = Math.abs(userProb - actualProb) < 0.01;
 
             const cards = document.querySelectorAll('.item-card');
             cards.forEach(c => c.classList.add('revealed'));
             
             const overlay = document.getElementById('overlay');
             const icon = document.getElementById('result-icon');
+            const iconBg = document.getElementById('result-icon-bg');
             const text = document.getElementById('result-text');
+            const mathLog = document.getElementById('result-math');
 
             setTimeout(() => {
                 overlay.classList.remove('hidden');
+                mathLog.innerText = `${currentGold} / ${currentTotal} = ${(actualProb * 100).toFixed(1)}%`;
+                
                 if(isCorrect) {
                     score += 100 * level;
                     document.getElementById('score').innerText = score.toString().padStart(4, '0');
-                    icon.className = "fas fa-shield-check text-7xl mb-4 text-emerald-500";
+                    icon.className = "fas fa-check text-emerald-950";
+                    iconBg.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-emerald-500 shadow-[0_0_30px_rgba(34,197,94,0.4)]";
                     text.innerText = "ACCESS GRANTED";
-                    text.className = "text-3xl font-black mb-6 text-emerald-500";
+                    text.className = "text-3xl font-black mb-2 text-emerald-500";
                 } else {
                     score = Math.max(0, score - 50);
                     document.getElementById('score').innerText = score.toString().padStart(4, '0');
-                    icon.className = "fas fa-bomb text-7xl mb-4 text-red-500";
-                    text.innerText = "SECURITY BREACH";
-                    text.className = "text-3xl font-black mb-6 text-red-500";
+                    icon.className = "fas fa-times text-red-950";
+                    iconBg.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-red-500 shadow-[0_0_30px_rgba(239,68,68,0.4)]";
+                    text.innerText = "HACK FAILED";
+                    text.className = "text-3xl font-black mb-2 text-red-500";
                 }
             }, 800);
         }
