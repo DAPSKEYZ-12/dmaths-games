@@ -108,6 +108,31 @@
     <main class="max-w-7xl mx-auto px-6 pb-24">
         <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
 
+          <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
+    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-900 to-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
+        <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 0deg, transparent, #06b6d4, transparent); animation: spin 4s linear infinite;"></div>
+        
+        <div class="z-10 grid grid-cols-3 gap-1 mb-2">
+            <script>
+                for(let i=0; i<9; i++) {
+                    const op = [0.5, 1, 0.5, 1, 0.2, 1, 0.5, 1, 0.5][i];
+                    document.write(`<div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity: ${op}"></div>`);
+                }
+            </script>
+        </div>
+        
+        <div class="z-10 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Protocol Lo Shu</div>
+    </div>
+    <div class="px-2">
+        <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Arithmetic Balance</span>
+        <h3 class="text-2xl font-bold mt-3 mb-2">Magic Square</h3>
+        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Balance the grid so every row, column, and diagonal matches the magic constant.</p>
+        <a href="magic.html" class="flex items-center justify-center w-full py-4 bg-cyan-600 text-white rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-200 dark:shadow-none">
+            <i class="fas fa-cube mr-2 text-xs"></i> Enter Protocol
+        </a>
+    </div>
+</div>
+
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
     <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-indigo-900 via-slate-900 to-amber-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
         <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
@@ -415,6 +440,7 @@
     </script>
 </body>
 </html>
+
 
 
 
