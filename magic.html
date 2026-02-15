@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Square | Lo Shu Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .input-node { background: rgba(30, 41, 59, 0.5); border: 2px solid #334155; color: white; text-align: center; font-family: 'JetBrains Mono'; transition: all 0.3s; }
+        .input-node:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); }
+        .sum-indicator { font-size: 0.75rem; font-weight: 800; color: #64748b; }
+        .valid-sum { color: #10b981 !important; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+        .invalid-sum { color: #ef4444 !important; }
+        .magic-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div id="briefing" class="fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-6">
+        <div class="glass max-w-lg w-full p-8 rounded-[2.5rem] border border-cyan-500/30 text-center">
+            <div class="w-16 h-16 bg-cyan-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg shadow-cyan-500/20">
+                <i class="fas fa-th text-2xl text-white"></i>
+            </div>
+            <h2 class="text-3xl font-black mb-4">Lo Shu Protocol</h2>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed">
+                Arrange the numbers so that every <span class="text-cyan-400 font-bold">row</span>, 
+                <span class="text-cyan-400 font-bold">column</span>, and <span class="text-cyan-400 font-bold">diagonal</span> 
+                sums up to the same <span class="text-white font-bold">Magic Constant</span>.
+            </p>
+            <button onclick="closeBriefing()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-4 rounded-2xl transition-all uppercase tracking-widest">
+                Initiate Grid
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-2xl flex justify-between items-center mb-10">
+        <a href="index.html" class="p-3 glass rounded-xl text-slate-400 hover:text-white transition-all"><i class="fas fa-arrow-left"></i></a>
+        <div class="text-center">
+            <h1 class="text-2xl font-black tracking-tighter text-cyan-500 uppercase">Magic_Square</h1>
+            <p id="targetDisplay" class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Target Sum: 15</p>
+        </div>
+        <div class="glass px-4 py-2 rounded-xl text-cyan-400 font-mono" id="timer">00:00</div>
+    </div>
+
+    <div class="relative glass p-6 md:p-12 rounded-[3rem] border border-white/5">
+        <div id="rowIndicators" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 flex flex-col gap-8 md:gap-12"></div>
+        
+        <div id="grid" class="grid gap-2 md:gap-4 mx-auto"></div>
+
+        <div id="colIndicators" class="mt-4 md:mt-8 flex justify-center gap-8 md:gap-12"></div>
+    </div>
+
+    <div class="mt-12 flex gap-4">
+        <button onclick="resetGrid()" class="px-6 py-3 glass rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-white/5">Clear Grid</button>
+        <button onclick="nextLevel()" id="nextBtn" class="hidden px-8 py-3 bg-indigo-600 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-indigo-500">Next Protocol</button>
+    </div>
+
+    <script>
+        let gridSize = 3;
+        let magicConstant = 15;
+        let startTime;
+        let timerInterval;
+
+        function closeBriefing() {
+            document.getElementById('briefing').style.display = 'none';
+            startTime = Date.now();
+            startTimer();
+            initGrid();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const m = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const s = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function initGrid() {
+            const grid = document.getElementById('grid');
+            const rowInd = document.getElementById('rowIndicators');
+            const colInd = document.getElementById('colIndicators');
+            
+            grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            grid.innerHTML = '';
+            rowInd.innerHTML = '';
+            colInd.innerHTML = '';
+
+            const nodeSize = gridSize === 3 ? 'w-16 h-16 md:w-20 md:h-20 text-2xl' : 'w-12 h-12 md:w-16 md:h-16 text-xl';
+
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = `input-node rounded-2xl ${nodeSize}`;
+                input.dataset.index = i;
+                input.oninput = validate;
+                grid.appendChild(input);
+            }
+
+            for (let i = 0; i < gridSize; i++) {
+                rowInd.innerHTML += `<div class="sum-indicator" id="row-sum-${i}">0</div>`;
+                colInd.innerHTML += `<div class="sum-indicator" id="col-sum-${i}">0</div>`;
+            }
+        }
+
+        function validate() {
+            const inputs = document.querySelectorAll('.input-node');
+            const values = Array.from(inputs).map(i => parseInt(i.value) || 0);
+            
+            let allValid = true;
+
+            // Row Checks
+            for (let r = 0; r < gridSize; r++) {
+                let sum = 0;
+                for (let c = 0; c < gridSize; c++) sum += values[r * gridSize + c];
+                updateIndicator(`row-sum-${r}`, sum);
+                if (sum !== magicConstant) allValid = false;
+            }
+
+            // Col Checks
+            for (let c = 0; c < gridSize; c++) {
+                let sum = 0;
+                for (let r = 0; r < gridSize; r++) sum += values[r * gridSize + c];
+                updateIndicator(`col-sum-${c}`, sum);
+                if (sum !== magicConstant) allValid = false;
+            }
+
+            // Diagonal Checks (Internal Logic)
+            let d1 = 0, d2 = 0;
+            for (let i = 0; i < gridSize; i++) {
+                d1 += values[i * gridSize + i];
+                d2 += values[i * gridSize + (gridSize - 1 - i)];
+            }
+            if (d1 !== magicConstant || d2 !== magicConstant) allValid = false;
+
+            // Check if all inputs are filled and no duplicates
+            const filled = values.every(v => v > 0);
+            const unique = new Set(values.filter(v => v > 0)).size === values.filter(v => v > 0).length;
+
+            if (allValid && filled && unique) {
+                document.getElementById('nextBtn').classList.remove('hidden');
+                confettiEffect();
+            }
+        }
+
+        function updateIndicator(id, sum) {
+            const el = document.getElementById(id);
+            el.innerText = sum;
+            if (sum === magicConstant) el.className = 'sum-indicator valid-sum';
+            else if (sum > magicConstant) el.className = 'sum-indicator invalid-sum';
+            else el.className = 'sum-indicator';
+        }
+
+        function nextLevel() {
+            gridSize = 4;
+            magicConstant = 34; // Constant for 4x4 using 1-16
+            document.getElementById('targetDisplay').innerText = `Target Sum: ${magicConstant}`;
+            document.getElementById('nextBtn').classList.add('hidden');
+            initGrid();
+        }
+
+        function resetGrid() {
+            document.querySelectorAll('.input-node').forEach(i => i.value = '');
+            validate();
+        }
+    </script>
+</body>
+</html>
