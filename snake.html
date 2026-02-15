@@ -27,17 +27,17 @@
         <p class="text-slate-400 mb-8 text-sm uppercase tracking-widest">Adjust speed and calculation depth</p>
         
         <div class="grid gap-4 w-full max-w-[300px]">
-            <button onclick="startGame(250, 'easy')" class="glass p-4 rounded-2xl hover:border-emerald-500 transition-all group">
+            <button onclick="startGame(400, 'easy')" class="glass p-4 rounded-2xl hover:border-emerald-500 transition-all group">
                 <span class="block font-bold text-emerald-400 group-hover:scale-110 transition-transform">SIMPLE</span>
-                <span class="text-[10px] text-slate-500 italic">Very Slow • Basic Addition</span>
+                <span class="text-[10px] text-slate-500 italic">Very Slow Pace</span>
             </button>
-            <button onclick="startGame(110, 'medium')" class="glass p-4 rounded-2xl hover:border-amber-500 transition-all group">
+            <button onclick="startGame(200, 'medium')" class="glass p-4 rounded-2xl hover:border-amber-500 transition-all group">
                 <span class="block font-bold text-amber-400 group-hover:scale-110 transition-transform">AVERAGE</span>
-                <span class="text-[10px] text-slate-500 italic">Steady pace • Linear Equations</span>
+                <span class="text-[10px] text-slate-500 italic">Medium Pace</span>
             </button>
-            <button onclick="startGame(70, 'hard')" class="glass p-4 rounded-2xl hover:border-red-500 transition-all group">
+            <button onclick="startGame(80, 'hard')" class="glass p-4 rounded-2xl hover:border-red-500 transition-all group">
                 <span class="block font-bold text-red-400 group-hover:scale-110 transition-transform">HARD</span>
-                <span class="text-[10px] text-slate-500 italic">Rapid speed • Advanced Algebra</span>
+                <span class="text-[10px] text-slate-500 italic">Normal Fast Pace</span>
             </button>
         </div>
     </div>
@@ -75,10 +75,11 @@
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        const box = 20;
+        // Box size increased for a bigger snake and chunkier grid
+        const box = 25; 
         let score = 0;
         let gameTimer = 10;
-        let snake = [{x: 10 * box, y: 10 * box}];
+        let snake = [{x: 8 * box, y: 8 * box}];
         let food = [];
         let d = "RIGHT";
         let currentAnswer = 0;
@@ -120,12 +121,12 @@
                     val = x;
                 } else {
                     val = x + (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
-                    if(val < 0) val = Math.abs(val) + 1; 
+                    if(val < 1) val = Math.abs(val) + 2; 
                     if(val === x) val++;
                 }
                 food.push({
-                    x: Math.floor(Math.random() * 19) * box,
-                    y: Math.floor(Math.random() * 19) * box,
+                    x: Math.floor(Math.random() * (canvas.width/box - 1)) * box,
+                    y: Math.floor(Math.random() * (canvas.height/box - 1)) * box,
                     val: val
                 });
             }
@@ -168,8 +169,8 @@
                 ctx.roundRect(f.x, f.y, box, box, 5);
                 ctx.fill();
                 ctx.fillStyle = "black";
-                ctx.font = "bold 12px JetBrains Mono";
-                ctx.fillText(f.val, f.x + 4, f.y + 15);
+                ctx.font = "bold 14px JetBrains Mono";
+                ctx.fillText(f.val, f.x + 5, f.y + 18);
             });
 
             let headX = snake[0].x;
@@ -187,10 +188,9 @@
                         score += (currentDifficulty === 'hard' ? 200 : 100);
                         document.getElementById("score").innerText = score.toString().padStart(4, '0');
                         generateProblem();
-                        ateFood = true;
+                        ateFood = true; // Snake will grow because we don't pop() the tail
                     } else {
-                        // Game ends immediately if wrong answer is swallowed
-                        gameOver();
+                        gameOver(); // ENDS IMMEDIATELY ON WRONG ANSWER
                     }
                 }
             });
@@ -218,8 +218,6 @@
                 gameTimer--;
                 document.getElementById("timer").innerText = gameTimer + "s";
                 if(gameTimer <= 0) {
-                    // Penalty for time out: shrink or end. 
-                    // Keeping original logic of shrinking, but generate new problem
                     if(snake.length > 1) {
                         snake.pop();
                     } else {
