@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Graph Master | D-MATHS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
+            color: white;
+            touch-action: none; /* Prevents scrolling while drawing */
+            overflow: hidden;
+        }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        canvas { cursor: crosshair; touch-action: none; }
+        .math-font { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Grid Overlay styling */
+        .coordinates { pointer-events: none; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <header class="p-4 flex justify-between items-center z-50">
+        <a href="index.html" class="glass px-4 py-2 rounded-xl font-bold text-white flex items-center gap-2 hover:bg-red-500/20 transition-all">
+            <i class="fas fa-home"></i> <span class="hidden md:inline">Exit</span>
+        </a>
+        <div class="glass px-6 py-2 rounded-2xl flex gap-6">
+            <div class="text-center"><p class="text-[10px] text-slate-400 font-bold uppercase">Score</p><p id="score" class="text-xl font-black">0</p></div>
+            <div class="text-center"><p class="text-[10px] text-slate-400 font-bold uppercase">Level</p><p id="level-txt" class="text-xl font-black text-indigo-400">1</p></div>
+        </div>
+        <button onclick="location.reload()" class="glass p-3 rounded-xl hover:bg-white/10"><i class="fas fa-sync-alt"></i></button>
+    </header>
+
+    <main class="flex-1 relative flex flex-col items-center justify-center p-4">
+        
+        <div class="glass w-full max-w-md p-6 rounded-[2rem] mb-6 text-center shadow-2xl">
+            <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">Plot the Line</p>
+            <h2 id="equation" class="math-font text-3xl md:text-4xl font-black text-white">y = 2x + 1</h2>
+            <p id="instruction" class="text-indigo-400 text-xs mt-3 font-semibold">Click two points on the grid to draw.</p>
+        </div>
+
+        <div class="relative glass rounded-3xl overflow-hidden shadow-2xl border-2 border-indigo-500/20 w-full max-w-[500px] aspect-square">
+            <canvas id="graphCanvas"></canvas>
+            <div class="coordinates absolute top-2 right-4 text-slate-500 font-bold text-xs uppercase">Y-Axis</div>
+            <div class="coordinates absolute bottom-2 left-1/2 -translate-x-1/2 text-slate-500 font-bold text-xs uppercase">X-Axis</div>
+        </div>
+
+    </main>
+
+    <div id="feedback" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-2xl font-black text-xl z-[100] scale-0 transition-transform"></div>
+
+    <script>
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        let score = 0;
+        let level = 1;
+        let points = [];
+        let targetLine = { m: 2, c: 1 };
+        
+        // Grid config
+        const gridSize = 40; // Pixels per unit
+        let width, height, centerX, centerY;
+
+        function resize() {
+            const size = Math.min(canvas.parentElement.offsetWidth, 500);
+            canvas.width = size;
+            canvas.height = size;
+            width = canvas.width;
+            height = canvas.height;
+            centerX = width / 2;
+            centerY = height / 2;
+            drawGrid();
+        }
+
+        window.addEventListener('resize', resize);
+        setTimeout(resize, 100);
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw grid lines
+            ctx.beginPath();
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x <= width; x += gridSize) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, height);
+                ctx.moveTo(0, x); ctx.lineTo(width, x);
+            }
+            ctx.stroke();
+
+            // Draw Axes
+            ctx.beginPath();
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+            // X-Axis
+            ctx.moveTo(0, centerY); ctx.lineTo(width, centerY);
+            // Y-Axis
+            ctx.moveTo(centerX, 0); ctx.lineTo(centerX, height);
+            ctx.stroke();
+
+            // Draw labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px Arial';
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                ctx.fillText(i, centerX + i * gridSize - 5, centerY + 15);
+                ctx.fillText(-i, centerX - 15, centerY + i * gridSize + 5);
+            }
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const rawX = clientX - rect.left;
+            const rawY = clientY - rect.top;
+            
+            // Convert to Math coords
+            const mathX = Math.round((rawX - centerX) / gridSize);
+            const mathY = Math.round((centerY - rawY) / gridSize);
+            
+            return { rawX, rawY, mathX, mathY };
+        }
+
+        canvas.addEventListener('mousedown', handleClick);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleClick(e); });
+
+        function handleClick(e) {
+            if (points.length >= 2) return;
+
+            const pos = getMousePos(e);
+            points.push(pos);
+            
+            // Draw point
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.arc(pos.rawX, pos.rawY, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (points.length === 2) {
+                checkResult();
+            }
+        }
+
+        function checkResult() {
+            const p1 = points[0];
+            const p2 = points[1];
+            
+            // Calculate player's line: y = mx + c
+            const m = (p2.mathY - p1.mathY) / (p2.mathX - p1.mathX);
+            const c = p1.mathY - m * p1.mathX;
+
+            // Visual line draw
+            ctx.beginPath();
+            ctx.strokeStyle = '#f97316';
+            ctx.lineWidth = 4;
+            ctx.moveTo(p1.rawX - (p1.rawX * 2), p1.rawY - (m * -p1.rawX * gridSize)); // Simple extend
+            ctx.lineTo(width + width, p2.rawY + (m * width)); 
+            ctx.stroke();
+
+            // Compare with target
+            const mCorrect = Math.abs(m - targetLine.m) < 0.1;
+            const cCorrect = Math.abs(c - targetLine.c) < 0.1;
+
+            if (mCorrect && cCorrect) {
+                showFeedback("PERFECT PLOT!", "bg-emerald-500");
+                score += 100;
+                level++;
+            } else {
+                showFeedback("INCORRECT", "bg-red-500");
+                score = Math.max(0, score - 50);
+            }
+
+            document.getElementById('score').innerText = score;
+            document.getElementById('level-txt').innerText = level;
+
+            setTimeout(newRound, 2000);
+        }
+
+        function newRound() {
+            points = [];
+            // Generate new linear equation
+            const m = Math.floor(Math.random() * 4) - 2 || 1;
+            const c = Math.floor(Math.random() * 5) - 2;
+            targetLine = { m, c };
+            
+            document.getElementById('equation').innerText = `y = ${m === 1 ? '' : m === -1 ? '-' : m}x ${c >= 0 ? '+ ' + c : '- ' + Math.abs(c)}`;
+            drawGrid();
+        }
+
+        function showFeedback(text, color) {
+            const el = document.getElementById('feedback');
+            el.innerText = text;
+            el.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-2xl font-black text-xl z-[100] transition-transform scale-100 ${color}`;
+            setTimeout(() => el.classList.replace('scale-100', 'scale-0'), 1500);
+        }
+
+        newRound();
+    </script>
+</body>
+</html>
