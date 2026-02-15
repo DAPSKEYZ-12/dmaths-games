@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Algebra Snake | Protocol Alpha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --neon: #22c55e; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; overflow: hidden; }
+        canvas { background: rgba(15, 23, 42, 0.5); border: 2px solid #1e293b; border-radius: 1rem; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .control-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 15px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-[500px] mb-4 flex justify-between items-center">
+        <a href="index.html" class="glass px-4 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors">
+            <i class="fas fa-power-off"></i>
+        </a>
+        <div class="glass px-6 py-2 rounded-xl text-center border-b-2 border-emerald-500">
+            <span class="text-[10px] block uppercase text-slate-500 font-black">Score</span>
+            <span id="score" class="mono text-xl font-bold text-emerald-400">0000</span>
+        </div>
+        <div class="glass px-6 py-2 rounded-xl text-center border-b-2 border-amber-500">
+            <span class="text-[10px] block uppercase text-slate-500 font-black">Timer</span>
+            <span id="timer" class="mono text-xl font-bold text-amber-400">10s</span>
+        </div>
+    </div>
+
+    <div class="w-full max-w-[500px] glass p-4 rounded-2xl mb-4 text-center border-l-4 border-emerald-500">
+        <p class="text-[10px] uppercase font-bold text-emerald-500 mb-1 tracking-widest">Target Equation</p>
+        <h2 id="equation" class="text-3xl font-black mono tracking-tighter">Solving...</h2>
+    </div>
+
+    <canvas id="gameCanvas" width="400" height="400" class="max-w-full h-auto"></canvas>
+
+    <div class="mt-8 grid grid-cols-3 gap-2 lg:hidden">
+        <div></div>
+        <button class="control-btn" onclick="changeDir('UP')"><i class="fas fa-chevron-up"></i></button>
+        <div></div>
+        <button class="control-btn" onclick="changeDir('LEFT')"><i class="fas fa-chevron-left"></i></button>
+        <button class="control-btn" onclick="changeDir('DOWN')"><i class="fas fa-chevron-down"></i></button>
+        <button class="control-btn" onclick="changeDir('RIGHT')"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const box = 20;
+        let score = 0;
+        let gameTimer = 10;
+        let snake = [{x: 10 * box, y: 10 * box}];
+        let food = [];
+        let d = "RIGHT";
+        let currentAnswer = 0;
+        let gameInterval;
+        let timerInterval;
+
+        function generateProblem() {
+            const x = Math.floor(Math.random() * 10) + 1;
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 10);
+            const result = a * x + b;
+            
+            document.getElementById("equation").innerText = `${a}x + ${b} = ${result}`;
+            currentAnswer = x;
+            gameTimer = 10;
+            
+            // Generate 3 random foods, one correct
+            food = [];
+            const correctIndex = Math.floor(Math.random() * 3);
+            for(let i=0; i<3; i++) {
+                food.push({
+                    x: Math.floor(Math.random() * 19) * box,
+                    y: Math.floor(Math.random() * 19) * box,
+                    val: i === correctIndex ? x : x + (Math.random() > 0.5 ? 2 : -2)
+                });
+            }
+        }
+
+        function changeDir(dir) {
+            if(dir == "LEFT" && d != "RIGHT") d = "LEFT";
+            if(dir == "UP" && d != "DOWN") d = "UP";
+            if(dir == "RIGHT" && d != "LEFT") d = "RIGHT";
+            if(dir == "DOWN" && d != "UP") d = "DOWN";
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if(e.keyCode == 37) changeDir("LEFT");
+            if(e.keyCode == 38) changeDir("UP");
+            if(e.keyCode == 39) changeDir("RIGHT");
+            if(e.keyCode == 40) changeDir("DOWN");
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Snake
+            for(let i=0; i<snake.length; i++) {
+                ctx.fillStyle = (i == 0) ? "#22c55e" : "#166534";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = "#020617";
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            // Draw Food
+            food.forEach(f => {
+                ctx.fillStyle = "#fbbf24";
+                ctx.beginPath();
+                ctx.roundRect(f.x, f.y, box, box, 5);
+                ctx.fill();
+                ctx.fillStyle = "black";
+                ctx.font = "12px JetBrains Mono";
+                ctx.fillText(f.val, f.x + 5, f.y + 15);
+            });
+
+            let headX = snake[0].x;
+            let headY = snake[0].y;
+
+            if(d == "LEFT") headX -= box;
+            if(d == "UP") headY -= box;
+            if(d == "RIGHT") headX += box;
+            if(d == "DOWN") headY += box;
+
+            // Collision with Answer
+            let ateFood = false;
+            food.forEach((f, index) => {
+                if(headX == f.x && headY == f.y) {
+                    if(f.val === currentAnswer) {
+                        score += 100;
+                        document.getElementById("score").innerText = score.toString().padStart(4, '0');
+                        generateProblem();
+                        ateFood = true;
+                    } else {
+                        // Shrink if wrong
+                        if(snake.length > 1) snake.pop();
+                        generateProblem();
+                    }
+                }
+            });
+
+            if(!ateFood) snake.pop();
+
+            let newHead = {x: headX, y: headY};
+
+            // Game Over conditions
+            if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || collision(newHead, snake)) {
+                clearInterval(gameInterval);
+                clearInterval(timerInterval);
+                alert("SYSTEM CRASHED. Final Score: " + score);
+                location.reload();
+            }
+
+            snake.unshift(newHead);
+        }
+
+        function collision(head, array) {
+            for(let i=0; i<array.length; i++) {
+                if(head.x == array[i].x && head.y == array[i].y) return true;
+            }
+            return false;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                gameTimer--;
+                document.getElementById("timer").innerText = gameTimer + "s";
+                if(gameTimer <= 0) {
+                    if(snake.length > 1) snake.pop();
+                    generateProblem();
+                }
+            }, 1000);
+        }
+
+        generateProblem();
+        startTimer();
+        gameInterval = setInterval(draw, 120);
+    </script>
+</body>
+</html>
