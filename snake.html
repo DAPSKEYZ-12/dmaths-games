@@ -9,43 +9,67 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --neon: #22c55e; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; overflow: hidden; }
-        canvas { background: rgba(15, 23, 42, 0.5); border: 2px solid #1e293b; border-radius: 1rem; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; overflow: hidden; touch-action: none; }
+        canvas { background: rgba(15, 23, 42, 0.5); border: 2px solid #1e293b; border-radius: 1rem; box-shadow: 0 0 20px rgba(0,0,0,0.5); max-width: 100%; height: auto; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .control-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 15px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+        .control-btn { width: 65px; height: 65px; background: rgba(255,255,255,0.05); border-radius: 15px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); }
+        .difficulty-overlay { position: fixed; inset: 0; background: #020617; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-[500px] mb-4 flex justify-between items-center">
+    <div id="startScreen" class="difficulty-overlay p-6 text-center">
+        <div class="w-16 h-16 bg-emerald-500 rounded-2xl mb-6 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <i class="fas fa-brain text-3xl"></i>
+        </div>
+        <h1 class="text-4xl font-black mb-2 tracking-tighter">SELECT PROTOCOL</h1>
+        <p class="text-slate-400 mb-8 text-sm uppercase tracking-widest">Adjust speed and calculation depth</p>
+        
+        <div class="grid gap-4 w-full max-w-[300px]">
+            <button onclick="startGame(160, 'easy')" class="glass p-4 rounded-2xl hover:border-emerald-500 transition-all group">
+                <span class="block font-bold text-emerald-400 group-hover:scale-110 transition-transform">SIMPLE</span>
+                <span class="text-[10px] text-slate-500 italic">Slow speed • Basic Addition</span>
+            </button>
+            <button onclick="startGame(110, 'medium')" class="glass p-4 rounded-2xl hover:border-amber-500 transition-all group">
+                <span class="block font-bold text-amber-400 group-hover:scale-110 transition-transform">AVERAGE</span>
+                <span class="text-[10px] text-slate-500 italic">Steady pace • Linear Equations</span>
+            </button>
+            <button onclick="startGame(70, 'hard')" class="glass p-4 rounded-2xl hover:border-red-500 transition-all group">
+                <span class="block font-bold text-red-400 group-hover:scale-110 transition-transform">HARD</span>
+                <span class="text-[10px] text-slate-500 italic">Rapid speed • Advanced Algebra</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-[500px] mb-4 flex justify-between items-center px-2">
         <a href="index.html" class="glass px-4 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors">
             <i class="fas fa-power-off"></i>
         </a>
-        <div class="glass px-6 py-2 rounded-xl text-center border-b-2 border-emerald-500">
+        <div class="glass px-4 py-2 rounded-xl text-center border-b-2 border-emerald-500">
             <span class="text-[10px] block uppercase text-slate-500 font-black">Score</span>
             <span id="score" class="mono text-xl font-bold text-emerald-400">0000</span>
         </div>
-        <div class="glass px-6 py-2 rounded-xl text-center border-b-2 border-amber-500">
+        <div class="glass px-4 py-2 rounded-xl text-center border-b-2 border-amber-500">
             <span class="text-[10px] block uppercase text-slate-500 font-black">Timer</span>
             <span id="timer" class="mono text-xl font-bold text-amber-400">10s</span>
         </div>
     </div>
 
-    <div class="w-full max-w-[500px] glass p-4 rounded-2xl mb-4 text-center border-l-4 border-emerald-500">
+    <div class="w-full max-w-[500px] glass p-4 rounded-2xl mb-4 text-center border-l-4 border-emerald-500 mx-2">
         <p class="text-[10px] uppercase font-bold text-emerald-500 mb-1 tracking-widest">Target Equation</p>
-        <h2 id="equation" class="text-3xl font-black mono tracking-tighter">Solving...</h2>
+        <h2 id="equation" class="text-2xl md:text-3xl font-black mono tracking-tighter">Solving...</h2>
     </div>
 
-    <canvas id="gameCanvas" width="400" height="400" class="max-w-full h-auto"></canvas>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-    <div class="mt-8 grid grid-cols-3 gap-2 lg:hidden">
+    <div class="mt-6 grid grid-cols-3 gap-3 md:hidden">
         <div></div>
-        <button class="control-btn" onclick="changeDir('UP')"><i class="fas fa-chevron-up"></i></button>
+        <button class="control-btn shadow-lg" onclick="changeDir('UP')"><i class="fas fa-chevron-up"></i></button>
         <div></div>
-        <button class="control-btn" onclick="changeDir('LEFT')"><i class="fas fa-chevron-left"></i></button>
-        <button class="control-btn" onclick="changeDir('DOWN')"><i class="fas fa-chevron-down"></i></button>
-        <button class="control-btn" onclick="changeDir('RIGHT')"><i class="fas fa-chevron-right"></i></button>
+        <button class="control-btn shadow-lg" onclick="changeDir('LEFT')"><i class="fas fa-chevron-left"></i></button>
+        <button class="control-btn shadow-lg" onclick="changeDir('DOWN')"><i class="fas fa-chevron-down"></i></button>
+        <button class="control-btn shadow-lg" onclick="changeDir('RIGHT')"><i class="fas fa-chevron-right"></i></button>
     </div>
 
     <script>
@@ -60,25 +84,50 @@
         let currentAnswer = 0;
         let gameInterval;
         let timerInterval;
+        let currentDifficulty = 'easy';
 
         function generateProblem() {
-            const x = Math.floor(Math.random() * 10) + 1;
-            const a = Math.floor(Math.random() * 5) + 1;
-            const b = Math.floor(Math.random() * 10);
-            const result = a * x + b;
+            let x, a, b, result, problemStr;
             
-            document.getElementById("equation").innerText = `${a}x + ${b} = ${result}`;
+            // "Numerous" Questions based on Difficulty
+            if (currentDifficulty === 'easy') {
+                x = Math.floor(Math.random() * 10) + 1;
+                b = Math.floor(Math.random() * 20) + 1;
+                result = x + b;
+                problemStr = `x + ${b} = ${result}`;
+            } else if (currentDifficulty === 'medium') {
+                x = Math.floor(Math.random() * 10) + 1;
+                a = Math.floor(Math.random() * 5) + 2;
+                b = Math.floor(Math.random() * 10) + 1;
+                result = a * x + b;
+                problemStr = `${a}x + ${b} = ${result}`;
+            } else {
+                x = Math.floor(Math.random() * 12) + 1;
+                a = Math.floor(Math.random() * 8) + 3;
+                b = Math.floor(Math.random() * 15) + 5;
+                let c = Math.floor(Math.random() * 5) + 1;
+                result = (a * x) - b;
+                problemStr = `${a}x - ${b} = ${result}`;
+            }
+            
+            document.getElementById("equation").innerText = problemStr;
             currentAnswer = x;
-            gameTimer = 10;
+            gameTimer = currentDifficulty === 'hard' ? 7 : 10;
             
-            // Generate 3 random foods, one correct
             food = [];
             const correctIndex = Math.floor(Math.random() * 3);
             for(let i=0; i<3; i++) {
+                let val;
+                if(i === correctIndex) {
+                    val = x;
+                } else {
+                    val = x + (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                    if(val < 0) val += 10; 
+                }
                 food.push({
                     x: Math.floor(Math.random() * 19) * box,
                     y: Math.floor(Math.random() * 19) * box,
-                    val: i === correctIndex ? x : x + (Math.random() > 0.5 ? 2 : -2)
+                    val: val
                 });
             }
         }
@@ -100,7 +149,6 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Snake
             for(let i=0; i<snake.length; i++) {
                 ctx.fillStyle = (i == 0) ? "#22c55e" : "#166534";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
@@ -108,15 +156,14 @@
                 ctx.strokeRect(snake[i].x, snake[i].y, box, box);
             }
 
-            // Draw Food
             food.forEach(f => {
                 ctx.fillStyle = "#fbbf24";
                 ctx.beginPath();
                 ctx.roundRect(f.x, f.y, box, box, 5);
                 ctx.fill();
                 ctx.fillStyle = "black";
-                ctx.font = "12px JetBrains Mono";
-                ctx.fillText(f.val, f.x + 5, f.y + 15);
+                ctx.font = "bold 12px JetBrains Mono";
+                ctx.fillText(f.val, f.x + 4, f.y + 15);
             });
 
             let headX = snake[0].x;
@@ -127,17 +174,15 @@
             if(d == "RIGHT") headX += box;
             if(d == "DOWN") headY += box;
 
-            // Collision with Answer
             let ateFood = false;
-            food.forEach((f, index) => {
+            food.forEach((f) => {
                 if(headX == f.x && headY == f.y) {
                     if(f.val === currentAnswer) {
-                        score += 100;
+                        score += (currentDifficulty === 'hard' ? 200 : 100);
                         document.getElementById("score").innerText = score.toString().padStart(4, '0');
                         generateProblem();
                         ateFood = true;
                     } else {
-                        // Shrink if wrong
                         if(snake.length > 1) snake.pop();
                         generateProblem();
                     }
@@ -148,7 +193,6 @@
 
             let newHead = {x: headX, y: headY};
 
-            // Game Over conditions
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || collision(newHead, snake)) {
                 clearInterval(gameInterval);
                 clearInterval(timerInterval);
@@ -177,9 +221,13 @@
             }, 1000);
         }
 
-        generateProblem();
-        startTimer();
-        gameInterval = setInterval(draw, 120);
+        function startGame(speed, difficulty) {
+            currentDifficulty = difficulty;
+            document.getElementById("startScreen").style.display = "none";
+            generateProblem();
+            startTimer();
+            gameInterval = setInterval(draw, speed);
+        }
     </script>
 </body>
 </html>
