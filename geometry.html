@@ -19,7 +19,6 @@
 
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         
-        /* The Angle Canvas */
         #geometry-stage {
             position: relative;
             height: 300px;
@@ -48,16 +47,21 @@
             justify-content: center;
             font-weight: 800;
             cursor: pointer;
-            transition: transform 0.2s, opacity 0.3s;
+            transition: all 0.3s ease;
             animation: float 4s infinite ease-in-out;
         }
 
         @keyframes float {
-            0%, 100% { translate: 0 0; }
-            50% { translate: 10px -20px; }
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(10px, -20px); }
         }
 
-        .target-bubble:active { transform: scale(0.9); }
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
     </style>
 </head>
 <body class="p-4 flex flex-col">
@@ -67,25 +71,28 @@
             <i class="fas fa-arrow-left"></i> <span>Exit</span>
         </a>
         <div class="flex gap-4">
-            <div class="glass px-6 py-2 rounded-full text-sm font-bold">🎯 Score: <span id="score" class="text-amber-400">0</span></div>
+            <div class="glass px-6 py-2 rounded-full text-sm font-bold tracking-tight">🎯 Score: <span id="score" class="text-amber-400">0</span></div>
         </div>
     </header>
 
     <main class="flex-1 flex flex-col items-center justify-center gap-8">
         
         <div class="text-center">
-            <h1 class="text-2xl font-black mb-1">Target the Missing Angle</h1>
-            <p id="hint" class="text-slate-400 text-sm italic">Supplementary angles sum to 180°</p>
+            <h1 class="text-3xl font-black mb-1 tracking-tight">Geometry Targets</h1>
+            <p id="hint" class="text-indigo-400 text-sm font-bold uppercase tracking-widest">Supplementary angles sum to 180°</p>
         </div>
 
-        <div id="geometry-stage" class="glass rounded-[3rem] max-w-lg mx-auto">
-            <div class="angle-line w-40 bg-slate-500 opacity-50"></div>
-            <div id="angle-arm" class="angle-line w-40 bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.5)]"></div>
-            <div id="angle-text" class="absolute font-black text-2xl text-amber-500" style="transform: translate(60px, -40px);">45°</div>
-            <div id="unknown-text" class="absolute font-black text-3xl text-indigo-400" style="transform: translate(20px, 40px);">x</div>
+        <div id="geometry-stage" class="glass rounded-[3rem] max-w-lg mx-auto w-full">
+            <div id="ref-line" class="angle-line w-40 bg-slate-500 opacity-40"></div>
+            <div id="angle-arm" class="angle-line w-40 bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.6)]"></div>
+            
+            <div id="angle-text" class="absolute font-black text-2xl text-amber-500" style="transform: translate(60px, -50px);">45°</div>
+            <div id="unknown-text" class="absolute font-black text-3xl text-indigo-400" style="transform: translate(25px, 45px);">x</div>
+            
+            <div id="right-angle-marker" class="absolute border-2 border-indigo-500/50 w-6 h-6 hidden" style="transform: translate(0, -24px);"></div>
         </div>
 
-        <div id="target-field" class="relative w-full h-48 overflow-hidden">
+        <div id="target-field" class="relative w-full h-48 max-w-2xl">
             </div>
 
     </main>
@@ -94,32 +101,52 @@
         let score = 0;
         let currentAngle = 0;
         let targetAnswer = 0;
+        let gameMode = 'supplementary'; // supplementary (180) or complementary (90)
 
         function initRound() {
             const field = document.getElementById('target-field');
             field.innerHTML = "";
             
-            // Logic: Supplementary angles (180 total)
-            currentAngle = Math.floor(Math.random() * 130) + 20;
-            targetAnswer = 180 - currentAngle;
+            // Randomly switch modes to keep the player thinking
+            gameMode = Math.random() > 0.5 ? 'supplementary' : 'complementary';
+            const hintEl = document.getElementById('hint');
+            const rightAngleEl = document.getElementById('right-angle-marker');
+            const refLine = document.getElementById('ref-line');
+
+            if (gameMode === 'complementary') {
+                hintEl.innerText = "Complementary angles sum to 90°";
+                hintEl.className = "text-emerald-400 text-sm font-bold uppercase tracking-widest";
+                currentAngle = Math.floor(Math.random() * 60) + 15;
+                targetAnswer = 90 - currentAngle;
+                rightAngleEl.classList.remove('hidden');
+                refLine.className = "angle-line w-40 bg-slate-500 opacity-40";
+            } else {
+                hintEl.innerText = "Supplementary angles sum to 180°";
+                hintEl.className = "text-indigo-400 text-sm font-bold uppercase tracking-widest";
+                currentAngle = Math.floor(Math.random() * 130) + 20;
+                targetAnswer = 180 - currentAngle;
+                rightAngleEl.classList.add('hidden');
+                refLine.className = "angle-line w-40 bg-slate-500 opacity-40";
+            }
 
             // Update Visuals
             document.getElementById('angle-arm').style.transform = `rotate(-${currentAngle}deg)`;
             document.getElementById('angle-text').innerText = `${currentAngle}°`;
             
-            // Spawn Targets
+            // Spawn Targets - Clean logic: all bubbles get the SAME CSS classes
             let options = [targetAnswer];
             while(options.length < 4) {
-                let fake = targetAnswer + (Math.floor(Math.random() * 40) - 20);
-                if(!options.includes(fake) && fake > 0) options.push(fake);
+                let fake = targetAnswer + (Math.floor(Math.random() * 30) - 15);
+                if(!options.includes(fake) && fake > 0 && fake !== targetAnswer) options.push(fake);
             }
             options = options.sort(() => Math.random() - 0.5);
 
             options.forEach((val, i) => {
                 const bubble = document.createElement('div');
-                bubble.className = `target-bubble glass border-2 ${val === targetAnswer ? 'border-amber-500/50' : 'border-indigo-500/30'}`;
+                // Removed the ternary operator that gave different colors to the answer
+                bubble.className = `target-bubble glass border-2 border-indigo-500/30 hover:border-white/50 text-white`;
                 bubble.style.left = `${(i * 25) + 5}%`;
-                bubble.style.top = `${Math.random() * 40 + 20}%`;
+                bubble.style.top = `${Math.random() * 50}%`;
                 bubble.innerHTML = `${val}°`;
                 bubble.onclick = () => checkAnswer(val, bubble);
                 field.appendChild(bubble);
@@ -129,15 +156,22 @@
         function checkAnswer(val, el) {
             if(val === targetAnswer) {
                 score += 100;
-                el.classList.add('bg-amber-500', 'scale-125');
-                el.style.opacity = '0';
+                el.classList.replace('border-indigo-500/30', 'border-amber-500');
+                el.classList.add('bg-amber-500', 'scale-110');
                 document.getElementById('score').innerText = score;
-                setTimeout(initRound, 600);
+                
+                // Pop effect and move to next
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    initRound();
+                }, 400);
             } else {
-                score = Math.max(0, score - 50);
+                score = Math.max(0, score - 25);
                 document.getElementById('score').innerText = score;
-                el.classList.add('bg-red-500', 'shake');
-                setTimeout(() => el.classList.remove('bg-red-500', 'shake'), 500);
+                el.classList.add('bg-red-500', 'shake', 'border-red-500');
+                setTimeout(() => {
+                    el.classList.remove('bg-red-500', 'shake', 'border-red-500');
+                }, 500);
             }
         }
 
