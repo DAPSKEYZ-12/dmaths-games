@@ -27,9 +27,9 @@
         <p class="text-slate-400 mb-8 text-sm uppercase tracking-widest">Adjust speed and calculation depth</p>
         
         <div class="grid gap-4 w-full max-w-[300px]">
-            <button onclick="startGame(160, 'easy')" class="glass p-4 rounded-2xl hover:border-emerald-500 transition-all group">
+            <button onclick="startGame(250, 'easy')" class="glass p-4 rounded-2xl hover:border-emerald-500 transition-all group">
                 <span class="block font-bold text-emerald-400 group-hover:scale-110 transition-transform">SIMPLE</span>
-                <span class="text-[10px] text-slate-500 italic">Slow speed • Basic Addition</span>
+                <span class="text-[10px] text-slate-500 italic">Very Slow • Basic Addition</span>
             </button>
             <button onclick="startGame(110, 'medium')" class="glass p-4 rounded-2xl hover:border-amber-500 transition-all group">
                 <span class="block font-bold text-amber-400 group-hover:scale-110 transition-transform">AVERAGE</span>
@@ -89,7 +89,6 @@
         function generateProblem() {
             let x, a, b, result, problemStr;
             
-            // "Numerous" Questions based on Difficulty
             if (currentDifficulty === 'easy') {
                 x = Math.floor(Math.random() * 10) + 1;
                 b = Math.floor(Math.random() * 20) + 1;
@@ -105,7 +104,6 @@
                 x = Math.floor(Math.random() * 12) + 1;
                 a = Math.floor(Math.random() * 8) + 3;
                 b = Math.floor(Math.random() * 15) + 5;
-                let c = Math.floor(Math.random() * 5) + 1;
                 result = (a * x) - b;
                 problemStr = `${a}x - ${b} = ${result}`;
             }
@@ -122,7 +120,8 @@
                     val = x;
                 } else {
                     val = x + (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
-                    if(val < 0) val += 10; 
+                    if(val < 0) val = Math.abs(val) + 1; 
+                    if(val === x) val++;
                 }
                 food.push({
                     x: Math.floor(Math.random() * 19) * box,
@@ -145,6 +144,13 @@
             if(e.keyCode == 39) changeDir("RIGHT");
             if(e.keyCode == 40) changeDir("DOWN");
         });
+
+        function gameOver() {
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
+            alert("SYSTEM CRASHED. Final Score: " + score);
+            location.reload();
+        }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -183,8 +189,8 @@
                         generateProblem();
                         ateFood = true;
                     } else {
-                        if(snake.length > 1) snake.pop();
-                        generateProblem();
+                        // Game ends immediately if wrong answer is swallowed
+                        gameOver();
                     }
                 }
             });
@@ -194,10 +200,7 @@
             let newHead = {x: headX, y: headY};
 
             if(headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || collision(newHead, snake)) {
-                clearInterval(gameInterval);
-                clearInterval(timerInterval);
-                alert("SYSTEM CRASHED. Final Score: " + score);
-                location.reload();
+                gameOver();
             }
 
             snake.unshift(newHead);
@@ -215,7 +218,13 @@
                 gameTimer--;
                 document.getElementById("timer").innerText = gameTimer + "s";
                 if(gameTimer <= 0) {
-                    if(snake.length > 1) snake.pop();
+                    // Penalty for time out: shrink or end. 
+                    // Keeping original logic of shrinking, but generate new problem
+                    if(snake.length > 1) {
+                        snake.pop();
+                    } else {
+                        gameOver();
+                    }
                     generateProblem();
                 }
             }, 1000);
