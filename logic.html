@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Master | Deduction Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; }
+        .grid-cell { width: 45px; height: 45px; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid #1e293b; }
+        .grid-cell:hover { background: rgba(99, 102, 241, 0.1); }
+        .cell-x { color: #ef4444; font-weight: bold; font-family: 'JetBrains Mono'; }
+        .cell-check { background: #10b981 !important; color: #020617; font-weight: bold; border-radius: 4px; }
+        .header-label { writing-mode: vertical-lr; transform: rotate(180deg); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div class="w-full max-w-4xl flex justify-between items-center mb-8">
+        <a href="index.html" class="p-3 glass rounded-xl text-slate-400 hover:text-white transition-all">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="text-center">
+            <h1 class="text-2xl font-black tracking-tighter text-indigo-500 uppercase">Deduction_Protocol</h1>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Constraint Elimination Mode</p>
+        </div>
+        <div class="glass px-4 py-2 rounded-xl text-right border-b-2 border-indigo-500">
+            <span id="timer" class="mono text-xl text-indigo-400">03:00</span>
+        </div>
+    </div>
+
+    <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-4 space-y-4">
+            <div class="glass p-6 rounded-3xl border-l-4 border-amber-500">
+                <h2 class="text-xs font-black uppercase tracking-[0.2em] text-amber-500 mb-4 flex items-center gap-2">
+                    <i class="fas fa-search"></i> Case Intel
+                </h2>
+                <ul id="clueList" class="space-y-4 text-sm text-slate-300 leading-relaxed">
+                    </ul>
+            </div>
+            
+            <button onclick="checkSolution()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/20 uppercase tracking-widest text-xs">
+                Submit Solution
+            </button>
+        </div>
+
+        <div class="lg:col-span-8 overflow-x-auto glass p-8 rounded-[2.5rem]">
+            <div id="gridContainer" class="inline-block align-middle min-w-full">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        const subjects = ["Algebra", "Trig", "Stats"];
+        const students = ["Ayo", "Musa", "Ada"];
+        const exams = ["UTME", "WAEC", "NECO"];
+        
+        // Correct Answer (Key)
+        const solution = {
+            "Ayo": { subject: "Stats", exam: "NECO" },
+            "Musa": { subject: "Trig", exam: "UTME" },
+            "Ada": { subject: "Algebra", exam: "WAEC" }
+        };
+
+        const clues = [
+            "Ayo does not study Algebra or Trigonometry.",
+            "The UTME candidate is Musa and he prefers Trigonometry.",
+            "The WAEC student is Ada.",
+            "The NECO candidate is not Musa."
+        ];
+
+        function initGame() {
+            // Render Clues
+            const list = document.getElementById('clueList');
+            clues.forEach(clue => {
+                const li = document.createElement('li');
+                li.className = "flex gap-3 items-start border-b border-white/5 pb-2 cursor-pointer hover:text-white";
+                li.innerHTML = `<input type="checkbox" class="mt-1 accent-indigo-500"> <span>${clue}</span>`;
+                list.appendChild(li);
+            });
+
+            // Build Grid
+            const container = document.getElementById('gridContainer');
+            let html = `<table class="border-collapse"><thead><tr><th></th>`;
+            
+            // Sub-headers
+            subjects.concat(exams).forEach(item => {
+                html += `<th class="header-label py-4 text-slate-500 h-24">${item}</th>`;
+            });
+            html += `</tr></thead><tbody>`;
+
+            students.forEach(student => {
+                html += `<tr><td class="pr-4 py-2 font-bold text-xs uppercase text-slate-400">${student}</td>`;
+                for(let i=0; i < (subjects.length + exams.length); i++) {
+                    html += `<td><div class="grid-cell" onclick="toggleCell(this, '${student}', '${i}')"></div></td>`;
+                }
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function toggleCell(el, row, col) {
+            if (el.innerHTML === "") {
+                el.innerHTML = "X";
+                el.classList.add("cell-x");
+            } else if (el.innerHTML === "X") {
+                el.innerHTML = '<i class="fas fa-check"></i>';
+                el.classList.remove("cell-x");
+                el.classList.add("cell-check");
+            } else {
+                el.innerHTML = "";
+                el.classList.remove("cell-check");
+            }
+        }
+
+        function checkSolution() {
+            // Logic to verify against 'solution' object goes here
+            // For now, a simple success feedback
+            alert("Analyzing Protocol... Solution Verified. Intel Level Increased!");
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
