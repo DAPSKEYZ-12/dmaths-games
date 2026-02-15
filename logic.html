@@ -9,15 +9,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; }
-        .grid-cell { width: 45px; height: 45px; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid #1e293b; }
+        .grid-cell { width: 50px; height: 50px; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid #1e293b; font-family: 'JetBrains Mono'; }
         .grid-cell:hover { background: rgba(99, 102, 241, 0.1); }
-        .cell-x { color: #ef4444; font-weight: bold; font-family: 'JetBrains Mono'; }
+        .cell-x { color: #ef4444; font-weight: bold; font-size: 1.2rem; }
         .cell-check { background: #10b981 !important; color: #020617; font-weight: bold; border-radius: 4px; }
         .header-label { writing-mode: vertical-lr; transform: rotate(180deg); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; }
         .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        #briefing-overlay { backdrop-filter: blur(20px); z-index: 100; }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div id="briefing-overlay" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-6">
+        <div class="glass max-w-lg w-full p-8 rounded-[2.5rem] border border-indigo-500/30 shadow-2xl">
+            <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20">
+                <i class="fas fa-user-secret text-2xl text-white"></i>
+            </div>
+            <h2 class="text-3xl font-black mb-4 tracking-tight">Mission Briefing</h2>
+            <div class="space-y-4 text-slate-300 text-sm leading-relaxed mb-8">
+                <p><span class="text-indigo-400 font-bold">Objective:</span> Use the clues to match each student with their subject and exam type.</p>
+                <ul class="space-y-2">
+                    <li class="flex gap-2"><i class="fas fa-mouse-pointer text-indigo-500 mt-1"></i> <span><strong>Click 1:</strong> Mark as Eliminated (X)</span></li>
+                    <li class="flex gap-2"><i class="fas fa-check-circle text-emerald-500 mt-1"></i> <span><strong>Click 2:</strong> Confirm Match (Check)</span></li>
+                    <li class="flex gap-2"><i class="fas fa-info-circle text-amber-500 mt-1"></i> <span>Confirming a match automatically eliminates other possibilities in that row.</span></li>
+                </ul>
+            </div>
+            <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl transition-all uppercase tracking-widest shadow-lg">
+                Accept Mission
+            </button>
+        </div>
+    </div>
 
     <div class="w-full max-w-4xl flex justify-between items-center mb-8">
         <a href="index.html" class="p-3 glass rounded-xl text-slate-400 hover:text-white transition-all">
@@ -27,45 +48,34 @@
             <h1 class="text-2xl font-black tracking-tighter text-indigo-500 uppercase">Deduction_Protocol</h1>
             <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Constraint Elimination Mode</p>
         </div>
-        <div class="glass px-4 py-2 rounded-xl text-right border-b-2 border-indigo-500">
+        <div class="glass px-4 py-2 rounded-xl text-right border-b-2 border-indigo-500 min-w-[100px]">
             <span id="timer" class="mono text-xl text-indigo-400">03:00</span>
         </div>
     </div>
 
-    <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div class="lg:col-span-4 space-y-4">
             <div class="glass p-6 rounded-3xl border-l-4 border-amber-500">
                 <h2 class="text-xs font-black uppercase tracking-[0.2em] text-amber-500 mb-4 flex items-center gap-2">
-                    <i class="fas fa-search"></i> Case Intel
+                    <i class="fas fa-search"></i> Evidence Logs
                 </h2>
-                <ul id="clueList" class="space-y-4 text-sm text-slate-300 leading-relaxed">
-                    </ul>
+                <ul id="clueList" class="space-y-4 text-sm text-slate-300 leading-relaxed"></ul>
             </div>
-            
-            <button onclick="checkSolution()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/20 uppercase tracking-widest text-xs">
+            <button onclick="checkSolution()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
                 Submit Solution
             </button>
         </div>
 
         <div class="lg:col-span-8 overflow-x-auto glass p-8 rounded-[2.5rem]">
-            <div id="gridContainer" class="inline-block align-middle min-w-full">
-                </div>
+            <div id="gridContainer" class="flex justify-center"></div>
         </div>
     </div>
 
     <script>
-        // Game State
         const subjects = ["Algebra", "Trig", "Stats"];
-        const students = ["Ayo", "Musa", "Ada"];
         const exams = ["UTME", "WAEC", "NECO"];
+        const students = ["Ayo", "Musa", "Ada"];
         
-        // Correct Answer (Key)
-        const solution = {
-            "Ayo": { subject: "Stats", exam: "NECO" },
-            "Musa": { subject: "Trig", exam: "UTME" },
-            "Ada": { subject: "Algebra", exam: "WAEC" }
-        };
-
         const clues = [
             "Ayo does not study Algebra or Trigonometry.",
             "The UTME candidate is Musa and he prefers Trigonometry.",
@@ -73,56 +83,101 @@
             "The NECO candidate is not Musa."
         ];
 
+        let timeLeft = 180;
+        let timerId = null;
+
+        function startGame() {
+            document.getElementById('briefing-overlay').style.display = 'none';
+            startTimer();
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                document.getElementById('timer').innerText = 
+                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    alert("TIME EXPIRED: Security Lockdown Initiated.");
+                    window.location.reload();
+                }
+            }, 1000);
+        }
+
         function initGame() {
-            // Render Clues
             const list = document.getElementById('clueList');
             clues.forEach(clue => {
                 const li = document.createElement('li');
-                li.className = "flex gap-3 items-start border-b border-white/5 pb-2 cursor-pointer hover:text-white";
+                li.className = "flex gap-3 items-start border-b border-white/5 pb-2";
                 li.innerHTML = `<input type="checkbox" class="mt-1 accent-indigo-500"> <span>${clue}</span>`;
                 list.appendChild(li);
             });
 
-            // Build Grid
             const container = document.getElementById('gridContainer');
             let html = `<table class="border-collapse"><thead><tr><th></th>`;
-            
-            // Sub-headers
             subjects.concat(exams).forEach(item => {
                 html += `<th class="header-label py-4 text-slate-500 h-24">${item}</th>`;
             });
             html += `</tr></thead><tbody>`;
 
-            students.forEach(student => {
-                html += `<tr><td class="pr-4 py-2 font-bold text-xs uppercase text-slate-400">${student}</td>`;
-                for(let i=0; i < (subjects.length + exams.length); i++) {
-                    html += `<td><div class="grid-cell" onclick="toggleCell(this, '${student}', '${i}')"></div></td>`;
+            students.forEach((student, rowIndex) => {
+                html += `<tr><td class="pr-6 py-2 font-bold text-xs uppercase text-slate-400 text-right">${student}</td>`;
+                for(let colIndex=0; colIndex < (subjects.length + exams.length); colIndex++) {
+                    html += `<td><div class="grid-cell" id="cell-${rowIndex}-${colIndex}" onclick="toggleCell(this, ${rowIndex}, ${colIndex})"></div></td>`;
                 }
                 html += `</tr>`;
             });
-
             html += `</tbody></table>`;
             container.innerHTML = html;
         }
 
-        function toggleCell(el, row, col) {
+        function toggleCell(el, r, c) {
             if (el.innerHTML === "") {
                 el.innerHTML = "X";
                 el.classList.add("cell-x");
+                el.classList.remove("cell-check");
             } else if (el.innerHTML === "X") {
                 el.innerHTML = '<i class="fas fa-check"></i>';
                 el.classList.remove("cell-x");
                 el.classList.add("cell-check");
+                autoCrossOut(r, c);
             } else {
                 el.innerHTML = "";
                 el.classList.remove("cell-check");
             }
         }
 
+        function autoCrossOut(row, col) {
+            // Determine if we are in Subjects (0-2) or Exams (3-5) group
+            const startCol = col < 3 ? 0 : 3;
+            const endCol = col < 3 ? 2 : 5;
+
+            for (let i = startCol; i <= endCol; i++) {
+                if (i !== col) {
+                    const otherCell = document.getElementById(`cell-${row}-${i}`);
+                    if (!otherCell.classList.contains('cell-check')) {
+                        otherCell.innerHTML = "X";
+                        otherCell.classList.add("cell-x");
+                    }
+                }
+            }
+        }
+
         function checkSolution() {
-            // Logic to verify against 'solution' object goes here
-            // For now, a simple success feedback
-            alert("Analyzing Protocol... Solution Verified. Intel Level Increased!");
+            // Simplified check logic for this specific puzzle
+            const ayoStats = document.getElementById('cell-0-2').classList.contains('cell-check');
+            const musaTrig = document.getElementById('cell-1-1').classList.contains('cell-check');
+            const adaWAEC = document.getElementById('cell-2-4').classList.contains('cell-check');
+
+            if (ayoStats && musaTrig && adaWAEC) {
+                clearInterval(timerId);
+                alert("ACCESS GRANTED: Logic Confirmed.");
+            } else {
+                alert("INCONSISTENCY DETECTED: Check your matches.");
+            }
         }
 
         initGame();
