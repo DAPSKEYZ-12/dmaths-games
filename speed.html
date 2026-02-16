@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Speed Arithmetic | Exam Prep</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,14 +27,14 @@
     </a>
 
     <div class="w-full max-w-lg">
-        
+
         <div id="setup-screen" class="glass-card border border-slate-200 rounded-[2.5rem] p-8 shadow-xl text-center">
             <div class="w-20 h-20 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-4xl mx-auto mb-6 shadow-lg shadow-indigo-200">
                 <i class="fas fa-bolt"></i>
             </div>
             <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Speed Arithmetic</h1>
             <p class="text-slate-500 mb-8">Boost your accuracy for WAEC/UTME exams.</p>
-            
+
             <div class="space-y-4 mb-8">
                 <p class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Select Level</p>
                 <div class="grid grid-cols-3 gap-3">
@@ -51,7 +51,7 @@
 
         <div id="game-screen" class="hidden glass-card border border-slate-200 rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden">
             <div class="absolute top-0 left-0 h-2 bg-indigo-500 progress-bar" id="timer-bar" style="width: 100%"></div>
-            
+
             <div class="flex justify-between items-center mb-10 pt-4">
                 <div class="text-left">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Score</p>
@@ -70,7 +70,7 @@
             </div>
 
             <div class="relative mb-6">
-                <input type="number" id="answer-input" placeholder="?" 
+                <input type="number" id="answer-input" placeholder="?"
                     class="w-full bg-slate-100 border-2 border-transparent rounded-2xl py-6 text-center text-4xl font-black text-indigo-600 outline-none focus:border-indigo-500 transition-all"
                     autofocus>
                 <p class="text-center text-slate-400 text-xs mt-4 font-semibold uppercase tracking-widest">Type & Hit Enter</p>
@@ -127,12 +127,12 @@
             timeLeft = 60;
             nextQuestion();
             input.focus();
-            
+
             timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timer-text').innerText = timeLeft + 's';
                 document.getElementById('timer-bar').style.width = (timeLeft / 60 * 100) + '%';
-                
+
                 if (timeLeft <= 0) endGame();
             }, 1000);
         }
@@ -156,9 +156,9 @@
             }
 
             if (op === '+') currentAnswer = a + b;
-            if (op === '-') { 
+            if (op === '-') {
                 if (a < b) [a, b] = [b, a]; // Avoid negatives for speed
-                currentAnswer = a - b; 
+                currentAnswer = a - b;
             }
             if (op === '×') currentAnswer = a * b;
 
@@ -198,7 +198,9 @@
             scores.sort((a, b) => b.s - a.s);
             scores = scores.slice(0, 5);
             localStorage.setItem('arithmetic_ranks', JSON.stringify(scores));
-            
+            const best = Math.max(...scores.map(item => Number(item.s) || 0), 0);
+            localStorage.setItem('speed-highscore', String(best));
+
             document.getElementById('leaderboard').innerHTML = scores.map((item, i) => `
                 <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <span class="font-bold text-slate-500">#${i+1} <span class="ml-2 text-slate-900">${item.s}</span></span>

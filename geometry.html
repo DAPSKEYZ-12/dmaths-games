@@ -18,7 +18,7 @@
         }
 
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        
+
         #geometry-stage {
             position: relative;
             height: 300px;
@@ -72,11 +72,12 @@
         </a>
         <div class="flex gap-4">
             <div class="glass px-6 py-2 rounded-full text-sm font-bold tracking-tight">🎯 Score: <span id="score" class="text-amber-400">0</span></div>
+            <div class="glass px-6 py-2 rounded-full text-sm font-bold tracking-tight">💥 Misses: <span id="misses" class="text-rose-400">0</span>/3</div>
         </div>
     </header>
 
     <main class="flex-1 flex flex-col items-center justify-center gap-8">
-        
+
         <div class="text-center">
             <h1 class="text-3xl font-black mb-1 tracking-tight">Geometry Targets</h1>
             <p id="hint" class="text-indigo-400 text-sm font-bold uppercase tracking-widest">Supplementary angles sum to 180°</p>
@@ -85,10 +86,10 @@
         <div id="geometry-stage" class="glass rounded-[3rem] max-w-lg mx-auto w-full">
             <div id="ref-line" class="angle-line w-40 bg-slate-500 opacity-40"></div>
             <div id="angle-arm" class="angle-line w-40 bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.6)]"></div>
-            
+
             <div id="angle-text" class="absolute font-black text-2xl text-amber-500" style="transform: translate(60px, -50px);">45°</div>
             <div id="unknown-text" class="absolute font-black text-3xl text-indigo-400" style="transform: translate(25px, 45px);">x</div>
-            
+
             <div id="right-angle-marker" class="absolute border-2 border-indigo-500/50 w-6 h-6 hidden" style="transform: translate(0, -24px);"></div>
         </div>
 
@@ -99,6 +100,8 @@
 
     <script>
         let score = 0;
+        let misses = 0;
+        const maxMisses = 3;
         let currentAngle = 0;
         let targetAnswer = 0;
         let gameMode = 'supplementary'; // supplementary (180) or complementary (90)
@@ -106,7 +109,7 @@
         function initRound() {
             const field = document.getElementById('target-field');
             field.innerHTML = "";
-            
+
             // Randomly switch modes to keep the player thinking
             gameMode = Math.random() > 0.5 ? 'supplementary' : 'complementary';
             const hintEl = document.getElementById('hint');
@@ -132,7 +135,7 @@
             // Update Visuals
             document.getElementById('angle-arm').style.transform = `rotate(-${currentAngle}deg)`;
             document.getElementById('angle-text').innerText = `${currentAngle}°`;
-            
+
             // Spawn Targets - Clean logic: all bubbles get the SAME CSS classes
             let options = [targetAnswer];
             while(options.length < 4) {
@@ -153,25 +156,43 @@
             });
         }
 
+        function saveHighScore() {
+            const key = 'geometry-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (score > best) localStorage.setItem(key, String(score));
+        }
+
+        function endGame() {
+            saveHighScore();
+            const retry = confirm(`Mission failed. Final score: ${score}.\nPlay again?`);
+            if (retry) location.reload();
+            else window.location.href = 'index.html';
+        }
+
         function checkAnswer(val, el) {
             if(val === targetAnswer) {
                 score += 100;
                 el.classList.replace('border-indigo-500/30', 'border-amber-500');
                 el.classList.add('bg-amber-500', 'scale-110');
                 document.getElementById('score').innerText = score;
-                
+
                 // Pop effect and move to next
                 setTimeout(() => {
                     el.style.opacity = '0';
                     initRound();
                 }, 400);
             } else {
+                misses++;
                 score = Math.max(0, score - 25);
                 document.getElementById('score').innerText = score;
+                document.getElementById('misses').innerText = misses;
                 el.classList.add('bg-red-500', 'shake', 'border-red-500');
                 setTimeout(() => {
                     el.classList.remove('bg-red-500', 'shake', 'border-red-500');
                 }, 500);
+                if (misses >= maxMisses) {
+                    setTimeout(endGame, 550);
+                }
             }
         }
 

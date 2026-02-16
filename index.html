@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -33,13 +33,26 @@
         .hero-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
         .filter-btn.active { background-color: #6366f1; color: white; border-color: #6366f1; }
         #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .locked .app-protected { display: none; }
     </style>
 </head>
-<body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen">
+<body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen locked">
 
-    <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></div>
+    <div id="loginGate" class="fixed inset-0 z-[90] bg-slate-950/70 backdrop-blur-md flex items-center justify-center px-4">
+        <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-2xl">
+            <p class="text-xs font-black uppercase tracking-[0.3em] text-indigo-500 mb-3">Secure Access</p>
+            <h2 class="text-3xl font-extrabold mb-3">Login to Enter Home</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Enter your player name before opening the DMaths home page, leaderboard, and AI assistant hints.</p>
+            <form id="loginForm" class="space-y-4">
+                <input id="loginName" type="text" placeholder="Player name" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <button type="submit" class="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition">Login & Enter</button>
+            </form>
+        </div>
+    </div>
 
-    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
+    <div id="menu-overlay" onclick="toggleMenu()" class="app-protected fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></div>
+
+    <div id="mobile-menu" class="app-protected fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-xl font-extrabold">Settings & Search</h2>
             <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-2xl">&times;</button>
@@ -49,10 +62,10 @@
             <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Quick Find</p>
             <div class="relative">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="mobileSearch" placeholder="Search challenges..." 
+                <input type="text" id="mobileSearch" placeholder="Search challenges..."
                     class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
-            
+
             <div class="pt-6">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Stats</p>
                 <div class="p-4 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-2xl flex justify-between items-center">
@@ -63,13 +76,13 @@
         </div>
     </div>
 
-    <nav class="glass-nav sticky top-0 z-50 border-b border-slate-200">
+    <nav class="app-protected glass-nav sticky top-0 z-50 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 hero-gradient rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/20">π</div>
                 <span class="text-2xl font-extrabold tracking-tight dark:text-white">DMaths-Games</span>
             </div>
-            
+
             <div class="flex items-center gap-3">
                 <button onclick="toggleDarkMode()" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
                     <i id="theme-icon" class="fas fa-moon"></i>
@@ -82,7 +95,7 @@
         </div>
     </nav>
 
-    <header class="max-w-7xl mx-auto px-6 pt-16 pb-8 text-center">
+    <header class="app-protected max-w-7xl mx-auto px-6 pt-16 pb-8 text-center">
         <span class="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-900/20 rounded-full">Ready to Play?</span>
         <h1 class="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight">
             Select Your <span class="text-transparent bg-clip-text hero-gradient">Challenge</span>
@@ -91,7 +104,7 @@
         <div class="max-w-2xl mx-auto space-y-6">
             <div class="relative group hidden md:block">
                 <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
-                <input type="text" id="gameSearch" placeholder="Search for a topic (e.g. Algebra)..." 
+                <input type="text" id="gameSearch" placeholder="Search for a topic (e.g. Algebra)..."
                     class="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white">
             </div>
 
@@ -105,13 +118,33 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 pb-24">
+    <section class="app-protected max-w-7xl mx-auto px-6 pb-10">
+        <div class="grid lg:grid-cols-2 gap-6">
+            <article class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 class="text-2xl font-extrabold">Leaderboard</h2>
+                    <span class="text-xs uppercase tracking-widest font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">High Scores</span>
+                </div>
+                <div id="leaderboardList" class="space-y-3 text-sm"></div>
+            </article>
+
+            <article class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 class="text-2xl font-extrabold">AI Solution Coach</h2>
+                    <span class="text-xs uppercase tracking-widest font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Predictions</span>
+                </div>
+                <div id="aiPredictionList" class="space-y-3 text-sm max-h-80 overflow-auto pr-1"></div>
+            </article>
+        </div>
+    </section>
+
+    <main class="app-protected max-w-7xl mx-auto px-6 pb-24">
         <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
 
           <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
     <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-900 to-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
         <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 0deg, transparent, #06b6d4, transparent); animation: spin 4s linear infinite;"></div>
-        
+
         <div class="z-10 grid grid-cols-3 gap-1 mb-2">
             <script>
                 for(let i=0; i<9; i++) {
@@ -120,7 +153,7 @@
                 }
             </script>
         </div>
-        
+
         <div class="z-10 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Protocol Lo Shu</div>
     </div>
     <div class="px-2">
@@ -253,7 +286,7 @@
         <a href="geometry.html" class="flex items-center justify-center w-full py-4 bg-amber-600 text-white rounded-2xl font-bold hover:bg-amber-500 transition-all">Start Hunting</a>
     </div>
 </div>
-            
+
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <i class="fas fa-bolt text-6xl z-10 opacity-90 animate-pulse"></i>
@@ -280,7 +313,7 @@
                     <a href="memory.html" class="flex items-center justify-center w-full py-4 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-500 transition-all shadow-lg shadow-purple-200 dark:shadow-none">Play Memory</a>
                 </div>
             </div>
-            
+
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-400 to-blue-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <span class="text-6xl z-10 font-bold">÷</span>
@@ -390,12 +423,137 @@
             }
         }
 
+        const loginGate = document.getElementById('loginGate');
+        const loginForm = document.getElementById('loginForm');
+        const loginName = document.getElementById('loginName');
         const desktopSearch = document.getElementById('gameSearch');
         const mobileSearch = document.getElementById('mobileSearch');
         const cards = document.querySelectorAll('.game-card');
         const filterBtns = document.querySelectorAll('.filter-btn');
         const noResults = document.getElementById('noResults');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const aiPredictionList = document.getElementById('aiPredictionList');
         let activeCategory = 'all';
+
+        function unlockPortal(playerName) {
+            document.body.classList.remove('locked');
+            loginGate.classList.add('hidden');
+            localStorage.setItem('mathPortalPlayer', playerName);
+            renderLeaderboard();
+            renderAiPredictions();
+        }
+
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const playerName = loginName.value.trim();
+            if (!playerName) return;
+            unlockPortal(playerName);
+        });
+
+        function parseScoreValue(rawValue) {
+            const directValue = Number(rawValue);
+            if (!Number.isNaN(directValue)) return directValue;
+
+            try {
+                const parsed = JSON.parse(rawValue);
+                if (Array.isArray(parsed)) {
+                    return parsed.reduce((best, entry) => {
+                        if (typeof entry === 'number') return Math.max(best, entry);
+                        if (entry && typeof entry === 'object') {
+                            const candidates = ['score', 's', 'value'];
+                            for (const field of candidates) {
+                                const n = Number(entry[field]);
+                                if (!Number.isNaN(n)) return Math.max(best, n);
+                            }
+                        }
+                        return best;
+                    }, 0);
+                }
+
+                if (parsed && typeof parsed === 'object') {
+                    const candidates = ['highScore', 'highscore', 'score', 'best'];
+                    for (const field of candidates) {
+                        const n = Number(parsed[field]);
+                        if (!Number.isNaN(n)) return n;
+                    }
+                }
+            } catch (error) {
+                return 0;
+            }
+
+            return 0;
+        }
+
+        function extractHighScore(slug) {
+            const aliasKeys = {
+                speed: ['arithmetic_ranks'],
+                memory: ['memoryRanksTimed', 'memoryRanksClassic'],
+                escapethedoor: ['math_ranks']
+            };
+
+            const keysToCheck = new Set([`${slug}-highscore`, `${slug}_highscore`]);
+            (aliasKeys[slug] || []).forEach((k) => keysToCheck.add(k));
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const normalizedKey = key.toLowerCase();
+                if (normalizedKey.includes(slug) && normalizedKey.includes('score')) {
+                    keysToCheck.add(key);
+                }
+            }
+
+            const values = [...keysToCheck].map((key) => parseScoreValue(localStorage.getItem(key))).filter((v) => !Number.isNaN(v));
+            return values.length ? Math.max(...values) : 0;
+        }
+
+        function renderLeaderboard() {
+            const scores = [...cards].map((card) => {
+                const title = card.querySelector('h3').innerText.trim();
+                const href = card.querySelector('a').getAttribute('href');
+                const slug = href.replace('.html', '').toLowerCase();
+                return { title, href, score: extractHighScore(slug) };
+            }).sort((a, b) => b.score - a.score).slice(0, 8);
+
+            leaderboardList.innerHTML = scores.map((entry, index) => `
+                <a href="${entry.href}" class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:ring-2 ring-indigo-500/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">${index + 1}</span>
+                        <div>
+                            <p class="font-bold">${entry.title}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Open game · update high score</p>
+                        </div>
+                    </div>
+                    <span class="text-lg font-black text-emerald-600">${entry.score || '—'}</span>
+                </a>
+            `).join('');
+        }
+
+        function buildPrediction(title, category) {
+            const categoryHints = {
+                arithmetic: 'prioritize speed rounds, begin with easiest operators, and use estimation before committing.',
+                algebra: 'predict variable isolation steps, keep coefficients balanced, and verify with substitution.',
+                geometry: 'identify known angles first, map symmetry, and infer missing values from shape properties.',
+                logic: 'eliminate impossible options early, track clues as constraints, and iterate with consistency checks.',
+                stats: 'estimate likely outcomes first, then compare to exact probability formulas for precision.'
+            };
+
+            return `AI predicts that in ${title}, you should ${categoryHints[category] || 'break the challenge into smaller verified steps.'}`;
+        }
+
+        function renderAiPredictions() {
+            const predictions = [...cards].map((card) => {
+                const title = card.querySelector('h3').innerText.trim();
+                const category = card.getAttribute('data-category');
+                return `
+                    <div class="p-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30">
+                        <p class="font-bold text-indigo-700 dark:text-indigo-300 mb-1">${title}</p>
+                        <p class="text-slate-600 dark:text-slate-300">${buildPrediction(title, category)}</p>
+                    </div>
+                `;
+            });
+
+            aiPredictionList.innerHTML = predictions.join('');
+        }
 
         function filterGames(category) {
             activeCategory = category;
@@ -436,6 +594,11 @@
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
             document.getElementById('theme-icon').className = 'fas fa-sun';
+        }
+
+        const existingPlayer = localStorage.getItem('mathPortalPlayer');
+        if (existingPlayer) {
+            unlockPortal(existingPlayer);
         }
     </script>
 </body>

@@ -17,7 +17,7 @@
         }
 
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        
+
         /* Fraction UI */
         .fraction-container { display: flex; flex-direction: column; align-items: center; font-family: 'JetBrains Mono', monospace; }
         .numerator { border-bottom: 3px solid white; padding: 0 10px; font-size: 2.5rem; }
@@ -29,7 +29,7 @@
 
         .btn-action { transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); }
         .btn-action:active { transform: scale(0.95); }
-        
+
         .multiplayer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 640px) { .multiplayer-grid { grid-template-columns: 1fr; } }
     </style>
@@ -41,14 +41,14 @@
     </a>
 
     <div class="max-w-4xl mx-auto pt-16">
-        
+
         <div id="setup" class="glass rounded-[2.5rem] p-8 text-center shadow-2xl">
             <div class="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-6 shadow-lg shadow-emerald-500/20">
                 <i class="fas fa-percentage"></i>
             </div>
             <h1 class="text-4xl font-black mb-2">Fraction Frenzy</h1>
             <p class="text-slate-400 mb-8">Compare, solve, and dominate the number line.</p>
-            
+
             <div class="flex flex-wrap justify-center gap-4 mb-8">
                 <button onclick="setMode('solo')" id="mode-solo" class="px-8 py-3 rounded-2xl bg-emerald-600 font-bold">Solo Blitz</button>
                 <button onclick="setMode('multi')" id="mode-multi" class="px-8 py-3 rounded-2xl bg-slate-800 font-bold hover:bg-slate-700">1v1 Local</button>
@@ -186,10 +186,17 @@
             }, 1000);
         }
 
+        function saveHighScore() {
+            const key = 'fractions-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (gameState.score > best) localStorage.setItem(key, String(gameState.score));
+        }
+
         function endGame() {
             document.getElementById('game').classList.add('hidden');
             document.getElementById('results').classList.remove('hidden');
             document.getElementById('final-score').innerText = gameState.score;
+            saveHighScore();
         }
 
         // GCD for simplification logic (used for "Solve" mode upgrades)

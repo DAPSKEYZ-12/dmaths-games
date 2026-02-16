@@ -12,7 +12,7 @@
             --primary: #6366f1;
             --accent: #bb86fc;
         }
-        body { 
+        body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: #f8fafc;
             background-image: radial-gradient(#e2e8f0 0.8px, transparent 0.8px);
@@ -53,7 +53,7 @@
     </nav>
 
     <div class="max-w-6xl mx-auto px-4 mt-8">
-        
+
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Score</p>
@@ -74,7 +74,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             <div class="lg:col-span-2 space-y-6">
                 <div class="glass-card rounded-3xl p-6 md:p-10 shadow-xl border-b-4 border-indigo-500">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -110,7 +110,7 @@
                     </div>
 
                     <div id="feedback" class="mt-6 text-center font-bold p-4 rounded-xl hidden"></div>
-                    
+
                     <div class="mt-8">
                         <div class="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">
                             <span>Level Progress</span>
@@ -142,7 +142,7 @@
     <script>
         // Use the original game logic state
         const gameState = {
-            score: 0, streak: 0, correctCount: 0, questionCount: 0,
+            score: 0, streak: 0, correctCount: 0, questionCount: 0, roundSize: 10,
             currentQuestion: {}, selectedAnswer: null, level: 'easy',
             divisorsByLevel: {
                 easy: [2, 3, 4, 5],
@@ -210,6 +210,24 @@
             });
         }
 
+        function saveHighScore() {
+            const key = 'divisiblity-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (gameState.score > best) localStorage.setItem(key, String(gameState.score));
+        }
+
+        function endRound() {
+            saveHighScore();
+            const percent = Math.round((gameState.correctCount / gameState.questionCount) * 100);
+            feedbackEl.className = "mt-6 text-center font-bold p-4 rounded-xl bg-indigo-100 text-indigo-700";
+            feedbackEl.innerHTML = `🏁 Round complete! Final score: ${gameState.score} · Accuracy: ${percent}%`;
+            feedbackEl.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            nextBtn.textContent = 'Restart Round';
+            nextBtn.onclick = () => location.reload();
+        }
+
         function generateQuestion() {
             feedbackEl.classList.add('hidden');
             submitBtn.classList.remove('hidden');
@@ -226,7 +244,7 @@
             targetNumberEl.textContent = number.toLocaleString();
             divisorEl.textContent = divisor;
             explanationEl.innerHTML = `<p class='font-bold mb-1 text-amber-700'>Divisibility by ${divisor}:</p>${divisibilityRules[divisor]}<br><span class='text-xs opacity-70 mt-2 block'>Example: ${examples[divisor]}</span>`;
-            
+
             updateProgressBar();
         }
 
@@ -238,9 +256,9 @@
 
         function submitAnswer() {
             if (!gameState.selectedAnswer) return alert("Select an answer!");
-            
+
             const isCorrect = (gameState.selectedAnswer === 'yes' && gameState.currentQuestion.isDivisible) || (gameState.selectedAnswer === 'no' && !gameState.currentQuestion.isDivisible);
-            
+
             gameState.questionCount++;
             if (isCorrect) {
                 gameState.score += 10;
@@ -257,11 +275,15 @@
             feedbackEl.classList.remove('hidden');
             submitBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
-            
+
             scoreEl.textContent = gameState.score;
             streakEl.textContent = gameState.streak;
             document.getElementById('question-count').textContent = gameState.questionCount;
             document.getElementById('progress-percent').textContent = Math.round((gameState.correctCount / gameState.questionCount) * 100) + "%";
+
+            if (gameState.questionCount >= gameState.roundSize) {
+                endRound();
+            }
         }
 
         function updateProgressBar() {

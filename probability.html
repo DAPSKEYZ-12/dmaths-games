@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vault Breach | Probability Protocol</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        
+
         .vault-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -32,7 +32,7 @@
         }
         @media (min-width: 640px) { .vault-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; } }
         @media (min-width: 1024px) { .vault-grid { grid-template-columns: repeat(6, 1fr); } }
-        
+
         .item-card { aspect-ratio: 1; perspective: 1000px; }
         .item-inner {
             position: relative; width: 100%; height: 100%;
@@ -163,7 +163,7 @@
             document.getElementById('overlay').classList.add('hidden');
             document.getElementById('user-input').value = "";
             vault.innerHTML = "";
-            
+
             currentTotal = level <= 3 ? 12 : (level <= 7 ? 16 : 24);
             currentGold = Math.floor(Math.random() * (currentTotal - 4)) + 2;
 
@@ -199,7 +199,7 @@
             const isSimplified = (num === currentGold/divisor && den === currentTotal/divisor);
 
             document.querySelectorAll('.item-card').forEach(c => c.classList.add('revealed'));
-            
+
             setTimeout(() => {
                 document.getElementById('overlay').classList.remove('hidden');
                 if(isCorrect) {
@@ -222,12 +222,19 @@
 
         function nextLevel() { level++; initLevel(); }
 
+        function saveHighScore() {
+            const key = 'probability-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (score > best) localStorage.setItem(key, String(score));
+        }
+
         function endGame(reason) {
             clearInterval(timerId);
             document.getElementById('overlay').classList.remove('hidden');
             document.getElementById('result-text').innerText = reason;
             document.getElementById('result-math').innerHTML = `Final Score: ${score}`;
             document.getElementById('next-btn').innerText = "RESTART";
+            saveHighScore();
             document.getElementById('next-btn').onclick = () => location.reload();
         }
     </script>

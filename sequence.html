@@ -31,18 +31,19 @@
         </div>
         <div class="glass px-4 py-2 rounded-xl text-right border-b-2 border-emerald-500">
             <span id="score" class="mono text-lg text-emerald-400">INTEL: 0000</span>
+            <span id="lives" class="mono text-[11px] text-rose-400 block text-right mt-1">Fails Left: 3</span>
         </div>
     </div>
 
     <main class="w-full max-w-3xl space-y-6">
-        
+
         <div id="sequenceContainer" class="glass p-8 md:p-12 rounded-[2rem] flex flex-wrap gap-4 justify-center items-center terminal-glow relative min-h-[140px]">
             </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="glass p-6 rounded-2xl space-y-3">
                 <label class="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em]">Next Data Point</label>
-                <input type="number" id="numGuess" placeholder="???" 
+                <input type="number" id="numGuess" placeholder="???"
                     class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl mono text-2xl text-center focus:outline-none focus:border-emerald-500 transition-all text-emerald-400">
             </div>
 
@@ -57,7 +58,7 @@
             </div>
         </div>
 
-        <button onclick="verifyProtocol()" 
+        <button onclick="verifyProtocol()"
             class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-5 rounded-2xl transition-all transform active:scale-[0.98] uppercase tracking-[0.2em] text-sm">
             Verify Analysis
         </button>
@@ -67,6 +68,8 @@
 
     <script>
         let score = 0;
+        let mistakes = 0;
+        const maxMistakes = 3;
         let currentPattern = {};
         let selectedRule = "";
 
@@ -108,14 +111,14 @@
             const pIndex = Math.floor(Math.random() * engine.patterns.length);
             currentPattern = engine.patterns[pIndex].generate();
             selectedRule = "";
-            
+
             document.getElementById('numGuess').value = "";
             document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('selected'));
             document.getElementById('hintDisplay').classList.add('hidden');
-            
+
             const container = document.getElementById('sequenceContainer');
             container.innerHTML = "";
-            
+
             currentPattern.seq.forEach((num, i) => {
                 const node = document.createElement('div');
                 node.className = 'number-node';
@@ -135,6 +138,19 @@
             el.classList.add('selected');
         }
 
+        function saveHighScore() {
+            const key = 'sequence-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (score > best) localStorage.setItem(key, String(score));
+        }
+
+        function endGame() {
+            saveHighScore();
+            const playAgain = confirm(`Decoder crashed. Final Intel: ${score}.\nPlay again?`);
+            if (playAgain) location.reload();
+            else window.location.href = 'index.html';
+        }
+
         function verifyProtocol() {
             const guess = parseInt(document.getElementById('numGuess').value);
             const container = document.getElementById('sequenceContainer');
@@ -149,11 +165,16 @@
                 }, 800);
             } else {
                 container.classList.add('error-shake');
+                mistakes++;
                 score = Math.max(0, score - 25);
                 document.getElementById('score').innerText = `INTEL: ${score.toString().padStart(4, '0')}`;
+                document.getElementById('lives').innerText = `Fails Left: ${Math.max(0, maxMistakes - mistakes)}`;
                 document.getElementById('hintDisplay').innerText = `REASONING HINT: ${currentPattern.hint}`;
                 document.getElementById('hintDisplay').classList.remove('hidden');
                 setTimeout(() => container.classList.remove('error-shake'), 400);
+                if (mistakes >= maxMistakes) {
+                    setTimeout(endGame, 500);
+                }
             }
         }
 
