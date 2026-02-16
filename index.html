@@ -33,13 +33,26 @@
         .hero-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
         .filter-btn.active { background-color: #6366f1; color: white; border-color: #6366f1; }
         #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .locked .app-protected { display: none; }
     </style>
 </head>
-<body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen">
+<body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen locked">
 
-    <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></div>
+    <div id="loginGate" class="fixed inset-0 z-[90] bg-slate-950/70 backdrop-blur-md flex items-center justify-center px-4">
+        <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-2xl">
+            <p class="text-xs font-black uppercase tracking-[0.3em] text-indigo-500 mb-3">Secure Access</p>
+            <h2 class="text-3xl font-extrabold mb-3">Login to Enter Home</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Enter your player name before opening the DMaths home page, leaderboard, and AI assistant hints.</p>
+            <form id="loginForm" class="space-y-4">
+                <input id="loginName" type="text" placeholder="Player name" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <button type="submit" class="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition">Login & Enter</button>
+            </form>
+        </div>
+    </div>
 
-    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
+    <div id="menu-overlay" onclick="toggleMenu()" class="app-protected fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></div>
+
+    <div id="mobile-menu" class="app-protected fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-xl font-extrabold">Settings & Search</h2>
             <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-2xl">&times;</button>
@@ -63,7 +76,7 @@
         </div>
     </div>
 
-    <nav class="glass-nav sticky top-0 z-50 border-b border-slate-200">
+    <nav class="app-protected glass-nav sticky top-0 z-50 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 hero-gradient rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/20">π</div>
@@ -82,7 +95,7 @@
         </div>
     </nav>
 
-    <header class="max-w-7xl mx-auto px-6 pt-16 pb-8 text-center">
+    <header class="app-protected max-w-7xl mx-auto px-6 pt-16 pb-8 text-center">
         <span class="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-900/20 rounded-full">Ready to Play?</span>
         <h1 class="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight">
             Select Your <span class="text-transparent bg-clip-text hero-gradient">Challenge</span>
@@ -105,7 +118,27 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 pb-24">
+    <section class="app-protected max-w-7xl mx-auto px-6 pb-10">
+        <div class="grid lg:grid-cols-2 gap-6">
+            <article class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 class="text-2xl font-extrabold">Leaders Board</h2>
+                    <span class="text-xs uppercase tracking-widest font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">High Scores</span>
+                </div>
+                <div id="leaderboardList" class="space-y-3 text-sm"></div>
+            </article>
+
+            <article class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 class="text-2xl font-extrabold">AI Solution Coach</h2>
+                    <span class="text-xs uppercase tracking-widest font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Predictions</span>
+                </div>
+                <div id="aiPredictionList" class="space-y-3 text-sm max-h-80 overflow-auto pr-1"></div>
+            </article>
+        </div>
+    </section>
+
+    <main class="app-protected max-w-7xl mx-auto px-6 pb-24">
         <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
 
           <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
@@ -390,12 +423,97 @@
             }
         }
 
+        const loginGate = document.getElementById('loginGate');
+        const loginForm = document.getElementById('loginForm');
+        const loginName = document.getElementById('loginName');
         const desktopSearch = document.getElementById('gameSearch');
         const mobileSearch = document.getElementById('mobileSearch');
         const cards = document.querySelectorAll('.game-card');
         const filterBtns = document.querySelectorAll('.filter-btn');
         const noResults = document.getElementById('noResults');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const aiPredictionList = document.getElementById('aiPredictionList');
         let activeCategory = 'all';
+
+        function unlockPortal(playerName) {
+            document.body.classList.remove('locked');
+            loginGate.classList.add('hidden');
+            localStorage.setItem('mathPortalPlayer', playerName);
+            renderLeaderboard();
+            renderAiPredictions();
+        }
+
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const playerName = loginName.value.trim();
+            if (!playerName) return;
+            unlockPortal(playerName);
+        });
+
+        function extractHighScore(slug) {
+            const exactKey = `${slug}-highscore`;
+            const values = [];
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const normalizedKey = key.toLowerCase();
+                if (!normalizedKey.includes(slug) && normalizedKey !== exactKey) continue;
+                if (!normalizedKey.includes('score')) continue;
+                const value = Number(localStorage.getItem(key));
+                if (!Number.isNaN(value)) values.push(value);
+            }
+
+            return values.length ? Math.max(...values) : 0;
+        }
+
+        function renderLeaderboard() {
+            const scores = [...cards].map((card) => {
+                const title = card.querySelector('h3').innerText.trim();
+                const href = card.querySelector('a').getAttribute('href');
+                const slug = href.replace('.html', '').toLowerCase();
+                return { title, score: extractHighScore(slug) };
+            }).sort((a, b) => b.score - a.score).slice(0, 6);
+
+            leaderboardList.innerHTML = scores.map((entry, index) => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">${index + 1}</span>
+                        <div>
+                            <p class="font-bold">${entry.title}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Top performance</p>
+                        </div>
+                    </div>
+                    <span class="text-lg font-black text-emerald-600">${entry.score || '—'}</span>
+                </div>
+            `).join('');
+        }
+
+        function buildPrediction(title, category) {
+            const categoryHints = {
+                arithmetic: 'prioritize speed rounds, begin with easiest operators, and use estimation before committing.',
+                algebra: 'predict variable isolation steps, keep coefficients balanced, and verify with substitution.',
+                geometry: 'identify known angles first, map symmetry, and infer missing values from shape properties.',
+                logic: 'eliminate impossible options early, track clues as constraints, and iterate with consistency checks.',
+                stats: 'estimate likely outcomes first, then compare to exact probability formulas for precision.'
+            };
+
+            return `AI predicts that in ${title}, you should ${categoryHints[category] || 'break the challenge into smaller verified steps.'}`;
+        }
+
+        function renderAiPredictions() {
+            const predictions = [...cards].map((card) => {
+                const title = card.querySelector('h3').innerText.trim();
+                const category = card.getAttribute('data-category');
+                return `
+                    <div class="p-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30">
+                        <p class="font-bold text-indigo-700 dark:text-indigo-300 mb-1">${title}</p>
+                        <p class="text-slate-600 dark:text-slate-300">${buildPrediction(title, category)}</p>
+                    </div>
+                `;
+            });
+
+            aiPredictionList.innerHTML = predictions.join('');
+        }
 
         function filterGames(category) {
             activeCategory = category;
@@ -436,6 +554,11 @@
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
             document.getElementById('theme-icon').className = 'fas fa-sun';
+        }
+
+        const existingPlayer = localStorage.getItem('mathPortalPlayer');
+        if (existingPlayer) {
+            unlockPortal(existingPlayer);
         }
     </script>
 </body>
