@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tug of Maths: Ultimate Showdown</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    
+
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -15,13 +15,13 @@
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            touch-action: none; 
+        body {
+            font-family: 'Outfit', sans-serif;
+            touch-action: none;
             overflow: hidden;
             background: #020617;
             /* Prevents overscroll bounce on mobile */
@@ -154,7 +154,7 @@
                 <p class="text-[8px] sm:text-[10px] font-black text-blue-400 uppercase tracking-widest">BLUE</p>
                 <div id="score-blue" class="text-xl sm:text-3xl font-black">0</div>
             </div>
-            
+
             <div class="flex flex-col items-center">
                 <div class="bg-yellow-400 text-slate-900 px-4 py-0.5 sm:px-6 sm:py-1 rounded-full font-black text-lg sm:text-2xl" id="timer">60</div>
             </div>
@@ -276,6 +276,12 @@
 
         const MAX_ROPE = 100;
         const PULL_STRENGTH = 8;
+
+        function saveHighScore(total) {
+            const key = 'tugofwar-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (total > best) localStorage.setItem(key, String(total));
+        }
         let gameState = { active: false, time: 60, ropePos: 0, scores: { blue: 0, red: 0 }, currentQ: { blue: null, red: null } };
         let questionsBank = [];
 
@@ -291,8 +297,8 @@
                 }).filter(q => !isNaN(q.a));
             } catch (e) {
                 questionsBank = [
-                    {q: "Solve: $x + 13 = 25$", a: 12}, 
-                    {q: "Calculate: $\\sqrt{81}$", a: 9}, 
+                    {q: "Solve: $x + 13 = 25$", a: 12},
+                    {q: "Calculate: $\\sqrt{81}$", a: 9},
                     {q: "Solve: $2x = 40$", a: 20}
                 ];
             }
@@ -348,7 +354,7 @@
             const visualPos = 50 + (gameState.ropePos / 2.5);
             document.documentElement.style.setProperty('--rope-position', `${visualPos}%`);
             document.getElementById('bar-blue').style.width = `${visualPos}%`;
-            
+
             if (Math.abs(gameState.ropePos) >= MAX_ROPE) endGame(gameState.ropePos < 0 ? 'Blue' : 'Red');
         }
 
@@ -375,7 +381,7 @@
             gameState.active = true;
             renderQ('blue');
             renderQ('red');
-            
+
             const timerInterval = setInterval(() => {
                 gameState.time--;
                 document.getElementById('timer').innerText = gameState.time;
@@ -393,6 +399,8 @@
 
         function endGame(winner) {
             gameState.active = false;
+            const total = Math.max(gameState.scores.blue, gameState.scores.red);
+            saveHighScore(total);
             SoundFX.win();
             if (winner !== 'Draw') {
                 confetti({

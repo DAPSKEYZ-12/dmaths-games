@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap');
-        
+
         :root {
             --bg-dark: #020617;
             --accent-cyan: #22d3ee;
@@ -34,7 +34,7 @@
         }
 
         .mermaid { background: white; border-radius: 1rem; padding: 1rem; }
-        
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -72,7 +72,7 @@
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
+
             <div class="lg:col-span-7 space-y-6">
                 <div class="glass-panel rounded-[2rem] p-6 overflow-hidden">
                     <div class="flex justify-between items-center mb-4">
@@ -81,7 +81,7 @@
                             <button id="hint-btn" class="p-2 text-slate-400 hover:text-white transition-colors"><i class="far fa-lightbulb"></i></button>
                         </div>
                     </div>
-                    
+
                     <div id="diagram-container" class="flex justify-center transition-opacity duration-500">
                         <div class="mermaid" id="mermaid-div">
                             graph TD
@@ -101,11 +101,11 @@
                     <p id="question-text" class="text-slate-300 text-sm mb-6 leading-relaxed">
                         If the input value is <span class="text-cyan-400 font-bold">n = 5</span>, what will be the final value of the variable <span class="text-purple-400 font-bold">Result</span>?
                     </p>
-                    
+
                     <div class="space-y-4">
-                        <input type="number" id="ans-input" placeholder="Type your output..." 
+                        <input type="number" id="ans-input" placeholder="Type your output..."
                             class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl p-4 text-white font-bold outline-none focus:border-cyan-500 transition-all">
-                        
+
                         <button id="submit-btn" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-900 font-black py-4 rounded-2xl shadow-lg shadow-cyan-500/20 uppercase tracking-widest transition-all">
                             Validate Execution
                         </button>
@@ -143,6 +143,12 @@
         let score = 0;
         let currentLevel = 1;
         let currentAnswer = 0;
+
+        function saveHighScore() {
+            const key = 'loop-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (score > best) localStorage.setItem(key, String(score));
+        }
 
         const scenarios = [
             {
@@ -211,24 +217,25 @@
 
         async function loadQuestion() {
             if(currentLevel > 30) {
-                alert("Mastery Complete! 30/30 Algorithms Decrypted.");
+                saveHighScore();
+                alert(`Mastery Complete! 30/30 Algorithms Decrypted. Final Score: ${score}`);
                 window.location.href = 'index.html';
                 return;
             }
 
             const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
             const data = scenario.generate();
-            
+
             // Set data
             currentAnswer = data.ans;
             document.getElementById('question-text').innerHTML = scenario.prompt(data.n);
             document.getElementById('difficulty-tag').innerText = scenario.type;
             document.getElementById('progress-text').innerText = `${currentLevel}/30`;
-            
+
             // Render Mermaid
             const container = document.getElementById('diagram-container');
             container.style.opacity = '0';
-            
+
             setTimeout(async () => {
                 const { render } = mermaid;
                 const { svg } = await render('mermaid-svg', data.code);
@@ -247,7 +254,7 @@
                 tr.innerHTML = `<td class="py-2 px-2">${row.iter}</td><td class="py-2 px-2">${row.v1}</td><td class="py-2 px-2 text-cyan-400 font-bold">${row.v2}</td>`;
                 tbody.appendChild(tr);
             });
-            
+
             // Hide table rows initially to make user think
             const rows = tbody.querySelectorAll('tr');
             rows.forEach(r => r.style.display = 'none');
@@ -256,7 +263,7 @@
         function handleFeedback(isCorrect) {
             const fb = document.getElementById('feedback');
             fb.classList.remove('hidden', 'bg-green-500/10', 'text-green-500', 'bg-red-500/10', 'text-red-500');
-            
+
             if(isCorrect) {
                 fb.innerText = "ALGORITHM VERIFIED: ACCESS GRANTED";
                 fb.classList.add('bg-green-500/10', 'text-green-500', 'hidden');
@@ -264,10 +271,10 @@
                 score += 150;
                 currentLevel++;
                 document.getElementById('score').innerText = score.toString().padStart(4, '0');
-                
+
                 // Show Trace Table on success
                 document.querySelectorAll('#trace-body tr').forEach(r => r.style.display = 'table-row');
-                
+
                 setTimeout(() => {
                     fb.style.display = 'none';
                     loadQuestion();

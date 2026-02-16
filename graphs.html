@@ -19,7 +19,7 @@
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         canvas { cursor: crosshair; touch-action: none; }
         .math-font { font-family: 'JetBrains Mono', monospace; }
-        
+
         /* Grid Overlay styling */
         .coordinates { pointer-events: none; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
     </style>
@@ -38,7 +38,7 @@
     </header>
 
     <main class="flex-1 relative flex flex-col items-center justify-center p-4">
-        
+
         <div class="glass w-full max-w-md p-6 rounded-[2rem] mb-6 text-center shadow-2xl">
             <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">Plot the Line</p>
             <h2 id="equation" class="math-font text-3xl md:text-4xl font-black text-white">y = 2x + 1</h2>
@@ -61,8 +61,25 @@
         let score = 0;
         let level = 1;
         let points = [];
+        let roundsPlayed = 0;
+        const maxRounds = 10;
         let targetLine = { m: 2, c: 1 };
-        
+
+        function saveHighScore() {
+            const key = 'graphs-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (score > best) localStorage.setItem(key, String(score));
+        }
+
+        function endGame() {
+            saveHighScore();
+            setTimeout(() => {
+                const replay = confirm(`Graph session complete. Final score: ${score}.\nPlay another 10-round session?`);
+                if (replay) location.reload();
+                else window.location.href = 'index.html';
+            }, 300);
+        }
+
         // Grid config
         const gridSize = 40; // Pixels per unit
         let width, height, centerX, centerY;
@@ -83,7 +100,7 @@
 
         function drawGrid() {
             ctx.clearRect(0, 0, width, height);
-            
+
             // Draw grid lines
             ctx.beginPath();
             ctx.strokeStyle = '#1e293b';
@@ -119,14 +136,14 @@
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
+
             const rawX = clientX - rect.left;
             const rawY = clientY - rect.top;
-            
+
             // Convert to Math coords
             const mathX = Math.round((rawX - centerX) / gridSize);
             const mathY = Math.round((centerY - rawY) / gridSize);
-            
+
             return { rawX, rawY, mathX, mathY };
         }
 
@@ -138,7 +155,7 @@
 
             const pos = getMousePos(e);
             points.push(pos);
-            
+
             // Draw point
             ctx.fillStyle = '#f97316';
             ctx.beginPath();
@@ -153,7 +170,7 @@
         function checkResult() {
             const p1 = points[0];
             const p2 = points[1];
-            
+
             // Calculate player's line: y = mx + c
             const m = (p2.mathY - p1.mathY) / (p2.mathX - p1.mathX);
             const c = p1.mathY - m * p1.mathX;
@@ -163,7 +180,7 @@
             ctx.strokeStyle = '#f97316';
             ctx.lineWidth = 4;
             ctx.moveTo(p1.rawX - (p1.rawX * 2), p1.rawY - (m * -p1.rawX * gridSize)); // Simple extend
-            ctx.lineTo(width + width, p2.rawY + (m * width)); 
+            ctx.lineTo(width + width, p2.rawY + (m * width));
             ctx.stroke();
 
             // Compare with target
@@ -179,10 +196,15 @@
                 score = Math.max(0, score - 50);
             }
 
+            roundsPlayed++;
             document.getElementById('score').innerText = score;
-            document.getElementById('level-txt').innerText = level;
+            document.getElementById('level-txt').innerText = `${level} (${roundsPlayed}/${maxRounds})`;
 
-            setTimeout(newRound, 2000);
+            if (roundsPlayed >= maxRounds) {
+                endGame();
+            } else {
+                setTimeout(newRound, 2000);
+            }
         }
 
         function newRound() {
@@ -191,7 +213,7 @@
             const m = Math.floor(Math.random() * 4) - 2 || 1;
             const c = Math.floor(Math.random() * 5) - 2;
             targetLine = { m, c };
-            
+
             document.getElementById('equation').innerText = `y = ${m === 1 ? '' : m === -1 ? '-' : m}x ${c >= 0 ? '+ ' + c : '- ' + Math.abs(c)}`;
             drawGrid();
         }

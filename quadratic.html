@@ -171,7 +171,7 @@
 
         .btn-main { background: var(--primary); color: white; width: 100%; font-size: 1.1rem; }
         .btn-main:hover { background: var(--secondary); transform: scale(1.02); }
-        
+
         .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-outline { background: white; border: 2px solid #e9ecef; color: #666; font-size: 0.9rem; padding: 10px; }
         .btn-outline:hover { background: #f8f9fa; border-color: #ccc; }
@@ -236,7 +236,7 @@
             <div class="equation-box">
                 <div id="discriminantBadge" class="discriminant-tag">Real & Distinct Roots</div>
                 <div id="equation">x² + 5x + 6 = 0</div>
-                
+
                 <div class="input-group">
                     <input type="number" step="any" class="math-input" id="answer1" placeholder="x₁">
                     <input type="number" step="any" class="math-input" id="answer2" placeholder="x₂">
@@ -269,7 +269,7 @@
         <div class="sidebar">
             <h3 style="margin-bottom: 20px; font-size: 1.1rem;"><i class="fas fa-history"></i> Recent Solves</h3>
             <div id="historyList"></div>
-            
+
             <div style="margin-top: 40px; background: white; padding: 20px; border-radius: 15px; border: 1px solid #eee;">
                 <h4 style="color: var(--primary); margin-bottom: 10px;"><i class="fas fa-info-circle"></i> Quick Tip</h4>
                 <p style="font-size: 0.85rem; color: #666; line-height: 1.5;">
@@ -283,6 +283,12 @@
 <script>
     let score = 0;
     let streak = 0;
+
+    function saveHighScore() {
+        const key = 'quadratic-highscore';
+        const best = Number(localStorage.getItem(key) || 0);
+        if (score > best) localStorage.setItem(key, String(score));
+    }
     let level = 1;
     let progress = 0;
     let currentEq = {};
@@ -313,7 +319,7 @@
             elements.timer.textContent = timeLeft;
             if (timeLeft <= 5) elements.timer.style.color = 'var(--danger)';
             else elements.timer.style.color = 'var(--dark)';
-            
+
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 handleWrong("Time's up!");
@@ -323,7 +329,7 @@
 
     function generateEq() {
         let a, b, c, r1, r2;
-        
+
         if (level === 1) {
             r1 = Math.floor(Math.random() * 10) - 5;
             r2 = Math.floor(Math.random() * 10) - 5;
@@ -339,12 +345,12 @@
         }
 
         currentEq = { a, b, c, r1, r2 };
-        
+
         let str = `${a === 1 ? '' : a}x²`;
         str += b >= 0 ? ` + ${b === 1 ? '' : b}x` : ` - ${Math.abs(b)}x`;
         str += c >= 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
         elements.equation.textContent = str + " = 0";
-        
+
         elements.ans1.value = '';
         elements.ans2.value = '';
         elements.ans1.focus();
@@ -364,6 +370,7 @@
 
         if (isCorrect) {
             score += (10 * level) + timeLeft;
+            saveHighScore();
             streak++;
             progress += 20;
             if (progress >= 100) {
@@ -409,6 +416,7 @@
 
     function exitGame() {
         clearInterval(timerInterval);
+        saveHighScore();
         const confirmExit = confirm(`Game Over!\n\nFinal Score: ${score}\nLevel Reached: ${level}\n\nWould you like to reset and play again?`);
         if (confirmExit) {
             score = 0; streak = 0; level = 1; progress = 0;
@@ -424,7 +432,7 @@
     document.getElementById('hintBtn').onclick = () => {
         showFeedback(`Sum: ${-currentEq.b/currentEq.a} | Product: ${currentEq.c/currentEq.a}`, "#fff3cd", "#856404");
     };
-    
+
     generateEq();
 </script>
 </body>

@@ -25,7 +25,7 @@
         </div>
         <h1 class="text-4xl font-black mb-2 tracking-tighter">SELECT PROTOCOL</h1>
         <p class="text-slate-400 mb-8 text-sm uppercase tracking-widest">Adjust speed and calculation depth</p>
-        
+
         <div class="grid gap-4 w-full max-w-[300px]">
             <button onclick="startGame(400, 'easy')" class="glass p-4 rounded-2xl hover:border-emerald-500 transition-all group">
                 <span class="block font-bold text-emerald-400 group-hover:scale-110 transition-transform">SIMPLE</span>
@@ -75,14 +75,14 @@
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        const box = 25; 
+        const box = 25;
         let score = 0;
         let gameTimer = 10;
         let snake = [{x: 8 * box, y: 8 * box}];
         let food = [];
         let particles = []; // Array for explosion effect
         let d = "RIGHT";
-        let nextD = "RIGHT"; 
+        let nextD = "RIGHT";
         let currentAnswer = 0;
         let gameInterval;
         let timerInterval;
@@ -152,9 +152,16 @@
             if(e.keyCode == 40) changeDir("DOWN");
         });
 
+        function saveHighScore() {
+            const key = 'snake-highscore';
+            const best = Number(localStorage.getItem(key) || 0);
+            if (score > best) localStorage.setItem(key, String(score));
+        }
+
         function gameOver() {
             clearInterval(gameInterval);
             clearInterval(timerInterval);
+            saveHighScore();
             alert("SYSTEM CRASHED. Final Score: " + score);
             location.reload();
         }
@@ -191,7 +198,7 @@
                         createExplosion(headX, headY);
                         snake.unshift(newHead);
                         render();
-                        setTimeout(gameOver, 300); 
+                        setTimeout(gameOver, 300);
                         return;
                     }
                 }
@@ -204,7 +211,7 @@
 
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             // Draw particles
             particles.forEach((p, i) => {
                 p.x += p.vx;
