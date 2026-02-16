@@ -512,7 +512,10 @@
                 const href = card.querySelector('a').getAttribute('href');
                 const slug = href.replace('.html', '').toLowerCase();
                 return { title, href, score: extractHighScore(slug) };
-            }).sort((a, b) => b.score - a.score).slice(0, 8);
+            }).sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.title.localeCompare(b.title);
+            });
 
             leaderboardList.innerHTML = scores.map((entry, index) => `
                 <a href="${entry.href}" class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 hover:ring-2 ring-indigo-500/50 transition-all">
@@ -520,10 +523,10 @@
                         <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">${index + 1}</span>
                         <div>
                             <p class="font-bold">${entry.title}</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Open game · update high score</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Open game · sync leaderboard score</p>
                         </div>
                     </div>
-                    <span class="text-lg font-black text-emerald-600">${entry.score || '—'}</span>
+                    <span class="text-lg font-black text-emerald-600">${entry.score > 0 ? entry.score : 'No score yet'}</span>
                 </a>
             `).join('');
         }
