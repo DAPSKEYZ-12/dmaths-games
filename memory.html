@@ -308,6 +308,7 @@
             const score = Math.max(0, (state.matched * 200) - (state.moves * 15) + (state.mode === 'timed' ? state.time * 5 : 0));
             document.getElementById("score").textContent = score;
             notify(win ? "EXCELLENT!" : "TIME OUT!", win ? "bg-indigo-600" : "bg-red-600");
+            saveGlobalHighScore(score);
             if (win) saveScore(score);
             setTimeout(showSettings, 2000);
         }
@@ -321,6 +322,11 @@
 
         function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
         
+        function saveGlobalHighScore(value) {
+            const best = Number(localStorage.getItem('memory-highscore') || 0);
+            if (value > best) localStorage.setItem('memory-highscore', String(value));
+        }
+
         function saveScore(s) {
             const key = "dmemory_" + state.difficulty;
             let scores = JSON.parse(localStorage.getItem(key)) || [];

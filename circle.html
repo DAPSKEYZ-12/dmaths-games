@@ -195,6 +195,11 @@
     const ctx = canvas.getContext('2d');
     const center = { x: 250, y: 200 }, radius = 140;
 
+    function saveHighScore(value) {
+        const best = Number(localStorage.getItem('circle-highscore') || 0);
+        if (value > best) localStorage.setItem('circle-highscore', String(value));
+    }
+
     let gameState = {
         current: 'center',
         score: 0,
@@ -379,8 +384,14 @@
         const mCount = gameState.mastered.size;
         document.getElementById('masteryCount').innerText = mCount;
         document.getElementById('progressFill').style.width = (mCount / 6 * 100) + "%";
+        if (mCount === 6) {
+            saveHighScore(gameState.score);
+            alert(`Mission complete! Final Score: ${gameState.score}`);
+            window.location.href = 'index.html';
+        }
     }
 
+    window.addEventListener('beforeunload', () => saveHighScore(gameState.score));
     init();
 </script>
 </body>

@@ -376,6 +376,8 @@ class AlgebraGame {
     }
 
     saveScore() {
+        const best = Number(localStorage.getItem('escapethedoor-highscore') || 0);
+        if (this.score > best) localStorage.setItem('escapethedoor-highscore', String(this.score));
         let board = JSON.parse(localStorage.getItem('math_ranks') || "[]");
         board.push(this.score);
         board.sort((a,b) => b - a);

@@ -193,6 +193,8 @@
         }
 
         function saveScore(s) {
+            const best = Number(localStorage.getItem('speed-highscore') || 0);
+            if (s > best) localStorage.setItem('speed-highscore', String(s));
             let scores = JSON.parse(localStorage.getItem('arithmetic_ranks') || "[]");
             scores.push({s, d: new Date().toLocaleDateString(), l: level.toUpperCase()});
             scores.sort((a, b) => b.s - a.s);

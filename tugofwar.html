@@ -277,6 +277,11 @@
         const MAX_ROPE = 100;
         const PULL_STRENGTH = 8;
         let gameState = { active: false, time: 60, ropePos: 0, scores: { blue: 0, red: 0 }, currentQ: { blue: null, red: null } };
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('tugofwar-highscore') || 0);
+            if (value > best) localStorage.setItem('tugofwar-highscore', String(value));
+        }
         let questionsBank = [];
 
         async function loadQuestionsFromSheet() {
@@ -393,6 +398,7 @@
 
         function endGame(winner) {
             gameState.active = false;
+            saveHighScore(Math.max(gameState.scores.blue, gameState.scores.red));
             SoundFX.win();
             if (winner !== 'Draw') {
                 confetti({

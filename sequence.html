@@ -69,6 +69,20 @@
         let score = 0;
         let currentPattern = {};
         let selectedRule = "";
+        let roundsCleared = 0;
+        const maxRounds = 12;
+
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('sequence-highscore') || 0);
+            if (value > best) localStorage.setItem('sequence-highscore', String(value));
+        }
+
+        function endGame() {
+            saveHighScore(score);
+            alert(`MISSION COMPLETE! Final Intel: ${score}`);
+            window.location.href = 'index.html';
+        }
 
         const engine = {
             patterns: [
@@ -145,6 +159,11 @@
                 container.classList.add('border-emerald-500');
                 setTimeout(() => {
                     container.classList.remove('border-emerald-500');
+                    roundsCleared++;
+                    if (roundsCleared >= maxRounds) {
+                        endGame();
+                        return;
+                    }
                     initLevel();
                 }, 800);
             } else {
@@ -157,6 +176,7 @@
             }
         }
 
+        window.addEventListener('beforeunload', () => saveHighScore(score));
         initLevel();
     </script>
 </body>

@@ -168,6 +168,11 @@
             }
         }
 
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('magic-highscore') || 0);
+            if (value > best) localStorage.setItem('magic-highscore', String(value));
+        }
+
         function endGame(success) {
             clearInterval(timerInterval);
             const overlay = document.getElementById('resultOverlay');
@@ -177,6 +182,8 @@
             const desc = document.getElementById('resultDesc');
             const btn = document.getElementById('resultBtn');
 
+            const finalScore = Math.max(0, (gridSize === 3 ? 1000 : 2000) + (timeLeft * 5));
+            saveHighScore(finalScore);
             overlay.classList.remove('hidden');
             
             if (success) {

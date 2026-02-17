@@ -131,6 +131,11 @@
     <script>
         // Game State
         let score = 0;
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('geometry-highscore') || 0);
+            if (value > best) localStorage.setItem('geometry-highscore', String(value));
+        }
         let streak = 0;
         let questionIndex = 0;
         let currentAnswer = 0;
@@ -229,6 +234,7 @@
 
         function initQuestion() {
             if (questionIndex >= 30) {
+                saveHighScore(score);
                 alert("Game Complete! Final Score: " + score);
                 location.reload();
                 return;

@@ -220,7 +220,13 @@
             });
         }
 
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('millionaire-highscore') || 0);
+            if (value > best) localStorage.setItem('millionaire-highscore', String(value));
+        }
+
         function finishGame(win) {
+            saveHighScore(state.score);
             document.getElementById('game-over').classList.remove('hidden');
             document.getElementById('result-title').innerText = win ? "MILLIONAIRE!" : "GAME OVER";
             document.getElementById('result-winnings').innerText = `Winnings: ₦${state.score.toLocaleString()}`;
