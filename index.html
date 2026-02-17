@@ -42,16 +42,35 @@
         <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-2xl">
             <p class="text-xs font-black uppercase tracking-[0.3em] text-indigo-500 mb-3">Secure Access</p>
             <h2 class="text-3xl font-extrabold mb-3">Login to Enter Home</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Enter your player name before opening the DMaths home page, leaderboard, and AI assistant hints.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Login with your username and password, or sign up if this is your first time.</p>
+
+            <div class="grid grid-cols-2 gap-2 mb-5 rounded-2xl bg-slate-100 dark:bg-slate-800 p-1 text-sm font-bold">
+                <button type="button" id="showLoginBtn" class="auth-tab py-2 rounded-xl bg-white dark:bg-slate-700 text-indigo-600">Login</button>
+                <button type="button" id="showSignupBtn" class="auth-tab py-2 rounded-xl text-slate-500 dark:text-slate-300">Sign Up</button>
+            </div>
+
             <form id="loginForm" class="space-y-4" novalidate>
-                <label for="loginName" class="sr-only">Player name</label>
-                <input id="loginName" type="text" placeholder="Player name" minlength="3" maxlength="24" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
-                <p id="loginError" class="hidden text-sm text-rose-600 dark:text-rose-400 font-semibold"></p>
-            <form id="loginForm" class="space-y-4">
-                <label for="loginName" class="sr-only">Player name</label>
-                <input id="loginName" type="text" placeholder="Player name" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <label for="loginUsername" class="sr-only">Username</label>
+                <input id="loginUsername" type="text" placeholder="Username or email" minlength="3" maxlength="64" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <label for="loginPassword" class="sr-only">Password</label>
+                <input id="loginPassword" type="password" placeholder="Password" minlength="6" autocomplete="current-password" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <button type="submit" class="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition">Login & Enter</button>
             </form>
+
+            <form id="signupForm" class="space-y-4 hidden" novalidate>
+                <label for="signupEmail" class="sr-only">Email</label>
+                <input id="signupEmail" type="email" placeholder="Email" autocomplete="email" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <label for="signupUsername" class="sr-only">Username</label>
+                <input id="signupUsername" type="text" placeholder="Username" minlength="3" maxlength="24" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <label for="signupPassword" class="sr-only">Password</label>
+                <input id="signupPassword" type="password" placeholder="Password" minlength="6" autocomplete="new-password" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <label for="signupConfirmPassword" class="sr-only">Confirm password</label>
+                <input id="signupConfirmPassword" type="password" placeholder="Confirm password" minlength="6" autocomplete="new-password" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <button type="submit" class="w-full py-3 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-500 transition">Create Account</button>
+            </form>
+
+            <p id="authError" class="hidden mt-4 text-sm text-rose-600 dark:text-rose-400 font-semibold"></p>
+            <p id="authNotice" class="hidden mt-2 text-sm text-emerald-600 dark:text-emerald-400 font-semibold"></p>
         </div>
     </div>
 
@@ -79,6 +98,27 @@
                     <span class="text-xl font-black">17</span>
                 </div>
             </div>
+
+            <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Account</p>
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                    <p id="mobileUserName" class="font-bold">Guest</p>
+                    <p id="mobileUserEmail" class="text-xs text-slate-500 dark:text-slate-400 mt-1">No email saved</p>
+                    <button id="mobileLogoutBtn" type="button" class="mt-3 w-full py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-500 transition">Logout</button>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Dashboard Tools</p>
+                <a href="#leaderboardPanel" class="block p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <p class="font-bold">Leader Board</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">View top game scores quickly.</p>
+                </a>
+                <a href="#aiGuidePanel" class="block p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <p class="font-bold">A.I Guide</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Open solution hints and strategies.</p>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -90,6 +130,11 @@
             </div>
             
             <div class="flex items-center gap-3">
+                <div class="hidden md:block text-right">
+                    <p id="navUserName" class="text-sm font-bold">Guest</p>
+                    <p id="navUserEmail" class="text-xs text-slate-500 dark:text-slate-400">No email saved</p>
+                </div>
+                <button id="logoutBtn" type="button" aria-label="Logout" class="hidden md:inline-flex px-3 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-500 transition">Logout</button>
                 <button id="theme-toggle-btn" type="button" aria-label="Toggle dark mode" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
@@ -127,7 +172,7 @@
 
     <section class="app-protected max-w-7xl mx-auto px-6 pb-10">
         <div class="grid lg:grid-cols-2 gap-6">
-            <article class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg">
+            <article id="leaderboardPanel" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg scroll-mt-24">
                 <div class="flex items-center justify-between mb-5">
                     <h2 class="text-2xl font-extrabold">Leaders Board</h2>
                     <span class="text-xs uppercase tracking-widest font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">High Scores</span>
@@ -135,7 +180,7 @@
                 <div id="leaderboardList" class="space-y-3 text-sm"></div>
             </article>
 
-            <article class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg">
+            <article id="aiGuidePanel" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg scroll-mt-24">
                 <div class="flex items-center justify-between mb-5">
                     <h2 class="text-2xl font-extrabold">AI Solution Coach</h2>
                     <span class="text-xs uppercase tracking-widest font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Predictions</span>
@@ -400,6 +445,17 @@
         </div>
     </main>
 
+    <div id="logoutConfirmModal" class="hidden fixed inset-0 z-[95] bg-slate-950/70 backdrop-blur-sm items-center justify-center px-4">
+        <div class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
+            <h3 class="text-2xl font-extrabold mb-2">Confirm Logout</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Are you sure you want to logout from this session?</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="cancelLogoutBtn" type="button" class="py-3 rounded-2xl border border-slate-300 dark:border-slate-700 font-bold">Cancel</button>
+                <button id="confirmLogoutBtn" type="button" class="py-3 rounded-2xl bg-rose-600 text-white font-bold hover:bg-rose-500">Yes, Logout</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function toggleMenu() {
             const menu = document.getElementById('mobile-menu');
@@ -432,10 +488,20 @@
 
         const loginGate = document.getElementById('loginGate');
         const loginForm = document.getElementById('loginForm');
-        const loginName = document.getElementById('loginName');
-        const loginError = document.getElementById('loginError');
+        const signupForm = document.getElementById('signupForm');
+        const loginUsername = document.getElementById('loginUsername');
+        const loginPassword = document.getElementById('loginPassword');
+        const signupEmail = document.getElementById('signupEmail');
+        const signupUsername = document.getElementById('signupUsername');
+        const signupPassword = document.getElementById('signupPassword');
+        const signupConfirmPassword = document.getElementById('signupConfirmPassword');
+        const authError = document.getElementById('authError');
+        const authNotice = document.getElementById('authNotice');
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const showSignupBtn = document.getElementById('showSignupBtn');
         const SESSION_KEY = 'mathPortalSession';
         const PLAYER_KEY = 'mathPortalPlayer';
+        const USERS_KEY = 'mathPortalUsers';
         const desktopSearch = document.getElementById('gameSearch');
         const mobileSearch = document.getElementById('mobileSearch');
         const cards = document.querySelectorAll('.game-card');
@@ -447,37 +513,127 @@
         const openMenuBtn = document.getElementById('open-menu-btn');
         const closeMenuBtn = document.getElementById('close-menu-btn');
         const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const navUserName = document.getElementById('navUserName');
+        const navUserEmail = document.getElementById('navUserEmail');
+        const mobileUserName = document.getElementById('mobileUserName');
+        const mobileUserEmail = document.getElementById('mobileUserEmail');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+        const logoutConfirmModal = document.getElementById('logoutConfirmModal');
+        const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+        const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
         let activeCategory = 'all';
 
 
-        function showLoginError(message) {
-            loginError.textContent = message;
-            loginError.classList.remove('hidden');
-            loginName.setAttribute('aria-invalid', 'true');
+        function showAuthError(message) {
+            authError.textContent = message;
+            authError.classList.remove('hidden');
         }
 
-        function clearLoginError() {
-            loginError.textContent = '';
-            loginError.classList.add('hidden');
-            loginName.removeAttribute('aria-invalid');
+        function clearAuthError() {
+            authError.textContent = '';
+            authError.classList.add('hidden');
+        }
+
+        function showAuthNotice(message) {
+            authNotice.textContent = message;
+            authNotice.classList.remove('hidden');
+        }
+
+        function clearAuthNotice() {
+            authNotice.textContent = '';
+            authNotice.classList.add('hidden');
         }
 
         function normalizePlayerName(rawName) {
             return rawName.replace(/\s+/g, ' ').trim();
         }
 
-        function validatePlayerName(rawName) {
-            const playerName = normalizePlayerName(rawName);
-            if (playerName.length < 3) {
-                return { valid: false, playerName, message: 'Name must be at least 3 characters.' };
+        function validateUsername(rawName) {
+            const username = normalizePlayerName(rawName);
+            if (username.length < 3) {
+                return { valid: false, username, message: 'Username must be at least 3 characters.' };
             }
-            if (playerName.length > 24) {
-                return { valid: false, playerName, message: 'Name must be 24 characters or fewer.' };
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
             }
-            if (!/^[a-zA-Z0-9 _-]+$/.test(playerName)) {
-                return { valid: false, playerName, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
             }
-            return { valid: true, playerName };
+            return { valid: true, username };
+        }
+
+        function validateLoginIdentifier(rawValue) {
+            const value = (rawValue || '').trim();
+            if (value.length < 3) {
+                return { valid: false, message: 'Enter your username or email.' };
+            }
+            if (value.includes('@')) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return { valid: false, message: 'Enter a valid email format.' };
+                }
+                return { valid: true };
+            }
+            const usernameCheck = validateUsername(value);
+            return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
+        }
+
+        function getUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                return Array.isArray(users) ? users : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        function normalizeEmail(rawEmail) {
+            return (rawEmail || '').trim().toLowerCase();
+        }
+
+        function findUserByLogin(loginValue) {
+            const login = normalizePlayerName(loginValue || '').toLowerCase();
+            const email = normalizeEmail(loginValue || '');
+            if (!login) return null;
+            const users = getUsers();
+            return users.find((entry) => {
+                const usernameMatch = (entry.username || '').toLowerCase() === login;
+                const emailMatch = normalizeEmail(entry.email) === email;
+                return usernameMatch || emailMatch;
+            }) || null;
+        }
+
+        function getUserProfileByName(username) {
+            const users = getUsers();
+            return users.find((entry) => entry.username.toLowerCase() === username.toLowerCase()) || null;
+        }
+
+        function renderUserProfile(playerName) {
+            const profile = getUserProfileByName(playerName);
+            const email = profile?.email || 'No email saved';
+            navUserName.textContent = playerName;
+            navUserEmail.textContent = email;
+            mobileUserName.textContent = playerName;
+            mobileUserEmail.textContent = email;
+        }
+
+        function setAuthMode(mode) {
+            clearAuthError();
+            clearAuthNotice();
+            const inLogin = mode === 'login';
+            loginForm.classList.toggle('hidden', !inLogin);
+            signupForm.classList.toggle('hidden', inLogin);
+            showLoginBtn.classList.toggle('bg-white', inLogin);
+            showLoginBtn.classList.toggle('dark:bg-slate-700', inLogin);
+            showLoginBtn.classList.toggle('text-indigo-600', inLogin);
+            showSignupBtn.classList.toggle('bg-white', !inLogin);
+            showSignupBtn.classList.toggle('dark:bg-slate-700', !inLogin);
+            showSignupBtn.classList.toggle('text-indigo-600', !inLogin);
         }
 
         function unlockPortal(playerName) {
@@ -487,25 +643,107 @@
             sessionStorage.setItem(SESSION_KEY, 'active');
             renderLeaderboard();
             renderAiPredictions();
+            renderUserProfile(playerName);
         }
 
         loginForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            const result = validatePlayerName(loginName.value);
-            if (!result.valid) {
-                showLoginError(result.message);
+            const loginCheck = validateLoginIdentifier(loginUsername.value);
+            if (!loginCheck.valid) {
+                showAuthError(loginCheck.message);
                 return;
             }
-            clearLoginError();
-            unlockPortal(result.playerName);
+            if ((loginPassword.value || '').trim().length < 6) {
+                showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+
+            const user = findUserByLogin(loginUsername.value);
+            if (!user) {
+                showAuthError('Account not found. Please sign up first.');
+                return;
+            }
+            if ((user.password || '').trim() !== loginPassword.value.trim()) {
+                showAuthError('Invalid username/email or password.');
+                return;
+            }
+            clearAuthError();
+            unlockPortal(user.username);
         });
 
-        loginName.addEventListener('input', () => {
-            if (!loginError.classList.contains('hidden')) {
-                const result = validatePlayerName(loginName.value);
-                if (result.valid) clearLoginError();
+        signupForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const usernameCheck = validateUsername(signupUsername.value);
+            if (!usernameCheck.valid) {
+                showAuthError(usernameCheck.message);
+                return;
             }
+            if (!signupEmail.value.trim() || !signupEmail.value.includes('@')) {
+                showAuthError('Enter a valid email address.');
+                return;
+            }
+            if (signupPassword.value.length < 6) {
+                showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+            if (signupPassword.value !== signupConfirmPassword.value) {
+                showAuthError('Passwords do not match.');
+                return;
+            }
+
+            const users = getUsers();
+            const alreadyExists = users.some((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (alreadyExists) {
+                showAuthError('That username is already registered. Please login instead.');
+                return;
+            }
+
+            users.push({
+                email: signupEmail.value.trim().toLowerCase(),
+                username: usernameCheck.username,
+                password: signupPassword.value
+            });
+            saveUsers(users);
+            clearAuthError();
+            unlockPortal(usernameCheck.username);
         });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
+        showLoginBtn.addEventListener('click', () => setAuthMode('login'));
+        showSignupBtn.addEventListener('click', () => setAuthMode('signup'));
+
+        function beginLogout() {
+            logoutConfirmModal.classList.remove('hidden');
+            logoutConfirmModal.classList.add('flex');
+        }
+
+        function closeLogoutModal() {
+            logoutConfirmModal.classList.add('hidden');
+            logoutConfirmModal.classList.remove('flex');
+        }
+
+        function logoutSession() {
+            closeLogoutModal();
+            sessionStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem(PLAYER_KEY);
+            document.body.classList.add('locked');
+            loginGate.classList.remove('hidden');
+            setAuthMode('login');
+            loginForm.reset();
+            signupForm.reset();
+            showAuthNotice('You have been logged out successfully.');
+            if (!menuOverlay.classList.contains('hidden')) toggleMenu();
+        }
+
+        logoutBtn.addEventListener('click', beginLogout);
+        mobileLogoutBtn.addEventListener('click', beginLogout);
+        cancelLogoutBtn.addEventListener('click', closeLogoutModal);
+        confirmLogoutBtn.addEventListener('click', logoutSession);
 
         function extractHighScore(slug) {
             const exactKey = `${slug}-highscore`;
@@ -650,6 +888,8 @@
             document.getElementById('theme-icon').className = 'fas fa-sun';
         }
 
+        setAuthMode('login');
+
         const existingPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
         const isSessionActive = sessionStorage.getItem(SESSION_KEY) === 'active';
         if (isSessionActive && existingPlayer && existingPlayer !== 'null' && existingPlayer !== 'undefined') {
@@ -661,8 +901,6 @@
     </script>
 </body>
 </html>
-
-
 
 
 
