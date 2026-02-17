@@ -44,24 +44,26 @@
             <h2 class="text-3xl font-extrabold mb-3">Login to Enter Home</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Enter your player name before opening the DMaths home page, leaderboard, and AI assistant hints.</p>
             <form id="loginForm" class="space-y-4">
+                <label for="loginName" class="sr-only">Player name</label>
                 <input id="loginName" type="text" placeholder="Player name" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <button type="submit" class="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition">Login & Enter</button>
             </form>
         </div>
     </div>
 
-    <div id="menu-overlay" onclick="toggleMenu()" class="app-protected fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></div>
+    <button id="menu-overlay" type="button" aria-label="Close menu" class="app-protected fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></button>
 
     <div id="mobile-menu" class="app-protected fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-xl font-extrabold">Settings & Search</h2>
-            <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-2xl">&times;</button>
+            <button id="close-menu-btn" type="button" aria-label="Close settings menu" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-2xl">&times;</button>
         </div>
 
         <div class="space-y-4">
             <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Quick Find</p>
             <div class="relative">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <label for="mobileSearch" class="sr-only">Search challenges</label>
                 <input type="text" id="mobileSearch" placeholder="Search challenges..." 
                     class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
@@ -84,11 +86,11 @@
             </div>
             
             <div class="flex items-center gap-3">
-                <button onclick="toggleDarkMode()" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
+                <button id="theme-toggle-btn" type="button" aria-label="Toggle dark mode" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
 
-                <button onclick="toggleMenu()" class="p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+                <button id="open-menu-btn" type="button" aria-label="Open settings menu" class="p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -104,16 +106,17 @@
         <div class="max-w-2xl mx-auto space-y-6">
             <div class="relative group hidden md:block">
                 <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                <label for="gameSearch" class="sr-only">Search for a math topic</label>
                 <input type="text" id="gameSearch" placeholder="Search for a topic (e.g. Algebra)..." 
                     class="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white">
             </div>
 
             <div class="flex flex-wrap justify-center gap-2">
-                <button onclick="filterGames('all')" class="filter-btn active px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">All</button>
-                <button onclick="filterGames('arithmetic')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Arithmetic</button>
-                <button onclick="filterGames('algebra')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Algebra</button>
-                <button onclick="filterGames('geometry')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Geometry</button>
-                <button onclick="filterGames('logic')" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Logic & Algorithms</button>
+                <button type="button" data-category="all" class="filter-btn active px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">All</button>
+                <button type="button" data-category="arithmetic" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Arithmetic</button>
+                <button type="button" data-category="algebra" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Algebra</button>
+                <button type="button" data-category="geometry" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Geometry</button>
+                <button type="button" data-category="logic" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Logic & Algorithms</button>
             </div>
         </div>
     </header>
@@ -433,6 +436,10 @@
         const noResults = document.getElementById('noResults');
         const leaderboardList = document.getElementById('leaderboardList');
         const aiPredictionList = document.getElementById('aiPredictionList');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const openMenuBtn = document.getElementById('open-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
         let activeCategory = 'all';
 
         function unlockPortal(playerName) {
@@ -519,10 +526,19 @@
             activeCategory = category;
             filterBtns.forEach(btn => {
                 btn.classList.remove('active');
-                if(btn.getAttribute('onclick').includes(`'${category}'`)) btn.classList.add('active');
+                if (btn.dataset.category === category) btn.classList.add('active');
             });
             applyFilters();
         }
+
+
+        menuOverlay.addEventListener('click', toggleMenu);
+        openMenuBtn.addEventListener('click', toggleMenu);
+        closeMenuBtn.addEventListener('click', toggleMenu);
+        themeToggleBtn.addEventListener('click', toggleDarkMode);
+        filterBtns.forEach((button) => {
+            button.addEventListener('click', () => filterGames(button.dataset.category));
+        });
 
         [desktopSearch, mobileSearch].forEach(input => {
             input.addEventListener('input', (e) => {
