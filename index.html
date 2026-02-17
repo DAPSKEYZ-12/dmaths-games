@@ -70,6 +70,7 @@
             </form>
 
             <p id="authError" class="hidden mt-4 text-sm text-rose-600 dark:text-rose-400 font-semibold"></p>
+            <p id="authNotice" class="hidden mt-2 text-sm text-emerald-600 dark:text-emerald-400 font-semibold"></p>
         </div>
     </div>
 
@@ -99,6 +100,15 @@
             </div>
 
             <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Account</p>
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                    <p id="mobileUserName" class="font-bold">Guest</p>
+                    <p id="mobileUserEmail" class="text-xs text-slate-500 dark:text-slate-400 mt-1">No email saved</p>
+                    <button id="mobileLogoutBtn" type="button" class="mt-3 w-full py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-500 transition">Logout</button>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Dashboard Tools</p>
                 <a href="#leaderboardPanel" class="block p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                     <p class="font-bold">Leader Board</p>
@@ -120,6 +130,11 @@
             </div>
             
             <div class="flex items-center gap-3">
+                <div class="hidden md:block text-right">
+                    <p id="navUserName" class="text-sm font-bold">Guest</p>
+                    <p id="navUserEmail" class="text-xs text-slate-500 dark:text-slate-400">No email saved</p>
+                </div>
+                <button id="logoutBtn" type="button" aria-label="Logout" class="hidden md:inline-flex px-3 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-500 transition">Logout</button>
                 <button id="theme-toggle-btn" type="button" aria-label="Toggle dark mode" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
@@ -430,6 +445,17 @@
         </div>
     </main>
 
+    <div id="logoutConfirmModal" class="hidden fixed inset-0 z-[95] bg-slate-950/70 backdrop-blur-sm items-center justify-center px-4">
+        <div class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
+            <h3 class="text-2xl font-extrabold mb-2">Confirm Logout</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Are you sure you want to logout from this session?</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="cancelLogoutBtn" type="button" class="py-3 rounded-2xl border border-slate-300 dark:border-slate-700 font-bold">Cancel</button>
+                <button id="confirmLogoutBtn" type="button" class="py-3 rounded-2xl bg-rose-600 text-white font-bold hover:bg-rose-500">Yes, Logout</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function toggleMenu() {
             const menu = document.getElementById('mobile-menu');
@@ -470,6 +496,7 @@
         const signupPassword = document.getElementById('signupPassword');
         const signupConfirmPassword = document.getElementById('signupConfirmPassword');
         const authError = document.getElementById('authError');
+        const authNotice = document.getElementById('authNotice');
         const showLoginBtn = document.getElementById('showLoginBtn');
         const showSignupBtn = document.getElementById('showSignupBtn');
         const SESSION_KEY = 'mathPortalSession';
@@ -486,6 +513,15 @@
         const openMenuBtn = document.getElementById('open-menu-btn');
         const closeMenuBtn = document.getElementById('close-menu-btn');
         const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const navUserName = document.getElementById('navUserName');
+        const navUserEmail = document.getElementById('navUserEmail');
+        const mobileUserName = document.getElementById('mobileUserName');
+        const mobileUserEmail = document.getElementById('mobileUserEmail');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+        const logoutConfirmModal = document.getElementById('logoutConfirmModal');
+        const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+        const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
         let activeCategory = 'all';
 
 
@@ -499,6 +535,16 @@
             authError.classList.add('hidden');
         }
 
+        function showAuthNotice(message) {
+            authNotice.textContent = message;
+            authNotice.classList.remove('hidden');
+        }
+
+        function clearAuthNotice() {
+            authNotice.textContent = '';
+            authNotice.classList.add('hidden');
+        }
+
         function normalizePlayerName(rawName) {
             return rawName.replace(/\s+/g, ' ').trim();
         }
@@ -507,6 +553,13 @@
             const username = normalizePlayerName(rawName);
             if (username.length < 3) {
                 return { valid: false, username, message: 'Username must be at least 3 characters.' };
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
             }
             if (username.length > 24) {
                 return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
@@ -530,6 +583,23 @@
             localStorage.setItem(USERS_KEY, JSON.stringify(users));
         }
 
+        function getUserProfileByName(username) {
+            const users = getUsers();
+            return users.find((entry) => entry.username.toLowerCase() === username.toLowerCase()) || null;
+        }
+
+        function renderUserProfile(playerName) {
+            const profile = getUserProfileByName(playerName);
+            const email = profile?.email || 'No email saved';
+            navUserName.textContent = playerName;
+            navUserEmail.textContent = email;
+            mobileUserName.textContent = playerName;
+            mobileUserEmail.textContent = email;
+        }
+
+        function setAuthMode(mode) {
+            clearAuthError();
+            clearAuthNotice();
         function setAuthMode(mode) {
             clearAuthError();
             const inLogin = mode === 'login';
@@ -550,6 +620,7 @@
             sessionStorage.setItem(SESSION_KEY, 'active');
             renderLeaderboard();
             renderAiPredictions();
+            renderUserProfile(playerName);
         }
 
         loginForm.addEventListener('submit', (event) => {
@@ -561,6 +632,15 @@
             }
             if ((loginPassword.value || '').trim().length < 6) {
                 showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (!user || user.password !== loginPassword.value) {
+                showAuthError('Invalid username or password.');
+                return;
+            }
                 return;
             }
 
@@ -609,6 +689,45 @@
             saveUsers(users);
             clearAuthError();
             unlockPortal(usernameCheck.username);
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
+        showLoginBtn.addEventListener('click', () => setAuthMode('login'));
+        showSignupBtn.addEventListener('click', () => setAuthMode('signup'));
+
+        function beginLogout() {
+            logoutConfirmModal.classList.remove('hidden');
+            logoutConfirmModal.classList.add('flex');
+        }
+
+        function closeLogoutModal() {
+            logoutConfirmModal.classList.add('hidden');
+            logoutConfirmModal.classList.remove('flex');
+        }
+
+        function logoutSession() {
+            closeLogoutModal();
+            sessionStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem(PLAYER_KEY);
+            document.body.classList.add('locked');
+            loginGate.classList.remove('hidden');
+            setAuthMode('login');
+            loginForm.reset();
+            signupForm.reset();
+            showAuthNotice('You have been logged out successfully.');
+            if (!menuOverlay.classList.contains('hidden')) toggleMenu();
+        }
+
+        logoutBtn.addEventListener('click', beginLogout);
+        mobileLogoutBtn.addEventListener('click', beginLogout);
+        cancelLogoutBtn.addEventListener('click', closeLogoutModal);
+        confirmLogoutBtn.addEventListener('click', logoutSession);
+
         });
 
         [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
