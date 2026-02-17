@@ -544,6 +544,13 @@
 
         }
 
+        function showAuthNotice(message) {
+            authNotice.textContent = message;
+            authNotice.classList.remove('hidden');
+        }
+
+        }
+
         function clearAuthError() {
             authError.textContent = '';
             authError.classList.add('hidden');
@@ -629,6 +636,54 @@
                     return { valid: false, message: 'Enter a valid email format.' };
                 }
                 return { valid: true };
+            }
+            const usernameCheck = validateUsername(value);
+            return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
+        }
+
+        function getAppDb() {
+            const defaultDb = { version: 1, users: [], sessions: [], scores: {} };
+            try {
+                const parsed = JSON.parse(localStorage.getItem(APP_DB_KEY) || 'null');
+                if (!parsed || typeof parsed !== 'object') return defaultDb;
+                return {
+                    version: parsed.version || 1,
+                    users: Array.isArray(parsed.users) ? parsed.users : [],
+                    sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+                    scores: parsed.scores && typeof parsed.scores === 'object' ? parsed.scores : {}
+                };
+            } catch (error) {
+                return defaultDb;
+            }
+        }
+
+        function saveAppDb(db) {
+            localStorage.setItem(APP_DB_KEY, JSON.stringify(db));
+        }
+
+        function getUsers() {
+            const db = getAppDb();
+            return db.users;
+        }
+
+        function saveUsers(users) {
+            const db = getAppDb();
+            db.users = users;
+            saveAppDb(db);
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        function ensureUsersStore() {
+            const users = getUsers();
+            if (users.length) return users;
+
+            let legacyUsers = [];
+            try {
+                const parsedLegacy = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                legacyUsers = Array.isArray(parsedLegacy) ? parsedLegacy : [];
+            } catch (error) {
+                legacyUsers = [];
+            }
             }
             const usernameCheck = validateUsername(value);
             return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
@@ -793,6 +848,8 @@
                 showAuthError(loginCheck.message);
                 return;
             }
+                return;
+            }
             if ((loginPassword.value || '').trim().length < 6) {
                 showAuthError('Password must be at least 6 characters.');
                 return;
@@ -826,9 +883,14 @@
                 return;
             }
 
+            ensureUsersStore();
             const user = findUserByLogin(loginUsername.value);
             if (!user) {
                 showAuthError('Account not found. Please sign up first.');
+                return;
+            }
+            if (!user.password) {
+                showAuthError('This account needs a password. Please sign up again with the same username.');
                 return;
             }
             if ((user.password || '').trim() !== loginPassword.value.trim()) {
@@ -960,6 +1022,71 @@
         showLoginBtn.addEventListener('click', () => setAuthMode('login'));
         showSignupBtn.addEventListener('click', () => setAuthMode('signup'));
 
+        function beginLogout() {
+            logoutConfirmModal.classList.remove('hidden');
+            logoutConfirmModal.classList.add('flex');
+        }
+
+        function closeLogoutModal() {
+            logoutConfirmModal.classList.add('hidden');
+            logoutConfirmModal.classList.remove('flex');
+        }
+
+        function logoutSession() {
+            closeLogoutModal();
+            sessionStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem(PLAYER_KEY);
+            const db = getAppDb();
+            db.sessions = [];
+            saveAppDb(db);
+            document.body.classList.add('locked');
+            loginGate.classList.remove('hidden');
+            setAuthMode('login');
+            loginForm.reset();
+            signupForm.reset();
+            showAuthNotice('You have been logged out successfully.');
+            if (!menuOverlay.classList.contains('hidden')) toggleMenu();
+        }
+
+        logoutBtn.addEventListener('click', beginLogout);
+        mobileLogoutBtn.addEventListener('click', beginLogout);
+        cancelLogoutBtn.addEventListener('click', closeLogoutModal);
+        confirmLogoutBtn.addEventListener('click', logoutSession);
+
+        function getDbHighScore(slug) {
+            const db = getAppDb();
+            const value = Number(db.scores?.[slug]);
+            return Number.isFinite(value) ? value : 0;
+        }
+
+        function setDbHighScore(slug, score) {
+            const n = Number(score);
+            if (!Number.isFinite(n)) return;
+            const db = getAppDb();
+            const current = Number(db.scores?.[slug]) || 0;
+            if (n > current) {
+                db.scores = { ...(db.scores || {}), [slug]: n };
+                saveAppDb(db);
+            }
+        }
+
+        function migrateScoresToDb() {
+            const slugs = [...cards].map((card) => {
+                const href = card.querySelector('a').getAttribute('href');
+                return href.replace('.html', '').toLowerCase();
+            });
+            slugs.forEach((slug) => {
+                const legacyBest = extractHighScore(slug, true);
+                if (legacyBest > 0) setDbHighScore(slug, legacyBest);
+            });
+        }
+
+        function extractHighScore(slug, skipDb = false) {
+            if (!skipDb) {
+                const dbScore = getDbHighScore(slug);
+                if (dbScore > 0) return dbScore;
+            }
+
         function extractHighScore(slug) {
             const exactKey = `${slug}-highscore`;
             const values = [];
@@ -1001,7 +1128,9 @@
                 pushNumber(localStorage.getItem(key));
             }
 
-            return values.length ? Math.max(...values) : 0;
+            const best = values.length ? Math.max(...values) : 0;
+            if (!skipDb && best > 0) setDbHighScore(slug, best);
+            return best;
         }
 
         function renderLeaderboard() {
@@ -1106,6 +1235,7 @@
         setAuthMode('login');
         ensureUsersStore();
         saveAppDb(getAppDb());
+        migrateScoresToDb();
 
         const existingPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
         const isSessionActive = sessionStorage.getItem(SESSION_KEY) === 'active';
