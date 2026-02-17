@@ -589,6 +589,21 @@
             if (value.length < 3) {
                 return { valid: false, message: 'Enter your username or email.' };
             }
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
+            return { valid: true, username };
+        }
+
+        function validateLoginIdentifier(rawValue) {
+            const value = (rawValue || '').trim();
+            if (value.length < 3) {
+                return { valid: false, message: 'Enter your username or email.' };
+            }
             if (value.includes('@')) {
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailPattern.test(value)) {
@@ -685,6 +700,15 @@
 
         function getUsers() {
             const db = getAppDb();
+            return sanitizeUsers(db.users);
+        }
+
+        function saveUsers(users) {
+            const sanitizedUsers = sanitizeUsers(users);
+            const db = getAppDb();
+            db.users = sanitizedUsers;
+            saveAppDb(db);
+            localStorage.setItem(USERS_KEY, JSON.stringify(sanitizedUsers));
             return db.users;
         }
 
@@ -736,6 +760,9 @@
                 legacyUsers = [];
             }
             if (legacyUsers.length) {
+                const sanitizedLegacyUsers = sanitizeUsers(legacyUsers);
+                saveUsers(sanitizedLegacyUsers);
+                return sanitizedLegacyUsers;
                 saveUsers(legacyUsers);
                 return legacyUsers;
             }
@@ -755,6 +782,17 @@
             return (rawEmail || '').trim().toLowerCase();
         }
 
+
+        function sanitizeUsers(records) {
+            if (!Array.isArray(records)) return [];
+            return records
+                .filter((entry) => entry && typeof entry === 'object')
+                .map((entry) => ({
+                    email: normalizeEmail(entry.email || ''),
+                    username: normalizePlayerName(String(entry.username || '')),
+                    password: String(entry.password || '')
+                }))
+                .filter((entry) => entry.username);
         function findUserByLogin(loginValue) {
             const login = normalizePlayerName(loginValue || '').toLowerCase();
             const email = normalizeEmail(loginValue || '');
