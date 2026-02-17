@@ -52,6 +52,7 @@
             <form id="loginForm" class="space-y-4" novalidate>
                 <label for="loginUsername" class="sr-only">Username</label>
                 <input id="loginUsername" type="text" placeholder="Username or email" minlength="3" maxlength="64" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <input id="loginUsername" type="text" placeholder="Username" minlength="3" maxlength="24" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <label for="loginPassword" class="sr-only">Password</label>
                 <input id="loginPassword" type="password" placeholder="Password" minlength="6" autocomplete="current-password" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <button type="submit" class="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition">Login & Enter</button>
@@ -606,6 +607,34 @@
                 const emailMatch = normalizeEmail(entry.email) === email;
                 return usernameMatch || emailMatch;
             }) || null;
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
+            return { valid: true, username };
+        }
+
+        function getUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                return Array.isArray(users) ? users : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
         }
 
         function getUserProfileByName(username) {
@@ -625,6 +654,8 @@
         function setAuthMode(mode) {
             clearAuthError();
             clearAuthNotice();
+        function setAuthMode(mode) {
+            clearAuthError();
             const inLogin = mode === 'login';
             loginForm.classList.toggle('hidden', !inLogin);
             signupForm.classList.toggle('hidden', inLogin);
@@ -651,6 +682,9 @@
             const loginCheck = validateLoginIdentifier(loginUsername.value);
             if (!loginCheck.valid) {
                 showAuthError(loginCheck.message);
+            const usernameCheck = validateUsername(loginUsername.value);
+            if (!usernameCheck.valid) {
+                showAuthError(usernameCheck.message);
                 return;
             }
             if ((loginPassword.value || '').trim().length < 6) {
@@ -665,6 +699,22 @@
             }
             if ((user.password || '').trim() !== loginPassword.value.trim()) {
                 showAuthError('Invalid username/email or password.');
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (!user || user.password !== loginPassword.value) {
+                showAuthError('Invalid username or password.');
+                return;
+            }
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (!user || user.password !== loginPassword.value) {
+                showAuthError('Invalid username or password.');
                 return;
             }
             clearAuthError();
@@ -744,6 +794,17 @@
         mobileLogoutBtn.addEventListener('click', beginLogout);
         cancelLogoutBtn.addEventListener('click', closeLogoutModal);
         confirmLogoutBtn.addEventListener('click', logoutSession);
+
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
+        showLoginBtn.addEventListener('click', () => setAuthMode('login'));
+        showSignupBtn.addEventListener('click', () => setAuthMode('signup'));
 
         function extractHighScore(slug) {
             const exactKey = `${slug}-highscore`;
