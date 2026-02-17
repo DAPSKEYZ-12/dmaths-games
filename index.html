@@ -72,6 +72,7 @@
 
             <p id="authError" class="hidden mt-4 text-sm text-rose-600 dark:text-rose-400 font-semibold"></p>
             <p id="authNotice" class="hidden mt-2 text-sm text-emerald-600 dark:text-emerald-400 font-semibold"></p>
+            <button id="repairStorageBtn" type="button" class="mt-3 w-full py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition">Repair Login/Signup Data</button>
         </div>
     </div>
 
@@ -524,6 +525,7 @@
         const logoutConfirmModal = document.getElementById('logoutConfirmModal');
         const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
         const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+        const repairStorageBtn = document.getElementById('repairStorageBtn');
         let activeCategory = 'all';
 
 
@@ -577,6 +579,60 @@
             }
             if (username.length > 24) {
                 return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
+            return { valid: true, username };
+        }
+
+        function validateLoginIdentifier(rawValue) {
+            const value = (rawValue || '').trim();
+            if (value.length < 3) {
+                return { valid: false, message: 'Enter your username or email.' };
+            }
+            if (value.includes('@')) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return { valid: false, message: 'Enter a valid email format.' };
+                }
+                return { valid: true };
+            }
+            const usernameCheck = validateUsername(value);
+            return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
+        }
+
+        function getAppDb() {
+            const defaultDb = { version: 1, users: [], sessions: [], scores: {} };
+            try {
+                const parsed = JSON.parse(localStorage.getItem(APP_DB_KEY) || 'null');
+                if (!parsed || typeof parsed !== 'object') return defaultDb;
+                return {
+                    version: parsed.version || 1,
+                    users: Array.isArray(parsed.users) ? parsed.users : [],
+                    sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+                    scores: parsed.scores && typeof parsed.scores === 'object' ? parsed.scores : {}
+                };
+            } catch (error) {
+                return defaultDb;
+            }
+        }
+
+        function saveAppDb(db) {
+            localStorage.setItem(APP_DB_KEY, JSON.stringify(db));
+        }
+
+        function getUsers() {
+            const db = getAppDb();
+            return sanitizeUsers(db.users);
+        }
+
+        function saveUsers(users) {
+            const sanitizedUsers = sanitizeUsers(users);
+            const db = getAppDb();
+            db.users = sanitizedUsers;
+            saveAppDb(db);
+            localStorage.setItem(USERS_KEY, JSON.stringify(sanitizedUsers));
             }
             if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
                 return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
@@ -800,10 +856,64 @@
                     password: String(entry.password || '')
                 }))
                 .filter((entry) => entry.username);
+        }
+
         function findUserByLogin(loginValue) {
             const login = normalizePlayerName(loginValue || '').toLowerCase();
             const email = normalizeEmail(loginValue || '');
             if (!login) return null;
+            const matches = getUsers().filter((entry) => {
+                const usernameMatch = (entry.username || '').toLowerCase() === login;
+                const emailMatch = normalizeEmail(entry.email) === email;
+                return usernameMatch || emailMatch;
+            });
+            if (!matches.length) return null;
+            return matches.find((entry) => (entry.password || '').trim()) || matches[matches.length - 1];
+        }
+
+        function repairAuthStorage() {
+            const db = getAppDb();
+            const legacyPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
+            const merged = [];
+
+            const addOrMerge = (entry) => {
+                if (!entry || typeof entry !== 'object') return;
+                const candidate = sanitizeUsers([entry])[0];
+                if (!candidate) return;
+                const idx = merged.findIndex((row) =>
+                    row.username.toLowerCase() === candidate.username.toLowerCase()
+                    || (candidate.email && normalizeEmail(row.email) === normalizeEmail(candidate.email))
+                );
+                if (idx === -1) {
+                    merged.push(candidate);
+                    return;
+                }
+                const prev = merged[idx];
+                merged[idx] = {
+                    email: candidate.email || prev.email,
+                    username: candidate.username || prev.username,
+                    password: (candidate.password || '').trim() ? candidate.password : prev.password
+                };
+            };
+
+            getUsers().forEach(addOrMerge);
+            try {
+                const legacyUsers = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                if (Array.isArray(legacyUsers)) legacyUsers.forEach(addOrMerge);
+            } catch (error) {
+                // ignore malformed legacy users
+            }
+
+            if (legacyPlayer && !merged.some((u) => u.username.toLowerCase() === legacyPlayer.toLowerCase())) {
+                merged.push({ email: '', username: legacyPlayer, password: '' });
+            }
+
+            saveUsers(merged);
+            db.users = merged;
+            db.sessions = [];
+            saveAppDb(db);
+            clearAuthError();
+            showAuthNotice('Data repaired successfully. Please login or signup again.');
             const users = getUsers();
             return users.find((entry) => {
                 const usernameMatch = (entry.username || '').toLowerCase() === login;
@@ -915,6 +1025,12 @@
                 showAuthError(loginCheck.message);
                 return;
             }
+            if ((loginPassword.value || '').trim().length < 6) {
+                showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+                return;
+            }
                 return;
             }
                 return;
@@ -1008,6 +1124,7 @@
                 showAuthError(usernameCheck.message);
                 return;
             }
+            }
             if (!signupEmail.value.trim() || !signupEmail.value.includes('@')) {
                 showAuthError('Enter a valid email address.');
                 return;
@@ -1036,11 +1153,39 @@
 
             const users = ensureUsersStore();
             const emailToRegister = normalizeEmail(signupEmail.value);
+            const matchingUsers = users.filter((entry) =>
             const existingIndex = users.findIndex((entry) =>
                 (entry.username || '').toLowerCase() === usernameCheck.username.toLowerCase()
                 || normalizeEmail(entry.email) === emailToRegister
             );
 
+            const existingWithPassword = matchingUsers.find((entry) => (entry.password || '').trim());
+            if (existingWithPassword) {
+                if ((existingWithPassword.password || '').trim() === signupPassword.value.trim()) {
+                    clearAuthError();
+                    unlockPortal(existingWithPassword.username || usernameCheck.username);
+                    return;
+                }
+                showAuthError('That username or email is already registered. Please login instead.');
+                return;
+            }
+
+            const target = matchingUsers[matchingUsers.length - 1];
+            if (target) {
+                const updated = users.map((entry) => {
+                    const sameUser = (entry.username || '').toLowerCase() === (target.username || '').toLowerCase()
+                        || (normalizeEmail(entry.email) && normalizeEmail(entry.email) === normalizeEmail(target.email));
+                    if (!sameUser) return entry;
+                    return {
+                        ...entry,
+                        email: emailToRegister,
+                        username: usernameCheck.username,
+                        password: signupPassword.value
+                    };
+                });
+                saveUsers(updated);
+                clearAuthError();
+                unlockPortal(usernameCheck.username);
             if (existingIndex >= 0) {
                 const existingUser = users[existingIndex] || {};
                 if ((existingUser.password || '').trim()) {
@@ -1119,6 +1264,7 @@
 
         showLoginBtn.addEventListener('click', () => setAuthMode('login'));
         showSignupBtn.addEventListener('click', () => setAuthMode('signup'));
+        repairStorageBtn.addEventListener('click', repairAuthStorage);
 
         function beginLogout() {
             logoutConfirmModal.classList.remove('hidden');
