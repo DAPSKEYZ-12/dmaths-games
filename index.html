@@ -581,6 +581,13 @@
             if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
                 return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
             }
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
             return { valid: true, username };
         }
 
@@ -910,6 +917,8 @@
             }
                 return;
             }
+                return;
+            }
             if ((loginPassword.value || '').trim().length < 6) {
                 showAuthError('Password must be at least 6 characters.');
                 return;
@@ -956,6 +965,15 @@
                 return;
             }
             if (!user.password) {
+                user.password = loginPassword.value.trim();
+                const users = getUsers().map((entry) => (
+                    (entry.username || '').toLowerCase() === (user.username || '').toLowerCase()
+                        ? { ...entry, password: user.password }
+                        : entry
+                ));
+                saveUsers(users);
+                clearAuthError();
+                unlockPortal(user.username);
                 showAuthError('This account needs a password. Please sign up again with the same username.');
                 return;
             }
@@ -1002,6 +1020,19 @@
                 showAuthError('Passwords do not match.');
                 return;
             }
+            }
+            if (!signupEmail.value.trim() || !signupEmail.value.includes('@')) {
+                showAuthError('Enter a valid email address.');
+                return;
+            }
+            if (signupPassword.value.length < 6) {
+                showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+            if (signupPassword.value !== signupConfirmPassword.value) {
+                showAuthError('Passwords do not match.');
+                return;
+            }
 
             const users = ensureUsersStore();
             const emailToRegister = normalizeEmail(signupEmail.value);
@@ -1013,6 +1044,11 @@
             if (existingIndex >= 0) {
                 const existingUser = users[existingIndex] || {};
                 if ((existingUser.password || '').trim()) {
+                    if ((existingUser.password || '').trim() === signupPassword.value.trim()) {
+                        clearAuthError();
+                        unlockPortal(existingUser.username || usernameCheck.username);
+                        return;
+                    }
                     showAuthError('That username or email is already registered. Please login instead.');
                     return;
                 }
@@ -1049,6 +1085,14 @@
             saveUsers(users);
             clearAuthError();
             unlockPortal(usernameCheck.username);
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
         });
 
         [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
