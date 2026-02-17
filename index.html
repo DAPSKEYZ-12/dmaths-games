@@ -503,6 +503,7 @@
         const SESSION_KEY = 'mathPortalSession';
         const PLAYER_KEY = 'mathPortalPlayer';
         const USERS_KEY = 'mathPortalUsers';
+        const APP_DB_KEY = 'mathPortalDb';
         const desktopSearch = document.getElementById('gameSearch');
         const mobileSearch = document.getElementById('mobileSearch');
         const cards = document.querySelectorAll('.game-card');
@@ -529,6 +530,18 @@
         function showAuthError(message) {
             authError.textContent = message;
             authError.classList.remove('hidden');
+        }
+
+        function clearAuthError() {
+            authError.textContent = '';
+            authError.classList.add('hidden');
+        }
+
+        function showAuthNotice(message) {
+            authNotice.textContent = message;
+            authNotice.classList.remove('hidden');
+        }
+
         }
 
         function clearAuthError() {
@@ -580,6 +593,47 @@
             return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
         }
 
+        function getAppDb() {
+            const defaultDb = { version: 1, users: [], sessions: [], scores: [] };
+            try {
+                const parsed = JSON.parse(localStorage.getItem(APP_DB_KEY) || 'null');
+                if (!parsed || typeof parsed !== 'object') return defaultDb;
+                return {
+                    version: parsed.version || 1,
+                    users: Array.isArray(parsed.users) ? parsed.users : [],
+                    sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+                    scores: Array.isArray(parsed.scores) ? parsed.scores : []
+                };
+            } catch (error) {
+                return defaultDb;
+            }
+        }
+
+        function saveAppDb(db) {
+            localStorage.setItem(APP_DB_KEY, JSON.stringify(db));
+        }
+
+        function getUsers() {
+            const db = getAppDb();
+            return db.users;
+        }
+
+        function saveUsers(users) {
+            const db = getAppDb();
+            db.users = users;
+            saveAppDb(db);
+            }
+            if (value.includes('@')) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return { valid: false, message: 'Enter a valid email format.' };
+                }
+                return { valid: true };
+            }
+            const usernameCheck = validateUsername(value);
+            return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
+        }
+
         function getUsers() {
             try {
                 const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
@@ -596,6 +650,44 @@
         function ensureUsersStore() {
             const users = getUsers();
             if (users.length) return users;
+
+            let legacyUsers = [];
+            try {
+                const parsedLegacy = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                legacyUsers = Array.isArray(parsedLegacy) ? parsedLegacy : [];
+            } catch (error) {
+                legacyUsers = [];
+            }
+            if (legacyUsers.length) {
+                saveUsers(legacyUsers);
+                return legacyUsers;
+            }
+
+            const legacyPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
+            if (!legacyPlayer || legacyPlayer === 'null' || legacyPlayer === 'undefined') return [];
+            const migrated = [{
+                email: '',
+                username: legacyPlayer,
+                password: ''
+            }];
+            saveUsers(migrated);
+            return migrated;
+        }
+
+        function normalizeEmail(rawEmail) {
+            return (rawEmail || '').trim().toLowerCase();
+        }
+
+        function findUserByLogin(loginValue) {
+            const login = normalizePlayerName(loginValue || '').toLowerCase();
+            const email = normalizeEmail(loginValue || '');
+            if (!login) return null;
+            const users = getUsers();
+            return users.find((entry) => {
+                const usernameMatch = (entry.username || '').toLowerCase() === login;
+                const emailMatch = normalizeEmail(entry.email) === email;
+                return usernameMatch || emailMatch;
+            }) || null;
             const legacyPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
             if (!legacyPlayer || legacyPlayer === 'null' || legacyPlayer === 'undefined') return [];
             const migrated = [{
@@ -686,6 +778,9 @@
             loginGate.classList.add('hidden');
             localStorage.setItem(PLAYER_KEY, playerName);
             sessionStorage.setItem(SESSION_KEY, 'active');
+            const db = getAppDb();
+            db.sessions = [{ user: playerName, loggedInAt: new Date().toISOString() }];
+            saveAppDb(db);
             renderLeaderboard();
             renderAiPredictions();
             renderUserProfile(playerName);
@@ -707,6 +802,10 @@
             const user = findUserByLogin(loginUsername.value);
             if (!user) {
                 showAuthError('Account not found. Please sign up first.');
+                return;
+            }
+            if (!user.password) {
+                showAuthError('This account needs a password. Please sign up again with the same username.');
                 return;
             }
             if (!user.password) {
@@ -833,6 +932,9 @@
             closeLogoutModal();
             sessionStorage.removeItem(SESSION_KEY);
             localStorage.removeItem(PLAYER_KEY);
+            const db = getAppDb();
+            db.sessions = [];
+            saveAppDb(db);
             document.body.classList.add('locked');
             loginGate.classList.remove('hidden');
             setAuthMode('login');
@@ -1003,6 +1105,7 @@
 
         setAuthMode('login');
         ensureUsersStore();
+        saveAppDb(getAppDb());
 
         const existingPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
         const isSessionActive = sessionStorage.getItem(SESSION_KEY) === 'active';
