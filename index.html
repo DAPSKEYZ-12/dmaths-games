@@ -593,6 +593,20 @@
             localStorage.setItem(USERS_KEY, JSON.stringify(users));
         }
 
+        function ensureUsersStore() {
+            const users = getUsers();
+            if (users.length) return users;
+            const legacyPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
+            if (!legacyPlayer || legacyPlayer === 'null' || legacyPlayer === 'undefined') return [];
+            const migrated = [{
+                email: '',
+                username: legacyPlayer,
+                password: ''
+            }];
+            saveUsers(migrated);
+            return migrated;
+        }
+
         function normalizeEmail(rawEmail) {
             return (rawEmail || '').trim().toLowerCase();
         }
@@ -682,6 +696,27 @@
             const loginCheck = validateLoginIdentifier(loginUsername.value);
             if (!loginCheck.valid) {
                 showAuthError(loginCheck.message);
+                return;
+            }
+            if ((loginPassword.value || '').trim().length < 6) {
+                showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+
+            ensureUsersStore();
+            const user = findUserByLogin(loginUsername.value);
+            if (!user) {
+                showAuthError('Account not found. Please sign up first.');
+                return;
+            }
+            if (!user.password) {
+                showAuthError('This account needs a password. Please sign up again with the same username.');
+                return;
+            }
+            if ((user.password || '').trim() !== loginPassword.value.trim()) {
+                showAuthError('Invalid username/email or password.');
+                return;
+            }
             const usernameCheck = validateUsername(loginUsername.value);
             if (!usernameCheck.valid) {
                 showAuthError(usernameCheck.message);
@@ -741,6 +776,14 @@
                 return;
             }
 
+            const users = ensureUsersStore();
+            const emailToRegister = normalizeEmail(signupEmail.value);
+            const alreadyExists = users.some((entry) =>
+                (entry.username || '').toLowerCase() === usernameCheck.username.toLowerCase()
+                || normalizeEmail(entry.email) === emailToRegister
+            );
+            if (alreadyExists) {
+                showAuthError('That username or email is already registered. Please login instead.');
             const users = getUsers();
             const alreadyExists = users.some((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
             if (alreadyExists) {
@@ -749,6 +792,7 @@
             }
 
             users.push({
+                email: normalizeEmail(signupEmail.value),
                 email: signupEmail.value.trim().toLowerCase(),
                 username: usernameCheck.username,
                 password: signupPassword.value
@@ -756,6 +800,14 @@
             saveUsers(users);
             clearAuthError();
             unlockPortal(usernameCheck.username);
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
         });
 
         [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
@@ -950,6 +1002,7 @@
         }
 
         setAuthMode('login');
+        ensureUsersStore();
 
         const existingPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
         const isSessionActive = sessionStorage.getItem(SESSION_KEY) === 'active';
