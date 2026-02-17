@@ -97,6 +97,13 @@
         let currentLevel = 0;
         let timeLeft = 180;
         let timerId = null;
+        let score = 0;
+
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('logic-highscore') || 0);
+            if (value > best) localStorage.setItem('logic-highscore', String(value));
+        }
 
         function startGame() {
             document.getElementById('briefing-overlay').style.display = 'none';
@@ -110,7 +117,12 @@
                 const mins = Math.floor(timeLeft / 60);
                 const secs = timeLeft % 60;
                 document.getElementById('timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                if (timeLeft <= 0) { clearInterval(timerId); location.reload(); }
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    saveHighScore(score);
+                    alert(`TIME UP! Final Score: ${score}`);
+                    window.location.href = 'index.html';
+                }
             }, 1000);
         }
 
@@ -190,17 +202,22 @@
             if (isCorrect) {
                 if (currentLevel < 19) {
                     currentLevel++;
-                    alert("PROTOCOL CLEARED. Advancing to next mission...");
+                    score += 100;
+                    alert(`PROTOCOL CLEARED. +100 points (Total: ${score})`);
                     loadLevel();
                 } else {
                     clearInterval(timerId);
-                    alert("ULTIMATE MASTER DECODER STATUS ACHIEVED!");
+                    score += Math.max(0, timeLeft);
+                    saveHighScore(score);
+                    alert(`ULTIMATE MASTER DECODER STATUS ACHIEVED! Final Score: ${score}`);
                     window.location.href = "index.html";
                 }
             } else {
                 alert("LOGIC ERROR: Check your deductions.");
             }
         }
+
+        window.addEventListener('beforeunload', () => saveHighScore(score));
     </script>
 </body>
 </html>

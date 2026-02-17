@@ -72,6 +72,7 @@
         </a>
         <div class="flex gap-4">
             <div class="glass px-6 py-2 rounded-full text-sm font-bold tracking-tight">🎯 Score: <span id="score" class="text-amber-400">0</span></div>
+        <div class="glass px-6 py-2 rounded-full text-sm font-bold tracking-tight">⏱️ Time: <span id="timer" class="text-indigo-400">75</span>s</div>
         </div>
     </header>
 
@@ -102,6 +103,29 @@
         let currentAngle = 0;
         let targetAnswer = 0;
         let gameMode = 'supplementary'; // supplementary (180) or complementary (90)
+        let timeLeft = 75;
+        let timerId = null;
+
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('geometry-highscore') || 0);
+            if (value > best) localStorage.setItem('geometry-highscore', String(value));
+        }
+
+        function endGame() {
+            clearInterval(timerId);
+            saveHighScore(score);
+            alert(`TIME UP! Final Score: ${score}`);
+            window.location.href = 'index.html';
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
 
         function initRound() {
             const field = document.getElementById('target-field');
@@ -175,6 +199,8 @@
             }
         }
 
+        startTimer();
+        window.addEventListener('beforeunload', () => saveHighScore(score));
         initRound();
     </script>
 </body>

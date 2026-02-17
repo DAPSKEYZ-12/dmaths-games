@@ -508,13 +508,41 @@
             const exactKey = `${slug}-highscore`;
             const values = [];
 
+            const pushNumber = (value) => {
+                const n = Number(value);
+                if (!Number.isNaN(n) && Number.isFinite(n)) values.push(n);
+            };
+
+            pushNumber(localStorage.getItem(exactKey));
+
+            const legacyMap = {
+                speed: 'arithmetic_ranks',
+                escapethedoor: 'math_ranks',
+                memory: 'memory_speed_scores'
+            };
+
+            const legacyKey = legacyMap[slug];
+            if (legacyKey) {
+                try {
+                    const parsed = JSON.parse(localStorage.getItem(legacyKey) || '[]');
+                    parsed.forEach((item) => {
+                        if (typeof item === 'number') pushNumber(item);
+                        if (item && typeof item === 'object') {
+                            pushNumber(item.s);
+                            pushNumber(item.score);
+                        }
+                    });
+                } catch (error) {
+                    // ignore malformed old storage
+                }
+            }
+
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 const normalizedKey = key.toLowerCase();
                 if (!normalizedKey.includes(slug) && normalizedKey !== exactKey) continue;
                 if (!normalizedKey.includes('score')) continue;
-                const value = Number(localStorage.getItem(key));
-                if (!Number.isNaN(value)) values.push(value);
+                pushNumber(localStorage.getItem(key));
             }
 
             return values.length ? Math.max(...values) : 0;

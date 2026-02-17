@@ -142,7 +142,7 @@
     <script>
         // Use the original game logic state
         const gameState = {
-            score: 0, streak: 0, correctCount: 0, questionCount: 0,
+            score: 0, streak: 0, correctCount: 0, questionCount: 0, maxQuestions: 15,
             currentQuestion: {}, selectedAnswer: null, level: 'easy',
             divisorsByLevel: {
                 easy: [2, 3, 4, 5],
@@ -177,6 +177,19 @@
         const submitBtn = document.getElementById('submit-btn');
         const nextBtn = document.getElementById('next-btn');
         const feedbackEl = document.getElementById('feedback');
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('divisiblity-highscore') || 0);
+            if (value > best) localStorage.setItem('divisiblity-highscore', String(value));
+        }
+
+        function endGame() {
+            saveHighScore(gameState.score);
+            const accuracy = gameState.questionCount ? Math.round((gameState.correctCount / gameState.questionCount) * 100) : 0;
+            alert(`Round complete! Score: ${gameState.score} | Accuracy: ${accuracy}%`);
+            window.location.href = 'index.html';
+        }
+
         const scoreEl = document.getElementById('score');
         const streakEl = document.getElementById('streak');
         const progressFillEl = document.getElementById('progress-fill');
@@ -262,6 +275,10 @@
             streakEl.textContent = gameState.streak;
             document.getElementById('question-count').textContent = gameState.questionCount;
             document.getElementById('progress-percent').textContent = Math.round((gameState.correctCount / gameState.questionCount) * 100) + "%";
+
+            if (gameState.questionCount >= gameState.maxQuestions) {
+                setTimeout(endGame, 350);
+            }
         }
 
         function updateProgressBar() {
@@ -270,6 +287,7 @@
             document.getElementById('progress-text').textContent = (gameState.questionCount % 10) + " / 10";
         }
 
+        window.addEventListener('beforeunload', () => saveHighScore(gameState.score));
         document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
