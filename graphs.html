@@ -62,7 +62,20 @@
         let level = 1;
         let points = [];
         let targetLine = { m: 2, c: 1 };
+        const maxLevels = 10;
         
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('graphs-highscore') || 0);
+            if (value > best) localStorage.setItem('graphs-highscore', String(value));
+        }
+
+        function endGame() {
+            saveHighScore(score);
+            showFeedback(`SESSION COMPLETE: ${score}`, 'bg-indigo-600');
+            setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+        }
+
         // Grid config
         const gridSize = 40; // Pixels per unit
         let width, height, centerX, centerY;
@@ -174,6 +187,12 @@
                 showFeedback("PERFECT PLOT!", "bg-emerald-500");
                 score += 100;
                 level++;
+                if (level > maxLevels) {
+                    document.getElementById('score').innerText = score;
+                    document.getElementById('level-txt').innerText = maxLevels;
+                    endGame();
+                    return;
+                }
             } else {
                 showFeedback("INCORRECT", "bg-red-500");
                 score = Math.max(0, score - 50);
@@ -203,6 +222,7 @@
             setTimeout(() => el.classList.replace('scale-100', 'scale-0'), 1500);
         }
 
+        window.addEventListener('beforeunload', () => saveHighScore(score));
         newRound();
     </script>
 </body>
