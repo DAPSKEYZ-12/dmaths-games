@@ -52,6 +52,7 @@
             <form id="loginForm" class="space-y-4" novalidate>
                 <label for="loginUsername" class="sr-only">Username</label>
                 <input id="loginUsername" type="text" placeholder="Username or email" minlength="3" maxlength="64" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
+                <input id="loginUsername" type="text" placeholder="Username" minlength="3" maxlength="24" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <label for="loginPassword" class="sr-only">Password</label>
                 <input id="loginPassword" type="password" placeholder="Password" minlength="6" autocomplete="current-password" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <button type="submit" class="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition">Login & Enter</button>
@@ -541,6 +542,25 @@
             authNotice.classList.remove('hidden');
         }
 
+        }
+
+        function showAuthNotice(message) {
+            authNotice.textContent = message;
+            authNotice.classList.remove('hidden');
+        }
+
+        }
+
+        function clearAuthError() {
+            authError.textContent = '';
+            authError.classList.add('hidden');
+        }
+
+        function showAuthNotice(message) {
+            authNotice.textContent = message;
+            authNotice.classList.remove('hidden');
+        }
+
         function clearAuthNotice() {
             authNotice.textContent = '';
             authNotice.classList.add('hidden');
@@ -568,6 +588,69 @@
             const value = (rawValue || '').trim();
             if (value.length < 3) {
                 return { valid: false, message: 'Enter your username or email.' };
+            }
+            if (value.includes('@')) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return { valid: false, message: 'Enter a valid email format.' };
+                }
+                return { valid: true };
+            }
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
+            return { valid: true, username };
+        }
+
+        function validateLoginIdentifier(rawValue) {
+            const value = (rawValue || '').trim();
+            if (value.length < 3) {
+                return { valid: false, message: 'Enter your username or email.' };
+            }
+            if (value.includes('@')) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return { valid: false, message: 'Enter a valid email format.' };
+                }
+                return { valid: true };
+            }
+            const usernameCheck = validateUsername(value);
+            return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
+        }
+
+        function getAppDb() {
+            const defaultDb = { version: 1, users: [], sessions: [], scores: [] };
+            try {
+                const parsed = JSON.parse(localStorage.getItem(APP_DB_KEY) || 'null');
+                if (!parsed || typeof parsed !== 'object') return defaultDb;
+                return {
+                    version: parsed.version || 1,
+                    users: Array.isArray(parsed.users) ? parsed.users : [],
+                    sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+                    scores: Array.isArray(parsed.scores) ? parsed.scores : []
+                };
+            } catch (error) {
+                return defaultDb;
+            }
+        }
+
+        function saveAppDb(db) {
+            localStorage.setItem(APP_DB_KEY, JSON.stringify(db));
+        }
+
+        function getUsers() {
+            const db = getAppDb();
+            return db.users;
+        }
+
+        function saveUsers(users) {
+            const db = getAppDb();
+            db.users = users;
+            saveAppDb(db);
             }
             if (value.includes('@')) {
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -623,6 +706,35 @@
             } catch (error) {
                 legacyUsers = [];
             }
+            }
+            const usernameCheck = validateUsername(value);
+            return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
+        }
+
+        function getUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                return Array.isArray(users) ? users : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        function ensureUsersStore() {
+            const users = getUsers();
+            if (users.length) return users;
+
+            let legacyUsers = [];
+            try {
+                const parsedLegacy = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                legacyUsers = Array.isArray(parsedLegacy) ? parsedLegacy : [];
+            } catch (error) {
+                legacyUsers = [];
+            }
             if (legacyUsers.length) {
                 saveUsers(legacyUsers);
                 return legacyUsers;
@@ -653,6 +765,59 @@
                 const emailMatch = normalizeEmail(entry.email) === email;
                 return usernameMatch || emailMatch;
             }) || null;
+            const legacyPlayer = normalizePlayerName(localStorage.getItem(PLAYER_KEY) || '');
+            if (!legacyPlayer || legacyPlayer === 'null' || legacyPlayer === 'undefined') return [];
+            const migrated = [{
+                email: '',
+                username: legacyPlayer,
+                password: ''
+            }];
+            saveUsers(migrated);
+            return migrated;
+        }
+
+        function normalizeEmail(rawEmail) {
+            return (rawEmail || '').trim().toLowerCase();
+        }
+
+        function findUserByLogin(loginValue) {
+            const login = normalizePlayerName(loginValue || '').toLowerCase();
+            const email = normalizeEmail(loginValue || '');
+            if (!login) return null;
+            const users = getUsers();
+            return users.find((entry) => {
+                const usernameMatch = (entry.username || '').toLowerCase() === login;
+                const emailMatch = normalizeEmail(entry.email) === email;
+                return usernameMatch || emailMatch;
+            }) || null;
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
+            return { valid: true, username };
+        }
+
+        function getUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                return Array.isArray(users) ? users : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
         }
 
         function getUserProfileByName(username) {
@@ -672,6 +837,8 @@
         function setAuthMode(mode) {
             clearAuthError();
             clearAuthNotice();
+        function setAuthMode(mode) {
+            clearAuthError();
             const inLogin = mode === 'login';
             loginForm.classList.toggle('hidden', !inLogin);
             signupForm.classList.toggle('hidden', inLogin);
@@ -703,6 +870,42 @@
                 showAuthError(loginCheck.message);
                 return;
             }
+                return;
+            }
+            if ((loginPassword.value || '').trim().length < 6) {
+                showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+
+            ensureUsersStore();
+            const user = findUserByLogin(loginUsername.value);
+            if (!user) {
+                showAuthError('Account not found. Please sign up first.');
+                return;
+            }
+            if (!user.password) {
+                showAuthError('This account needs a password. Please sign up again with the same username.');
+                return;
+            }
+                return;
+            }
+            if (!user.password) {
+                showAuthError('This account needs a password. Please sign up again with the same username.');
+                return;
+            }
+            if (!user.password) {
+                showAuthError('This account needs a password. Please sign up again with the same username.');
+                return;
+            }
+            if ((user.password || '').trim() !== loginPassword.value.trim()) {
+                showAuthError('Invalid username/email or password.');
+                return;
+            }
+            const usernameCheck = validateUsername(loginUsername.value);
+            if (!usernameCheck.valid) {
+                showAuthError(usernameCheck.message);
+                return;
+            }
             if ((loginPassword.value || '').trim().length < 6) {
                 showAuthError('Password must be at least 6 characters.');
                 return;
@@ -720,6 +923,22 @@
             }
             if ((user.password || '').trim() !== loginPassword.value.trim()) {
                 showAuthError('Invalid username/email or password.');
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (!user || user.password !== loginPassword.value) {
+                showAuthError('Invalid username or password.');
+                return;
+            }
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (!user || user.password !== loginPassword.value) {
+                showAuthError('Invalid username or password.');
                 return;
             }
             clearAuthError();
@@ -769,17 +988,87 @@
                 saveUsers(users);
                 clearAuthError();
                 unlockPortal(usernameCheck.username);
+            const alreadyExists = users.some((entry) =>
+                (entry.username || '').toLowerCase() === usernameCheck.username.toLowerCase()
+                || normalizeEmail(entry.email) === emailToRegister
+            );
+            if (alreadyExists) {
+                showAuthError('That username or email is already registered. Please login instead.');
+            const users = getUsers();
+            const alreadyExists = users.some((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (alreadyExists) {
+                showAuthError('That username is already registered. Please login instead.');
                 return;
             }
 
             users.push({
                 email: emailToRegister,
+                email: normalizeEmail(signupEmail.value),
+                email: signupEmail.value.trim().toLowerCase(),
                 username: usernameCheck.username,
                 password: signupPassword.value
             });
             saveUsers(users);
             clearAuthError();
             unlockPortal(usernameCheck.username);
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
+        showLoginBtn.addEventListener('click', () => setAuthMode('login'));
+        showSignupBtn.addEventListener('click', () => setAuthMode('signup'));
+
+        function beginLogout() {
+            logoutConfirmModal.classList.remove('hidden');
+            logoutConfirmModal.classList.add('flex');
+        }
+
+        function closeLogoutModal() {
+            logoutConfirmModal.classList.add('hidden');
+            logoutConfirmModal.classList.remove('flex');
+        }
+
+        function logoutSession() {
+            closeLogoutModal();
+            sessionStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem(PLAYER_KEY);
+            const db = getAppDb();
+            db.sessions = [];
+            saveAppDb(db);
+            document.body.classList.add('locked');
+            loginGate.classList.remove('hidden');
+            setAuthMode('login');
+            loginForm.reset();
+            signupForm.reset();
+            showAuthNotice('You have been logged out successfully.');
+            if (!menuOverlay.classList.contains('hidden')) toggleMenu();
+        }
+
+        logoutBtn.addEventListener('click', beginLogout);
+        mobileLogoutBtn.addEventListener('click', beginLogout);
+        cancelLogoutBtn.addEventListener('click', closeLogoutModal);
+        confirmLogoutBtn.addEventListener('click', logoutSession);
+
         });
 
         [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
@@ -856,6 +1145,7 @@
                 if (dbScore > 0) return dbScore;
             }
 
+        function extractHighScore(slug) {
             const exactKey = `${slug}-highscore`;
             const values = [];
 
