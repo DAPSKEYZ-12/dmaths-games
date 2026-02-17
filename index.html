@@ -560,6 +560,13 @@
             if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
                 return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
             }
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
             return { valid: true, username };
         }
 
@@ -593,6 +600,8 @@
         function setAuthMode(mode) {
             clearAuthError();
             clearAuthNotice();
+        function setAuthMode(mode) {
+            clearAuthError();
             const inLogin = mode === 'login';
             loginForm.classList.toggle('hidden', !inLogin);
             signupForm.classList.toggle('hidden', inLogin);
@@ -623,6 +632,15 @@
             }
             if ((loginPassword.value || '').trim().length < 6) {
                 showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find((entry) => entry.username.toLowerCase() === usernameCheck.username.toLowerCase());
+            if (!user || user.password !== loginPassword.value) {
+                showAuthError('Invalid username or password.');
+                return;
+            }
                 return;
             }
 
@@ -709,6 +727,17 @@
         mobileLogoutBtn.addEventListener('click', beginLogout);
         cancelLogoutBtn.addEventListener('click', closeLogoutModal);
         confirmLogoutBtn.addEventListener('click', logoutSession);
+
+        });
+
+        [loginUsername, loginPassword, signupEmail, signupUsername, signupPassword, signupConfirmPassword].forEach((input) => {
+            input.addEventListener('input', () => {
+                if (!authError.classList.contains('hidden')) clearAuthError();
+            });
+        });
+
+        showLoginBtn.addEventListener('click', () => setAuthMode('login'));
+        showSignupBtn.addEventListener('click', () => setAuthMode('signup'));
 
         function extractHighScore(slug) {
             const exactKey = `${slug}-highscore`;
