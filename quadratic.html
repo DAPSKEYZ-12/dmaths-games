@@ -289,6 +289,11 @@
     let timeLeft = 30;
     let timerInterval;
 
+    function saveHighScore(value) {
+        const best = Number(localStorage.getItem('quadratic-highscore') || 0);
+        if (value > best) localStorage.setItem('quadratic-highscore', String(value));
+    }
+
     const elements = {
         equation: document.getElementById('equation'),
         ans1: document.getElementById('answer1'),
@@ -409,6 +414,7 @@
 
     function exitGame() {
         clearInterval(timerInterval);
+        saveHighScore(score);
         const confirmExit = confirm(`Game Over!\n\nFinal Score: ${score}\nLevel Reached: ${level}\n\nWould you like to reset and play again?`);
         if (confirmExit) {
             score = 0; streak = 0; level = 1; progress = 0;

@@ -88,6 +88,11 @@
         let timerInterval;
         let currentDifficulty = 'easy';
 
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('snake-highscore') || 0);
+            if (value > best) localStorage.setItem('snake-highscore', String(value));
+        }
+
         function createExplosion(x, y) {
             for(let i = 0; i < 20; i++) {
                 particles.push({
@@ -155,8 +160,9 @@
         function gameOver() {
             clearInterval(gameInterval);
             clearInterval(timerInterval);
+            saveHighScore(score);
             alert("SYSTEM CRASHED. Final Score: " + score);
-            location.reload();
+            window.location.href = 'index.html';
         }
 
         function draw() {

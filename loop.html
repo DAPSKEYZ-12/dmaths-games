@@ -144,6 +144,11 @@
         let currentLevel = 1;
         let currentAnswer = 0;
 
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('loop-highscore') || 0);
+            if (value > best) localStorage.setItem('loop-highscore', String(value));
+        }
+
         const scenarios = [
             {
                 type: "Summation Loop",
@@ -211,6 +216,7 @@
 
         async function loadQuestion() {
             if(currentLevel > 30) {
+                saveHighScore(score);
                 alert("Mastery Complete! 30/30 Algorithms Decrypted.");
                 window.location.href = 'index.html';
                 return;
@@ -291,6 +297,7 @@
         };
 
         // Initial Load
+        window.addEventListener('beforeunload', () => saveHighScore(score));
         loadQuestion();
     </script>
 </body>

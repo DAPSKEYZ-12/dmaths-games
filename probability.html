@@ -141,6 +141,11 @@
 
     <script>
         let score = 0, level = 1, timeLeft = 60, timerId = null, currentGold = 0, currentTotal = 12;
+
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('probability-highscore') || 0);
+            if (value > best) localStorage.setItem('probability-highscore', String(value));
+        }
         const maxLevels = 10;
 
         function startGame() {
@@ -224,6 +229,7 @@
 
         function endGame(reason) {
             clearInterval(timerId);
+            saveHighScore(score);
             document.getElementById('overlay').classList.remove('hidden');
             document.getElementById('result-text').innerText = reason;
             document.getElementById('result-math').innerHTML = `Final Score: ${score}`;

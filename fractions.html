@@ -101,6 +101,11 @@
     </div>
 
     <script>
+        function saveHighScore(value) {
+            const best = Number(localStorage.getItem('fractions-highscore') || 0);
+            if (value > best) localStorage.setItem('fractions-highscore', String(value));
+        }
+
         let gameState = {
             score: 0,
             timeLeft: 30,
@@ -187,6 +192,7 @@
         }
 
         function endGame() {
+            saveHighScore(gameState.score);
             document.getElementById('game').classList.add('hidden');
             document.getElementById('results').classList.remove('hidden');
             document.getElementById('final-score').innerText = gameState.score;
@@ -195,6 +201,8 @@
         // GCD for simplification logic (used for "Solve" mode upgrades)
         const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
         const lcm = (a, b) => (a * b) / gcd(a, b);
+
+        window.addEventListener('beforeunload', () => saveHighScore(gameState.score));
 
     </script>
 </body>
