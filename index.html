@@ -51,6 +51,7 @@
 
             <form id="loginForm" class="space-y-4" novalidate>
                 <label for="loginUsername" class="sr-only">Username</label>
+                <input id="loginUsername" type="text" placeholder="Username or email" minlength="3" maxlength="64" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <input id="loginUsername" type="text" placeholder="Username" minlength="3" maxlength="24" autocomplete="username" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
                 <label for="loginPassword" class="sr-only">Password</label>
                 <input id="loginPassword" type="password" placeholder="Password" minlength="6" autocomplete="current-password" required class="w-full px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-500">
@@ -560,6 +561,59 @@
             if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
                 return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
             }
+            return { valid: true, username };
+        }
+
+        function validateLoginIdentifier(rawValue) {
+            const value = (rawValue || '').trim();
+            if (value.length < 3) {
+                return { valid: false, message: 'Enter your username or email.' };
+            }
+            if (value.includes('@')) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(value)) {
+                    return { valid: false, message: 'Enter a valid email format.' };
+                }
+                return { valid: true };
+            }
+            const usernameCheck = validateUsername(value);
+            return usernameCheck.valid ? { valid: true } : { valid: false, message: usernameCheck.message };
+        }
+
+        function getUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+                return Array.isArray(users) ? users : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        function normalizeEmail(rawEmail) {
+            return (rawEmail || '').trim().toLowerCase();
+        }
+
+        function findUserByLogin(loginValue) {
+            const login = normalizePlayerName(loginValue || '').toLowerCase();
+            const email = normalizeEmail(loginValue || '');
+            if (!login) return null;
+            const users = getUsers();
+            return users.find((entry) => {
+                const usernameMatch = (entry.username || '').toLowerCase() === login;
+                const emailMatch = normalizeEmail(entry.email) === email;
+                return usernameMatch || emailMatch;
+            }) || null;
+            }
+            if (username.length > 24) {
+                return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
+            }
+            if (!/^[a-zA-Z0-9 _-]+$/.test(username)) {
+                return { valid: false, username, message: 'Use only letters, numbers, spaces, underscore, or hyphen.' };
+            }
             }
             if (username.length > 24) {
                 return { valid: false, username, message: 'Username must be 24 characters or fewer.' };
@@ -625,6 +679,9 @@
 
         loginForm.addEventListener('submit', (event) => {
             event.preventDefault();
+            const loginCheck = validateLoginIdentifier(loginUsername.value);
+            if (!loginCheck.valid) {
+                showAuthError(loginCheck.message);
             const usernameCheck = validateUsername(loginUsername.value);
             if (!usernameCheck.valid) {
                 showAuthError(usernameCheck.message);
@@ -632,6 +689,16 @@
             }
             if ((loginPassword.value || '').trim().length < 6) {
                 showAuthError('Password must be at least 6 characters.');
+                return;
+            }
+
+            const user = findUserByLogin(loginUsername.value);
+            if (!user) {
+                showAuthError('Account not found. Please sign up first.');
+                return;
+            }
+            if ((user.password || '').trim() !== loginPassword.value.trim()) {
+                showAuthError('Invalid username/email or password.');
                 return;
             }
 
