@@ -37,6 +37,120 @@
         .filter-btn.active { background-color: #6366f1; color: white; border-color: #6366f1; }
         #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
+
+    <!-- ═══════════════════════════════════════════════
+         NEW FEATURE STYLES — purely additive, no existing code touched
+    ═══════════════════════════════════════════════ -->
+    <style>
+        /* ── Toast ── */
+        #mp-toast {
+            position: fixed; bottom: 1.75rem; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            z-index: 9999;
+            background: #1e293b; color: #f1f5f9;
+            padding: 0.8rem 1.5rem;
+            border-radius: 999px;
+            font-weight: 700; font-size: 0.875rem;
+            display: flex; align-items: center; gap: 0.6rem;
+            border: 1px solid rgba(99,102,241,0.35);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+            transition: transform 0.45s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.45s;
+            opacity: 0; pointer-events: none; white-space: nowrap;
+        }
+        #mp-toast.mp-show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .dark #mp-toast { background: #0f172a; }
+
+        /* ── Back to Top ── */
+        #mp-btt {
+            position: fixed; bottom: 1.75rem; right: 1.5rem;
+            z-index: 900; width: 3rem; height: 3rem;
+            border-radius: 50%; background: #6366f1; color: #fff;
+            border: none; cursor: pointer; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.45);
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.3s, transform 0.3s, background 0.2s;
+            pointer-events: none;
+        }
+        #mp-btt.mp-visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+        #mp-btt:hover { background: #4f46e5; transform: translateY(-3px) !important; }
+
+        /* ── Game Count Bar ── */
+        #mp-count-bar {
+            text-align: center; font-size: 0.78rem; font-weight: 700;
+            color: #94a3b8; letter-spacing: 0.06em;
+            padding: 0.2rem 0 0.5rem;
+            transition: color 0.2s;
+        }
+        .dark #mp-count-bar { color: #475569; }
+
+        /* ── Keyboard Hint ── */
+        #mp-kbd-hint {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0.4rem; font-size: 0.7rem; color: #94a3b8;
+            margin-top: 0.3rem;
+        }
+        #mp-kbd-hint kbd {
+            background: #e2e8f0; color: #475569;
+            border-radius: 4px; padding: 1px 7px;
+            font-family: monospace; font-size: 0.75rem;
+            border: 1px solid #cbd5e1;
+        }
+        .dark #mp-kbd-hint { color: #475569; }
+        .dark #mp-kbd-hint kbd { background: #1e293b; color: #64748b; border-color: #334155; }
+
+        /* ── Daily Challenge highlight ── */
+        .mp-daily-card {
+            outline: 3px solid #f59e0b !important;
+            outline-offset: 3px;
+        }
+        .mp-daily-badge {
+            position: absolute; top: -13px; left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg,#f59e0b,#f97316);
+            color: #fff; font-size: 0.6rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 0.12em;
+            padding: 3px 14px; border-radius: 999px;
+            white-space: nowrap; z-index: 20;
+            box-shadow: 0 2px 10px rgba(245,158,11,0.4);
+            pointer-events: none;
+        }
+
+        /* ── Streak pill (sidebar) ── */
+        #mp-streak-pill {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg,#6366f1,#8b5cf6);
+            color: #fff; border-radius: 1rem; padding: 0.85rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        #mp-streak-pill .mp-snum { font-size: 1.9rem; font-weight: 900; line-height: 1; }
+        #mp-streak-pill .mp-slabel { font-size: 0.65rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.85; }
+
+        /* ── Recently played items (sidebar) ── */
+        .mp-recent-link {
+            display: flex; align-items: center; gap: 0.55rem;
+            padding: 0.55rem 0.75rem; border-radius: 0.75rem;
+            background: #f8fafc; font-size: 0.8rem; font-weight: 700;
+            color: #334155; text-decoration: none;
+            transition: background 0.15s; margin-bottom: 0.35rem;
+        }
+        .dark .mp-recent-link { background: rgba(30,41,59,0.55); color: #cbd5e1; }
+        .mp-recent-link:hover { background: #e0e7ff; }
+        .dark .mp-recent-link:hover { background: rgba(99,102,241,0.18); }
+        .mp-rdot { width: 7px; height: 7px; border-radius: 50%;
+            background: #6366f1; flex-shrink: 0; }
+
+        /* ── Footer stats strip ── */
+        #mp-footer {
+            background: #fff; border-top: 1px solid #e2e8f0;
+            padding: 0.9rem 1.5rem;
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 2.5rem;
+            font-size: 0.78rem; font-weight: 700; color: #64748b;
+        }
+        .dark #mp-footer { background: #0f172a; border-color: #1e293b; color: #475569; }
+        #mp-footer strong { color: #6366f1; font-size: 1.05rem; margin-right: 3px; }
+    </style>
 </head>
 <body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen">
 
@@ -557,6 +671,271 @@
         renderAiPredictions();
         applyFilters();
     </script>
+    <!-- ═══════════════════════════════════════════════
+         NEW FEATURE HTML — purely additive
+    ═══════════════════════════════════════════════ -->
+
+    <!-- Toast notification -->
+    <div id="mp-toast" role="status" aria-live="polite">
+        <span id="mp-toast-icon">🚀</span>
+        <span id="mp-toast-msg">Welcome to MathPortal!</span>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="mp-btt" type="button" aria-label="Back to top" title="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Stats footer strip -->
+    <footer id="mp-footer" aria-label="Portal stats">
+        <span><strong id="mpf-total">17</strong> Games Available</span>
+        <span><strong id="mpf-streak">0</strong> Day Streak 🔥</span>
+        <span><strong id="mpf-today">0</strong> Played Today</span>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════
+         NEW FEATURE SCRIPT — a completely separate block,
+         zero changes to any existing code above
+    ═══════════════════════════════════════════════ -->
+    <script>
+    (function () {
+        'use strict';
+
+        /* ───────────────────────────────────────────
+           HELPERS
+        ─────────────────────────────────────────── */
+        function $(id) { return document.getElementById(id); }
+
+        /* ───────────────────────────────────────────
+           1. TOAST
+        ─────────────────────────────────────────── */
+        function showToast(msg, icon, ms) {
+            var t = $('mp-toast'), m = $('mp-toast-msg'), ic = $('mp-toast-icon');
+            if (!t) return;
+            m.textContent = msg;
+            ic.textContent = icon || '✨';
+            t.classList.add('mp-show');
+            clearTimeout(t._tid);
+            t._tid = setTimeout(function () { t.classList.remove('mp-show'); }, ms || 3500);
+        }
+
+        /* ───────────────────────────────────────────
+           2. STREAK
+        ─────────────────────────────────────────── */
+        function manageStreak() {
+            var today     = new Date().toDateString();
+            var yesterday = new Date(Date.now() - 864e5).toDateString();
+            var last      = localStorage.getItem('mp_last');
+            var streak    = parseInt(localStorage.getItem('mp_streak') || '0', 10);
+
+            if (last === today) {
+                /* same day – no change */
+            } else if (last === yesterday) {
+                streak += 1;
+            } else {
+                streak = 1;
+            }
+            localStorage.setItem('mp_streak', streak);
+            localStorage.setItem('mp_last', today);
+
+            /* Footer */
+            var fs = $('mpf-streak');
+            if (fs) fs.textContent = streak;
+
+            /* Inject streak pill into sidebar stats section */
+            var sidebarStats = document.querySelector('#mobile-menu .pt-6');
+            if (sidebarStats && !$('mp-streak-pill')) {
+                var pill = document.createElement('div');
+                pill.id = 'mp-streak-pill';
+                pill.innerHTML =
+                    '<div><p class="mp-slabel">Daily Streak</p>' +
+                    '<p class="mp-snum">' + streak + '</p></div>' +
+                    '<div style="font-size:2rem">🔥</div>';
+                sidebarStats.prepend(pill);
+            }
+            return streak;
+        }
+
+        /* ───────────────────────────────────────────
+           3. RECENTLY PLAYED
+        ─────────────────────────────────────────── */
+        function getRecent() {
+            try { return JSON.parse(localStorage.getItem('mp_recent') || '[]'); }
+            catch (e) { return []; }
+        }
+
+        function saveRecent(title, href) {
+            var list = getRecent().filter(function (r) { return r.href !== href; });
+            list.unshift({ title: title, href: href });
+            localStorage.setItem('mp_recent', JSON.stringify(list.slice(0, 5)));
+        }
+
+        function renderRecentSidebar() {
+            var list = getRecent();
+            if (!list.length) return;
+            var toolsSection = document.querySelector('#mobile-menu .pt-6.border-t');
+            if (!toolsSection || $('mp-recent-section')) return;
+
+            var sec = document.createElement('div');
+            sec.id = 'mp-recent-section';
+            sec.className = 'pt-5';
+            sec.innerHTML = '<p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Recently Played</p>' +
+                list.slice(0, 3).map(function (r) {
+                    return '<a href="' + r.href + '" class="mp-recent-link">' +
+                           '<span class="mp-rdot"></span>' + r.title + '</a>';
+                }).join('');
+            toolsSection.before(sec);
+        }
+
+        /* Track card link clicks for recently played */
+        document.querySelectorAll('.game-card').forEach(function (card) {
+            var link  = card.querySelector('a');
+            var title = card.querySelector('h3') ? card.querySelector('h3').innerText.trim() : '';
+            if (!link || !title) return;
+            link.addEventListener('click', function () {
+                saveRecent(title, link.getAttribute('href'));
+                /* Track today's played count */
+                var key     = 'mp_today_' + new Date().toDateString();
+                var visited = JSON.parse(localStorage.getItem(key) || '[]');
+                if (!visited.includes(link.getAttribute('href'))) {
+                    visited.push(link.getAttribute('href'));
+                    localStorage.setItem(key, JSON.stringify(visited));
+                }
+            });
+        });
+
+        function updateTodayCount() {
+            var key     = 'mp_today_' + new Date().toDateString();
+            var visited = JSON.parse(localStorage.getItem(key) || '[]');
+            var ft = $('mpf-today');
+            if (ft) ft.textContent = visited.length;
+        }
+
+        /* ───────────────────────────────────────────
+           4. DAILY CHALLENGE
+        ─────────────────────────────────────────── */
+        function applyDailyChallenge() {
+            var allCards = document.querySelectorAll('.game-card');
+            if (!allCards.length) return;
+
+            var dayIdx = Math.floor(Date.now() / 864e5) % allCards.length;
+            var chosen = allCards[dayIdx];
+
+            chosen.classList.add('mp-daily-card');
+            chosen.style.position = 'relative';
+
+            if (!chosen.querySelector('.mp-daily-badge')) {
+                var badge = document.createElement('div');
+                badge.className = 'mp-daily-badge';
+                badge.textContent = '⭐ Daily Challenge';
+                chosen.prepend(badge);
+            }
+
+            /* Bubble it to the front of the grid */
+            var grid = $('gameGrid');
+            if (grid && grid.firstElementChild !== chosen) {
+                grid.prepend(chosen);
+            }
+        }
+
+        /* ───────────────────────────────────────────
+           5. GAME COUNT BAR  (injected below filters)
+        ─────────────────────────────────────────── */
+        function injectCountBar() {
+            var filterRow = document.querySelector('header .flex.flex-wrap.justify-center');
+            if (!filterRow || $('mp-count-bar')) return;
+            var bar = document.createElement('div');
+            bar.id = 'mp-count-bar';
+            bar.setAttribute('aria-live', 'polite');
+            filterRow.after(bar);
+        }
+
+        function refreshCountBar() {
+            var bar = $('mp-count-bar');
+            if (!bar) return;
+            var total   = document.querySelectorAll('.game-card').length;
+            var visible = document.querySelectorAll('.game-card:not(.hidden)').length;
+            bar.textContent = visible === total
+                ? 'Showing all ' + total + ' challenges'
+                : 'Showing ' + visible + ' of ' + total + ' challenges';
+
+            var ft = $('mpf-total');
+            if (ft) ft.textContent = total;
+        }
+
+        /* Watch for hidden class changes on cards to auto-update count */
+        var observer = new MutationObserver(refreshCountBar);
+        document.querySelectorAll('.game-card').forEach(function (c) {
+            observer.observe(c, { attributes: true, attributeFilter: ['class'] });
+        });
+
+        /* ───────────────────────────────────────────
+           6. KEYBOARD SHORTCUT  "/" → focus search
+        ─────────────────────────────────────────── */
+        function injectKbdHint() {
+            var searchWrap = document.querySelector('header .group.hidden');
+            if (!searchWrap || $('mp-kbd-hint')) return;
+            var hint = document.createElement('div');
+            hint.id = 'mp-kbd-hint';
+            hint.innerHTML = 'Press <kbd>/</kbd> to search instantly';
+            searchWrap.after(hint);
+        }
+
+        document.addEventListener('keydown', function (e) {
+            var active = document.activeElement;
+            var isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+
+            if (e.key === '/' && !isInput) {
+                e.preventDefault();
+                var search = $('gameSearch') || $('mobileSearch');
+                if (search) { search.focus(); search.select(); }
+            }
+            if (e.key === 'Escape' && isInput) {
+                active.blur();
+            }
+        });
+
+        /* ───────────────────────────────────────────
+           7. BACK TO TOP
+        ─────────────────────────────────────────── */
+        var btt = $('mp-btt');
+        window.addEventListener('scroll', function () {
+            if (!btt) return;
+            btt.classList.toggle('mp-visible', window.scrollY > 380);
+        }, { passive: true });
+        if (btt) {
+            btt.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        /* ───────────────────────────────────────────
+           8. WELCOME TOAST
+        ─────────────────────────────────────────── */
+        function welcomeToast(streak) {
+            var recent = getRecent();
+            var msg, icon;
+            if (streak >= 7)        { msg = streak + '-day streak! Absolute legend! 🏆'; icon = '🔥'; }
+            else if (streak >= 3)   { msg = streak + ' days in a row — keep it going!';  icon = '⚡'; }
+            else if (recent.length) { msg = 'Welcome back! Ready for another challenge?'; icon = '👋'; }
+            else                    { msg = 'Welcome to MathPortal — pick your challenge!'; icon = '🚀'; }
+            setTimeout(function () { showToast(msg, icon, 4000); }, 900);
+        }
+
+        /* ───────────────────────────────────────────
+           INITIALISE ALL FEATURES
+        ─────────────────────────────────────────── */
+        var streak = manageStreak();
+        renderRecentSidebar();
+        applyDailyChallenge();
+        injectCountBar();
+        injectKbdHint();
+        refreshCountBar();
+        updateTodayCount();
+        welcomeToast(streak);
+
+    })();
+    </script>
 
 </body>
 </html>
@@ -570,3 +949,4 @@
 
 
 
+ 
