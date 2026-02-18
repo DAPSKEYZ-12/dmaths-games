@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,6 +7,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- NEW: PeerJS for two-device online play -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     
     <script>
         window.MathJax = {
@@ -129,6 +131,15 @@
             .math-btn { padding: 0.5rem !important; font-size: 0.8rem; }
             #q-blue, #q-red { font-size: 1.1rem; min-height: 40px !important; }
         }
+
+        /* NEW: Bounce dots for client waiting screen */
+        @keyframes bounce-dot {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .bounce-dot { animation: bounce-dot 0.8s ease-in-out infinite; }
+        .bounce-dot:nth-child(2) { animation-delay: 0.15s; }
+        .bounce-dot:nth-child(3) { animation-delay: 0.30s; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col relative overflow-hidden text-slate-100">
@@ -226,9 +237,80 @@
         </div>
     </main>
 
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODAL OVERLAY — All screens live here
+         ═══════════════════════════════════════════════════════════════════════ -->
     <div id="modal-overlay" class="absolute inset-0 z-50 bg-slate-950/95 flex items-center justify-center">
-        <div class="bg-slate-900 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-center max-w-sm border border-slate-700">
-            <div id="start-content">
+        <div class="bg-slate-900 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-center max-w-sm w-full mx-4 border border-slate-700">
+
+            <!-- ── NEW: MODE SELECT (shown first on load) ── -->
+            <div id="mode-select-content">
+                <div class="text-4xl sm:text-6xl mb-4">⚔️</div>
+                <h1 class="text-2xl sm:text-4xl font-black text-white italic mb-2">TUG OF MATHS</h1>
+                <p class="text-slate-400 mb-6 text-sm">Choose your battle mode</p>
+                <button onclick="selectMode('local')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl text-base sm:text-lg mb-3 leading-tight">
+                    📱 Same Device
+                    <div class="text-xs font-normal opacity-80 mt-1">Two players · One screen · Multi-touch</div>
+                </button>
+                <button onclick="selectMode('online')" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-4 rounded-2xl text-base sm:text-lg leading-tight">
+                    🌐 Two Devices
+                    <div class="text-xs font-normal opacity-80 mt-1">Connect & play as rivals online</div>
+                </button>
+            </div>
+
+            <!-- ── NEW: ONLINE SETUP ── -->
+            <div id="online-setup-content" class="hidden">
+                <div class="text-4xl mb-3">🌐</div>
+                <h2 class="text-xl font-black text-white mb-5">Online Mode</h2>
+                <button onclick="hostGame()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl mb-3 leading-tight">
+                    🏠 Create Room
+                    <div class="text-xs font-normal opacity-80 mt-1">Host a game &amp; share room code</div>
+                </button>
+                <button onclick="showJoinUI()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 rounded-2xl mb-5 leading-tight">
+                    🔗 Join Room
+                    <div class="text-xs font-normal opacity-80 mt-1">Enter a room code to join</div>
+                </button>
+                <button onclick="backToModeSelect()" class="text-slate-400 text-sm underline">← Back</button>
+            </div>
+
+            <!-- ── NEW: HOST WAITING ── -->
+            <div id="host-waiting-content" class="hidden">
+                <div class="text-4xl mb-3">📡</div>
+                <h2 class="text-xl font-black text-white mb-2">Room Created!</h2>
+                <p class="text-slate-400 text-xs mb-2">Share this code with your rival:</p>
+                <div id="room-code-display" class="bg-slate-800 rounded-xl p-3 text-3xl font-black text-yellow-400 tracking-[0.3em] mb-3">----</div>
+                <p id="host-status" class="text-slate-400 text-sm mb-4">Waiting for opponent to join...</p>
+                <button id="host-start-btn" onclick="hostStartGame()" class="hidden w-full bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl mb-3 text-lg">⚡ START BATTLE</button>
+                <button onclick="cancelOnline()" class="text-slate-400 text-sm underline">← Cancel</button>
+            </div>
+
+            <!-- ── NEW: JOIN ROOM ── -->
+            <div id="join-content" class="hidden">
+                <div class="text-4xl mb-3">🔗</div>
+                <h2 class="text-xl font-black text-white mb-3">Join Room</h2>
+                <input type="text" id="join-code-input"
+                    class="w-full bg-slate-800 text-white text-center text-2xl font-black p-3 rounded-xl mb-3 border border-slate-600 uppercase tracking-widest"
+                    placeholder="ROOM CODE" maxlength="6">
+                <button onclick="joinGame()" class="w-full bg-red-600 text-white font-black py-4 rounded-2xl mb-3">Join Battle</button>
+                <p id="join-status" class="text-yellow-400 text-sm mb-3 min-h-[1.25rem]"></p>
+                <button onclick="backToOnlineSetup()" class="text-slate-400 text-sm underline">← Back</button>
+            </div>
+
+            <!-- ── NEW: CLIENT WAITING FOR HOST TO START ── -->
+            <div id="client-ready-content" class="hidden">
+                <div class="text-4xl mb-3">✅</div>
+                <h2 class="text-xl font-black text-white mb-2">Connected!</h2>
+                <p class="text-red-400 font-black text-lg mb-3">You are RED TEAM 🦿</p>
+                <p class="text-slate-400 text-sm mb-5">Waiting for host to start the battle...</p>
+                <div class="flex gap-2 justify-center">
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full bounce-dot"></div>
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full bounce-dot"></div>
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full bounce-dot"></div>
+                </div>
+            </div>
+
+            <!-- ── ORIGINAL: START CONTENT (now hidden by default; mode-select shown first) ── -->
+            <div id="start-content" class="hidden">
                 <div class="text-4xl sm:text-6xl mb-4">⚔️</div>
                 <h1 class="text-2xl sm:text-4xl font-black text-white italic mb-2">TUG OF MATHS</h1>
                 <p class="text-slate-400 mb-8 text-sm">Fastest calculation wins!</p>
@@ -237,6 +319,7 @@
                 </button>
             </div>
 
+            <!-- ── ORIGINAL: END CONTENT (unchanged) ── -->
             <div id="end-content" class="hidden">
                 <div id="victory-icon" class="text-6xl mb-4">🏆</div>
                 <h2 id="winner-text" class="text-3xl sm:text-4xl font-black mb-2 uppercase text-white"></h2>
@@ -250,7 +333,10 @@
     </div>
 
     <script>
-        // ALL ORIGINAL LOGIC RETAINED
+        // ═══════════════════════════════════════════════════════════════════════════
+        // ALL ORIGINAL LOGIC RETAINED — additions clearly marked NEW
+        // ═══════════════════════════════════════════════════════════════════════════
+
         let audioCtx;
         const SoundFX = {
             init: () => { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); },
@@ -324,8 +410,22 @@
         style.innerHTML = `@keyframes floatUp { 0% { opacity:1; transform:translate(-50%,0); } 100% { opacity:0; transform:translate(-50%,-50px); } }`;
         document.head.appendChild(style);
 
+        // ── MODIFIED: submitAnswer now handles online-client routing ─────────────
         function submitAnswer(team) {
             if (!gameState.active) return;
+
+            // NEW ── Online client: send answer to host instead of processing locally
+            if (gameMode === 'online-client') {
+                if (team === 'blue') return; // not this player's team
+                if (team === 'red') {
+                    const inputEl = document.getElementById('input-red');
+                    if (conn && conn.open) conn.send({ type: 'submit', value: inputEl.value });
+                    inputEl.value = '';
+                    return;
+                }
+            }
+            // END NEW ────────────────────────────────────────────────────────────
+
             const inputEl = document.getElementById(`input-${team}`);
             const val = parseFloat(inputEl.value);
             const correct = gameState.currentQ[team].a;
@@ -339,6 +439,7 @@
                 updateRope();
                 inputEl.value = '';
                 renderQ(team);
+                if (gameMode === 'online-host') sendSync(); // NEW ── push state to client after correct answer
             } else {
                 SoundFX.wrong();
                 const card = document.getElementById(`card-${team}`);
@@ -349,20 +450,34 @@
             }
         }
 
+        // ── MODIFIED: updateRope notifies client on rope win ─────────────────────
         function updateRope() {
             const visualPos = 50 + (gameState.ropePos / 2.5);
             document.documentElement.style.setProperty('--rope-position', `${visualPos}%`);
             document.getElementById('bar-blue').style.width = `${visualPos}%`;
             
-            if (Math.abs(gameState.ropePos) >= MAX_ROPE) endGame(gameState.ropePos < 0 ? 'Blue' : 'Red');
+            if (Math.abs(gameState.ropePos) >= MAX_ROPE) {
+                const winner = gameState.ropePos < 0 ? 'Blue' : 'Red';
+                // NEW ── host tells client who won before ending locally
+                if (gameMode === 'online-host' && conn && conn.open) {
+                    conn.send({ type: 'gameover', winner });
+                }
+                // END NEW ────────────────────────────────────────────────────────
+                if (gameMode !== 'online-client') endGame(winner);
+            }
         }
 
+        // ── MODIFIED: inputKey / clearInput ignore opponent panel in online mode ─
         function inputKey(team, key) {
+            if (gameMode === 'online-client' && team === 'blue') return; // NEW
             const input = document.getElementById(`input-${team}`);
             if (input.value.length < 8) input.value += key;
         }
 
-        function clearInput(team) { document.getElementById(`input-${team}`).value = ''; }
+        function clearInput(team) {
+            if (gameMode === 'online-client' && team === 'blue') return; // NEW
+            document.getElementById(`input-${team}`).value = '';
+        }
 
         function renderQ(team) {
             if (questionsBank.length === 0) return;
@@ -418,6 +533,301 @@
                 <div class="text-slate-500">vs</div>
                 <div class="text-red-500">${gameState.scores.red}</div>`;
         }
+
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // NEW FEATURE 1 — Multi-touch support for same-device mode
+        // Converts all buttons to respond to touchstart instantly so two players
+        // can tap simultaneously on the same screen without conflicts.
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        function setupMultiTouch() {
+            document.querySelectorAll('.math-btn').forEach(btn => {
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault(); // stops 300ms click delay AND duplicate click event
+                    if (this.disabled) return;
+                    // Fire the onclick handler directly
+                    if (this.onclick) this.onclick(e);
+                    // Instant visual feedback (mirrors :active CSS since preventDefault blocks it)
+                    this.style.transform = 'scale(0.92)';
+                    this.style.background = 'rgba(255,255,255,0.3)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        this.style.background = '';
+                    }, 130);
+                }, { passive: false });
+            });
+        }
+
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // NEW FEATURE 2 — Two-device online play via PeerJS (WebRTC)
+        //
+        // Architecture:
+        //   Host  = Blue team. Runs the game timer, validates all answers,
+        //           streams state to client each tick and after each correct answer.
+        //   Client = Red team. Sends keypresses/submits to host; host validates
+        //            and syncs the result back.
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        let gameMode = 'local'; // 'local' | 'online-host' | 'online-client'
+        let peer = null;
+        let conn = null;
+
+        // ── Helper: show exactly one content panel inside the modal card ─────────
+        function showOnly(id) {
+            ['mode-select-content', 'online-setup-content', 'host-waiting-content',
+             'join-content', 'client-ready-content', 'start-content', 'end-content']
+            .forEach(cid => document.getElementById(cid).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // ── Mode selection screen handlers ────────────────────────────────────────
+        function selectMode(mode) {
+            if (mode === 'local') {
+                gameMode = 'local';
+                showOnly('start-content');
+            } else {
+                showOnly('online-setup-content');
+            }
+        }
+
+        function backToModeSelect() {
+            if (peer) { peer.destroy(); peer = null; }
+            conn = null;
+            gameMode = 'local';
+            showOnly('mode-select-content');
+        }
+
+        function backToOnlineSetup() { showOnly('online-setup-content'); }
+        function showJoinUI()        { showOnly('join-content'); }
+
+        function cancelOnline() {
+            if (peer) { peer.destroy(); peer = null; }
+            conn = null;
+            gameMode = 'local';
+            showOnly('mode-select-content');
+        }
+
+        // ── HOST: create room ─────────────────────────────────────────────────────
+        function hostGame() {
+            const roomCode = Math.random().toString(36).substr(2, 4).toUpperCase();
+            showOnly('host-waiting-content');
+            document.getElementById('room-code-display').innerText = roomCode;
+            document.getElementById('host-status').innerText = 'Waiting for opponent to join...';
+            document.getElementById('host-start-btn').classList.add('hidden');
+
+            if (peer) peer.destroy();
+            peer = new Peer(roomCode, { debug: 0 });
+
+            peer.on('error', (err) => {
+                if (err.type === 'unavailable-id') {
+                    // Room code collision — retry with new code
+                    peer.destroy();
+                    hostGame();
+                } else {
+                    document.getElementById('host-status').innerText = '⚠️ Connection error. Check internet & retry.';
+                }
+            });
+
+            peer.on('connection', (c) => {
+                conn = c;
+                gameMode = 'online-host';
+                document.getElementById('host-status').innerText = '✅ Opponent connected! You are BLUE TEAM 🦾';
+                document.getElementById('host-start-btn').classList.remove('hidden');
+
+                // Receive answers from the Red (client) device
+                conn.on('data', (data) => {
+                    if (data.type === 'submit') {
+                        // Inject client's answer into Red's input then validate
+                        document.getElementById('input-red').value = data.value;
+                        submitAnswer('red');
+                    }
+                });
+
+                conn.on('close', () => {
+                    if (gameState.active) {
+                        gameState.active = false;
+                        alert('Opponent disconnected. Game over.');
+                        location.reload();
+                    }
+                });
+            });
+        }
+
+        // ── HOST: start the game after client connects ────────────────────────────
+        function hostStartGame() {
+            SoundFX.init();
+            loadQuestionsFromSheet().then(() => {
+                gameState.active = true;
+                gameState.time = 60;
+                gameState.ropePos = 0;
+                gameState.scores = { blue: 0, red: 0 };
+                renderQ('blue');
+                renderQ('red');
+
+                // Tell client to start and send initial questions
+                if (conn && conn.open) {
+                    conn.send({
+                        type: 'start',
+                        qBlue: gameState.currentQ.blue,
+                        qRed:  gameState.currentQ.red
+                    });
+                }
+
+                document.getElementById('modal-overlay').classList.add('hidden');
+                setupOnlinePanels(); // dim the Red panel on host device
+
+                const timerInterval = setInterval(() => {
+                    gameState.time--;
+                    document.getElementById('timer').innerText = gameState.time;
+                    sendSync(); // stream timer tick to client every second
+                    if (gameState.time <= 0 || !gameState.active) {
+                        clearInterval(timerInterval);
+                        if (gameState.time <= 0 && gameState.active) {
+                            let winner = 'Draw';
+                            if (gameState.ropePos < -5) winner = 'Blue';
+                            else if (gameState.ropePos > 5) winner = 'Red';
+                            // Notify client of time-based winner
+                            if (conn && conn.open) conn.send({ type: 'gameover', winner });
+                            endGame(winner);
+                        }
+                    }
+                }, 1000);
+            });
+        }
+
+        // ── CLIENT: join a room ───────────────────────────────────────────────────
+        function joinGame() {
+            const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+            if (!code) { document.getElementById('join-status').innerText = 'Please enter a room code.'; return; }
+            document.getElementById('join-status').innerText = '⏳ Connecting...';
+
+            gameMode = 'online-client';
+            if (peer) peer.destroy();
+            peer = new Peer({ debug: 0 });
+
+            peer.on('open', () => {
+                conn = peer.connect(code, { reliable: true });
+
+                conn.on('open', () => {
+                    document.getElementById('join-status').innerText = '';
+                    showOnly('client-ready-content');
+                });
+
+                conn.on('data', (data) => {
+                    if (data.type === 'start') {
+                        clientStartGame(data);
+                    } else if (data.type === 'sync') {
+                        handleSync(data);
+                    } else if (data.type === 'gameover') {
+                        endGame(data.winner);
+                    }
+                });
+
+                conn.on('close', () => {
+                    if (gameState.active) {
+                        gameState.active = false;
+                        alert('Disconnected from host. Game over.');
+                        location.reload();
+                    }
+                });
+
+                conn.on('error', () => {
+                    document.getElementById('join-status').innerText = '⚠️ Could not connect. Check the code & try again.';
+                    gameMode = 'local';
+                });
+            });
+
+            peer.on('error', () => {
+                document.getElementById('join-status').innerText = '⚠️ Connection failed. Check your internet & retry.';
+                gameMode = 'local';
+            });
+        }
+
+        // ── CLIENT: host signalled game start ─────────────────────────────────────
+        function clientStartGame(initData) {
+            SoundFX.init();
+            gameState.active = true;
+            gameState.currentQ.blue = initData.qBlue;
+            gameState.currentQ.red  = initData.qRed;
+
+            const elB = document.getElementById('q-blue');
+            elB.innerHTML = initData.qBlue ? initData.qBlue.q : '---';
+            if (window.MathJax) MathJax.typesetPromise([elB]);
+
+            const elR = document.getElementById('q-red');
+            elR.innerHTML = initData.qRed ? initData.qRed.q : '---';
+            if (window.MathJax) MathJax.typesetPromise([elR]);
+
+            document.getElementById('modal-overlay').classList.add('hidden');
+            setupOnlinePanels(); // dim the Blue panel on client device
+        }
+
+        // ── CLIENT: receive state sync from host ──────────────────────────────────
+        function handleSync(data) {
+            gameState.ropePos = data.ropePos;
+            gameState.scores  = data.scores;
+            gameState.time    = data.time;
+
+            document.getElementById('score-blue').innerText = data.scores.blue;
+            document.getElementById('score-red').innerText  = data.scores.red;
+            document.getElementById('timer').innerText       = data.time;
+
+            // Update rope visual only (client does not run win-check logic)
+            const visualPos = 50 + (gameState.ropePos / 2.5);
+            document.documentElement.style.setProperty('--rope-position', `${visualPos}%`);
+            document.getElementById('bar-blue').style.width = `${visualPos}%`;
+
+            // Update question display if host sent a new question
+            if (data.qBlue && gameState.currentQ.blue !== data.qBlue) {
+                gameState.currentQ.blue = data.qBlue;
+                const el = document.getElementById('q-blue');
+                el.innerHTML = data.qBlue.q;
+                if (window.MathJax) MathJax.typesetPromise([el]);
+            }
+            if (data.qRed && gameState.currentQ.red !== data.qRed) {
+                gameState.currentQ.red = data.qRed;
+                const el = document.getElementById('q-red');
+                el.innerHTML = data.qRed.q;
+                if (window.MathJax) MathJax.typesetPromise([el]);
+            }
+        }
+
+        // ── HOST: broadcast current game state to client ──────────────────────────
+        function sendSync() {
+            if (conn && conn.open) {
+                conn.send({
+                    type:    'sync',
+                    ropePos: gameState.ropePos,
+                    scores:  gameState.scores,
+                    time:    gameState.time,
+                    qBlue:   gameState.currentQ.blue,
+                    qRed:    gameState.currentQ.red
+                });
+            }
+        }
+
+        // ── Online mode: visually disable the opponent's panel buttons ────────────
+        function setupOnlinePanels() {
+            const disablePanel = (panelId) => {
+                document.querySelectorAll(`#${panelId} .math-btn`).forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.2';
+                    btn.style.cursor  = 'not-allowed';
+                    btn.style.pointerEvents = 'none';
+                });
+            };
+            if (gameMode === 'online-host')   disablePanel('panel-red');
+            if (gameMode === 'online-client') disablePanel('panel-blue');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // Init on page load
+        // ═══════════════════════════════════════════════════════════════════════════
+        document.addEventListener('DOMContentLoaded', () => {
+            setupMultiTouch(); // always active — speeds up buttons on any touch device
+        });
     </script>
 </body>
 </html>
