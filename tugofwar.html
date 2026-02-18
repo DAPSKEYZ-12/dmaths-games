@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,17 +21,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            touch-action: none; 
+        /* ── Base ─────────────────────────────────────────────────────── */
+        body {
+            font-family: 'Outfit', sans-serif;
+            touch-action: none;
             overflow: hidden;
             background: #020617;
-            /* Prevents overscroll bounce on mobile */
             position: fixed;
             width: 100%;
             height: 100%;
+            /* iOS safe-area support for notched phones */
+            padding-top: env(safe-area-inset-top);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
+        /* ── Landscape notice ──────────────────────────────────────────── */
         #landscape-notice {
             display: none;
             position: fixed;
@@ -45,12 +51,21 @@
             text-align: center;
             padding: 20px;
         }
-
         @media (orientation: portrait) {
             #landscape-notice { display: flex; }
         }
+        /* Improved rotate icon animation */
+        #landscape-notice .rotate-icon {
+            display: inline-block;
+            animation: rotateHint 2s ease-in-out infinite;
+        }
+        @keyframes rotateHint {
+            0%,100% { transform: rotate(0deg); }
+            40%      { transform: rotate(90deg); }
+            60%      { transform: rotate(90deg); }
+        }
 
-        /* Optimization: GPU acceleration for transitions */
+        /* ── Arena background bars ────────────────────────────────────── */
         .arena-split {
             position: absolute;
             inset: 0;
@@ -58,20 +73,20 @@
             pointer-events: none;
             will-change: transform;
         }
-
         #bar-blue { transition: width 0.4s ease-out; background: #1e3a8a; opacity: 0.25; will-change: width; }
-        #bar-red { transition: width 0.4s ease-out; background: #b91c1c; opacity: 0.25; will-change: width; }
+        #bar-red  { transition: width 0.4s ease-out; background: #b91c1c; opacity: 0.25; will-change: width; }
 
+        /* ── Rope lane ────────────────────────────────────────────────── */
         .rope-lane {
-            height: 60px; /* Slimmed for mobile screens */
+            height: 56px;
             background: rgba(15, 23, 42, 0.9);
             border-top: 2px solid #334155;
             border-bottom: 2px solid #334155;
             position: relative;
             margin-top: auto;
+            flex-shrink: 0;
             box-shadow: 0 -10px 50px rgba(0,0,0,0.5);
         }
-
         .rope-container {
             transform: translateX(calc(var(--rope-position, 50%) - 50%));
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
@@ -84,7 +99,6 @@
             left: -100%;
             will-change: transform;
         }
-
         .rope-strand {
             background: repeating-linear-gradient(45deg, #451a03 0px, #78350f 10px, #92400e 20px);
             height: 8px;
@@ -92,62 +106,180 @@
             border-radius: 6px;
         }
 
+        /* ── Pullers ──────────────────────────────────────────────────── */
         .puller {
             position: absolute;
-            font-size: 40px; /* Scaled down */
+            font-size: 34px;
             top: 50%;
-            margin-top: -25px;
+            margin-top: -22px;
             z-index: 25;
+            user-select: none;
         }
-
-        .puller-blue { left: 47%; }
-        .puller-red { right: 47%; transform: scaleX(-1); }
+        .puller-blue { left: 46%; }
+        .puller-red  { right: 46%; transform: scaleX(-1); }
 
         .pulling-anim { animation: tug-effort 0.3s infinite alternate ease-in-out; }
         @keyframes tug-effort {
-            0% { transform: translateY(0) rotate(-3deg); }
+            0%   { transform: translateY(0) rotate(-3deg); }
             100% { transform: translateY(-3px) rotate(3deg); }
         }
+        .puller-red.pulling-anim {
+            animation: tug-effort-red 0.3s infinite alternate ease-in-out;
+        }
+        @keyframes tug-effort-red {
+            0%   { transform: scaleX(-1) translateY(0) rotate(-3deg); }
+            100% { transform: scaleX(-1) translateY(-3px) rotate(3deg); }
+        }
 
-        /* UI Optimization: Avoid backdrop-filter for performance on mobile */
+        /* ── Math buttons ─────────────────────────────────────────────── */
         .math-btn {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: white;
-            transition: transform 0.1s;
+            transition: transform 0.1s, background 0.1s;
+            min-height: 36px;           /* guaranteed touch target */
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
-        .math-btn:active { transform: scale(0.92); background: rgba(255, 255, 255, 0.3); }
+        .math-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.3); }
 
         .glass-card {
             background: #0f172a;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Adjustments for smaller landscape screens */
-        @media (max-height: 400px) {
-            header { padding: 0.5rem !important; }
-            .rope-lane { height: 45px; }
-            .puller { font-size: 30px; margin-top: -20px; }
-            .math-btn { padding: 0.5rem !important; font-size: 0.8rem; }
-            #q-blue, #q-red { font-size: 1.1rem; min-height: 40px !important; }
+        /* ── Combo badge ──────────────────────────────────────────────── */
+        .combo-display {
+            font-size: 0.55rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            min-height: 14px;
+            text-align: center;
+            margin-bottom: 2px;
+            transition: color 0.2s;
         }
 
-        /* NEW: Bounce dots for client waiting screen */
+        /* ── Timer urgency states ─────────────────────────────────────── */
+        .timer-warn  { background: #f97316 !important; color: #fff !important; }
+        .timer-panic { background: #dc2626 !important; color: #fff !important;
+                       animation: timer-pulse 0.5s infinite alternate; }
+        @keyframes timer-pulse {
+            0%   { transform: scale(1); }
+            100% { transform: scale(1.12); }
+        }
+
+        /* ── Wrong answer shake ───────────────────────────────────────── */
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%     { transform: translateX(-5px); }
+            40%     { transform: translateX(5px); }
+            60%     { transform: translateX(-4px); }
+            80%     { transform: translateX(4px); }
+        }
+        .shake-anim { animation: shake 0.35s ease-in-out; }
+
+        /* ── Combo pop animation ──────────────────────────────────────── */
+        @keyframes combo-pop {
+            0%   { transform: scale(0.6); opacity:0; }
+            60%  { transform: scale(1.2); opacity:1; }
+            100% { transform: scale(1);   opacity:1; }
+        }
+        .combo-pop { animation: combo-pop 0.3s ease-out forwards; }
+
+        /* ── Score leader glow ────────────────────────────────────────── */
+        .score-leading-blue { color: #60a5fa !important; text-shadow: 0 0 12px rgba(96,165,250,0.8); }
+        .score-leading-red  { color: #f87171 !important; text-shadow: 0 0 12px rgba(248,113,113,0.8); }
+
+        /* ── Sudden death banner ──────────────────────────────────────── */
+        #sudden-death-banner {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            z-index: 40;
+            text-align: center;
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 3px 0;
+            background: linear-gradient(90deg, #dc2626, #7c3aed, #dc2626);
+            background-size: 200%;
+            animation: banner-slide 1.5s linear infinite;
+            color: white;
+            display: none;
+        }
+        @keyframes banner-slide {
+            0%   { background-position: 0%; }
+            100% { background-position: 200%; }
+        }
+
+        /* ── Bounce dots (waiting screen) ────────────────────────────── */
         @keyframes bounce-dot {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+            50%       { transform: translateY(-8px); }
         }
         .bounce-dot { animation: bounce-dot 0.8s ease-in-out infinite; }
         .bounce-dot:nth-child(2) { animation-delay: 0.15s; }
         .bounce-dot:nth-child(3) { animation-delay: 0.30s; }
+
+        /* ── Float up "PULL!" effect ──────────────────────────────────── */
+        @keyframes floatUp {
+            0%   { opacity:1; transform:translate(-50%,0); }
+            100% { opacity:0; transform:translate(-50%,-50px); }
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           MOBILE RESPONSIVENESS — progressive scaling breakpoints
+           All breakpoints target landscape orientation explicitly
+        ══════════════════════════════════════════════════════════════ */
+
+        /* Small landscape phones (height < 420px — e.g. iPhone SE landscape) */
+        @media (max-height: 420px) {
+            header { padding: 0.3rem 0.5rem !important; }
+            .rope-lane { height: 44px; }
+            .puller { font-size: 26px; margin-top: -17px; }
+            .math-btn { min-height: 28px !important; font-size: 0.75rem !important; }
+            #q-blue, #q-red { font-size: 0.9rem !important; min-height: 32px !important; }
+            #input-blue, #input-red { font-size: 1rem !important; padding: 0.25rem !important; margin-bottom: 0.25rem !important; }
+            .combo-display { display: none; }
+            #score-blue, #score-red { font-size: 1.1rem !important; }
+            #timer { font-size: 1rem !important; padding: 0.1rem 0.6rem !important; }
+            .glass-card { padding: 0.25rem !important; margin-bottom: 0.25rem !important; }
+        }
+
+        /* Very small landscape phones (height < 340px — Galaxy Fold, etc.) */
+        @media (max-height: 340px) {
+            .rope-lane { height: 36px; }
+            .puller { font-size: 20px; margin-top: -14px; }
+            .math-btn { min-height: 22px !important; font-size: 0.65rem !important; }
+            #q-blue, #q-red { font-size: 0.75rem !important; min-height: 24px !important; }
+            header { padding: 0.15rem 0.4rem !important; }
+        }
+
+        /* Narrow-width phones (width < 600px) — tighter horizontal gaps */
+        @media (max-width: 599px) {
+            .math-btn { border-radius: 6px !important; }
+            #panel-blue, #panel-red { max-width: 49% !important; }
+        }
+
+        /* Mid-size landscape (height 420–500px — common Android landscape) */
+        @media (min-height: 421px) and (max-height: 500px) {
+            header { padding: 0.4rem 1rem !important; }
+            .rope-lane { height: 50px; }
+            .puller { font-size: 30px; margin-top: -20px; }
+            .math-btn { min-height: 32px !important; }
+            #q-blue, #q-red { font-size: 1rem !important; min-height: 36px !important; }
+        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col relative overflow-hidden text-slate-100">
 
     <div id="landscape-notice">
-        <div class="text-6xl mb-4">🔄</div>
-        <h2 class="text-2xl font-bold">Please Rotate Your Device</h2>
-        <p class="opacity-60">Math Battle requires landscape mode</p>
+        <div class="text-6xl mb-4 rotate-icon">📱</div>
+        <h2 class="text-2xl font-bold mb-2">Rotate Your Device</h2>
+        <p class="opacity-60 text-sm">Tug of Maths needs landscape mode to show both players</p>
+        <p class="opacity-40 text-xs mt-3">Tip: lock your screen rotation first, then rotate</p>
     </div>
 
     <div class="arena-split">
@@ -155,36 +287,40 @@
         <div id="bar-red" class="flex-1"></div>
     </div>
 
-    <header class="relative z-30 p-2 sm:p-4 flex justify-between items-center">
-        <a href="index.html" class="bg-slate-800/90 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg font-bold text-xs sm:text-base border border-slate-600">
+    <!-- Sudden Death banner — shown by JS when time ≤ 10s and rope is close -->
+    <div id="sudden-death-banner">⚡ SUDDEN DEATH — Every second counts! ⚡</div>
+
+    <header class="relative z-30 p-2 sm:p-3 flex justify-between items-center flex-shrink-0">
+        <a href="index.html" class="bg-slate-800/90 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-lg font-bold text-xs border border-slate-600 flex-shrink-0">
             EXIT
         </a>
 
-        <div class="glass-card px-4 py-1 sm:px-8 sm:py-2 rounded-2xl flex items-center gap-4 sm:gap-10">
+        <div class="glass-card px-3 py-1 sm:px-8 sm:py-2 rounded-2xl flex items-center gap-3 sm:gap-10">
             <div class="text-center">
-                <p class="text-[8px] sm:text-[10px] font-black text-blue-400 uppercase tracking-widest">BLUE</p>
-                <div id="score-blue" class="text-xl sm:text-3xl font-black">0</div>
+                <p class="text-[7px] sm:text-[10px] font-black text-blue-400 uppercase tracking-widest">BLUE</p>
+                <div id="score-blue" class="text-lg sm:text-3xl font-black">0</div>
             </div>
-            
+
             <div class="flex flex-col items-center">
-                <div class="bg-yellow-400 text-slate-900 px-4 py-0.5 sm:px-6 sm:py-1 rounded-full font-black text-lg sm:text-2xl" id="timer">60</div>
+                <div id="timer" class="bg-yellow-400 text-slate-900 px-3 py-0.5 sm:px-6 sm:py-1 rounded-full font-black text-base sm:text-2xl transition-all duration-300">60</div>
             </div>
 
             <div class="text-center">
-                <p class="text-[8px] sm:text-[10px] font-black text-red-400 uppercase tracking-widest">RED</p>
-                <div id="score-red" class="text-xl sm:text-3xl font-black">0</div>
+                <p class="text-[7px] sm:text-[10px] font-black text-red-400 uppercase tracking-widest">RED</p>
+                <div id="score-red" class="text-lg sm:text-3xl font-black">0</div>
             </div>
         </div>
-        <div class="w-12 sm:w-[84px]"></div>
+        <div class="w-10 sm:w-[84px] flex-shrink-0"></div>
     </header>
 
     <main class="flex-1 flex flex-col relative z-20 min-h-0">
         <div class="flex-1 flex flex-row items-center justify-around px-2 sm:px-8 gap-2 sm:gap-8 overflow-hidden">
-            <section id="panel-blue" class="flex-1 max-w-[48%] flex flex-col">
-                <div class="glass-card p-2 sm:p-4 rounded-xl sm:rounded-3xl mb-2 text-center border-l-4 border-blue-500">
-                    <div id="q-blue" class="text-lg sm:text-2xl font-bold min-h-[40px] sm:min-h-[60px] flex items-center justify-center">---</div>
+            <section id="panel-blue" class="flex-1 max-w-[49%] flex flex-col">
+                <div id="q-card-blue" class="glass-card p-2 sm:p-3 rounded-xl sm:rounded-3xl mb-1 sm:mb-2 text-center border-l-4 border-blue-500">
+                    <div id="q-blue" class="text-base sm:text-2xl font-bold min-h-[36px] sm:min-h-[60px] flex items-center justify-center leading-tight">---</div>
                 </div>
-                <input type="text" id="input-blue" readonly class="w-full bg-blue-900/40 border-2 border-blue-500/30 text-white text-xl sm:text-2xl font-black p-2 rounded-xl text-center mb-2" placeholder="?">
+                <div id="combo-blue" class="combo-display text-blue-400"></div>
+                <input type="text" id="input-blue" readonly class="w-full bg-blue-900/40 border-2 border-blue-500/30 text-white text-lg sm:text-2xl font-black p-1 sm:p-2 rounded-xl text-center mb-1 sm:mb-2" placeholder="?">
                 <div class="grid grid-cols-4 gap-1 sm:gap-2 flex-1">
                     <button onclick="inputKey('blue', 1)" class="math-btn rounded-lg font-bold">1</button>
                     <button onclick="inputKey('blue', 2)" class="math-btn rounded-lg font-bold">2</button>
@@ -193,19 +329,22 @@
                     <button onclick="inputKey('blue', 4)" class="math-btn rounded-lg font-bold">4</button>
                     <button onclick="inputKey('blue', 5)" class="math-btn rounded-lg font-bold">5</button>
                     <button onclick="inputKey('blue', 6)" class="math-btn rounded-lg font-bold">6</button>
-                    <button onclick="inputKey('blue', 0)" class="math-btn rounded-lg font-bold">0</button>
                     <button onclick="inputKey('blue', 7)" class="math-btn rounded-lg font-bold">7</button>
                     <button onclick="inputKey('blue', 8)" class="math-btn rounded-lg font-bold">8</button>
                     <button onclick="inputKey('blue', 9)" class="math-btn rounded-lg font-bold">9</button>
-                    <button onclick="submitAnswer('blue')" class="math-btn bg-blue-600 text-white rounded-lg font-black text-xs">GO</button>
+                    <button onclick="inputNegative('blue')" class="math-btn text-yellow-300 rounded-lg font-black text-sm">±</button>
+                    <button onclick="inputDot('blue')" class="math-btn text-slate-300 rounded-lg font-black">.</button>
+                    <button onclick="inputKey('blue', 0)" class="math-btn rounded-lg font-bold col-span-2">0</button>
+                    <button onclick="submitAnswer('blue')" class="math-btn bg-blue-600 text-white rounded-lg font-black text-xs col-span-2">GO ✓</button>
                 </div>
             </section>
 
-            <section id="panel-red" class="flex-1 max-w-[48%] flex flex-col">
-                <div class="glass-card p-2 sm:p-4 rounded-xl sm:rounded-3xl mb-2 text-center border-r-4 border-red-500">
-                    <div id="q-red" class="text-lg sm:text-2xl font-bold min-h-[40px] sm:min-h-[60px] flex items-center justify-center">---</div>
+            <section id="panel-red" class="flex-1 max-w-[49%] flex flex-col">
+                <div id="q-card-red" class="glass-card p-2 sm:p-3 rounded-xl sm:rounded-3xl mb-1 sm:mb-2 text-center border-r-4 border-red-500">
+                    <div id="q-red" class="text-base sm:text-2xl font-bold min-h-[36px] sm:min-h-[60px] flex items-center justify-center leading-tight">---</div>
                 </div>
-                <input type="text" id="input-red" readonly class="w-full bg-red-900/40 border-2 border-red-500/30 text-white text-xl sm:text-2xl font-black p-2 rounded-xl text-center mb-2" placeholder="?">
+                <div id="combo-red" class="combo-display text-red-400"></div>
+                <input type="text" id="input-red" readonly class="w-full bg-red-900/40 border-2 border-red-500/30 text-white text-lg sm:text-2xl font-black p-1 sm:p-2 rounded-xl text-center mb-1 sm:mb-2" placeholder="?">
                 <div class="grid grid-cols-4 gap-1 sm:gap-2 flex-1">
                     <button onclick="inputKey('red', 1)" class="math-btn rounded-lg font-bold">1</button>
                     <button onclick="inputKey('red', 2)" class="math-btn rounded-lg font-bold">2</button>
@@ -214,11 +353,13 @@
                     <button onclick="inputKey('red', 4)" class="math-btn rounded-lg font-bold">4</button>
                     <button onclick="inputKey('red', 5)" class="math-btn rounded-lg font-bold">5</button>
                     <button onclick="inputKey('red', 6)" class="math-btn rounded-lg font-bold">6</button>
-                    <button onclick="inputKey('red', 0)" class="math-btn rounded-lg font-bold">0</button>
                     <button onclick="inputKey('red', 7)" class="math-btn rounded-lg font-bold">7</button>
                     <button onclick="inputKey('red', 8)" class="math-btn rounded-lg font-bold">8</button>
                     <button onclick="inputKey('red', 9)" class="math-btn rounded-lg font-bold">9</button>
-                    <button onclick="submitAnswer('red')" class="math-btn bg-red-600 text-white rounded-lg font-black text-xs">GO</button>
+                    <button onclick="inputNegative('red')" class="math-btn text-yellow-300 rounded-lg font-black text-sm">±</button>
+                    <button onclick="inputDot('red')" class="math-btn text-slate-300 rounded-lg font-black">.</button>
+                    <button onclick="inputKey('red', 0)" class="math-btn rounded-lg font-bold col-span-2">0</button>
+                    <button onclick="submitAnswer('red')" class="math-btn bg-red-600 text-white rounded-lg font-black text-xs col-span-2">GO ✓</button>
                 </div>
             </section>
         </div>
@@ -228,8 +369,8 @@
                 <div class="rope-strand"></div>
                 <div id="icon-blue" class="puller puller-blue pulling-anim">🦾</div>
                 <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center z-30">
-                    <div class="w-10 h-10 sm:w-14 sm:h-14 bg-yellow-400 rounded-xl sm:rounded-2xl rotate-45 border-4 border-slate-900 flex items-center justify-center shadow-2xl">
-                        <span class="rotate-[-45deg] font-black text-slate-900 text-xs sm:text-xl">VS</span>
+                    <div class="w-9 h-9 sm:w-14 sm:h-14 bg-yellow-400 rounded-lg sm:rounded-2xl rotate-45 border-4 border-slate-900 flex items-center justify-center shadow-2xl">
+                        <span class="rotate-[-45deg] font-black text-slate-900 text-[9px] sm:text-xl">VS</span>
                     </div>
                 </div>
                 <div id="icon-red" class="puller puller-red pulling-anim">🦿</div>
@@ -240,8 +381,8 @@
     <!-- ═══════════════════════════════════════════════════════════════════════
          MODAL OVERLAY — All screens live here
          ═══════════════════════════════════════════════════════════════════════ -->
-    <div id="modal-overlay" class="absolute inset-0 z-50 bg-slate-950/95 flex items-center justify-center">
-        <div class="bg-slate-900 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-center max-w-sm w-full mx-4 border border-slate-700">
+    <div id="modal-overlay" class="absolute inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-3">
+        <div class="bg-slate-900 p-5 sm:p-10 rounded-[1.5rem] sm:rounded-[3rem] text-center max-w-sm w-full border border-slate-700 max-h-[95vh] overflow-y-auto">
 
             <!-- ── NEW: MODE SELECT (shown first on load) ── -->
             <div id="mode-select-content">
@@ -364,6 +505,11 @@
         const PULL_STRENGTH = 8;
         let gameState = { active: false, time: 60, ropePos: 0, scores: { blue: 0, red: 0 }, currentQ: { blue: null, red: null } };
 
+        // NEW: combo tracking — counts consecutive correct answers per team
+        const comboState = { blue: 0, red: 0 };
+        const COMBO_THRESHOLD = 3;    // correct answers to trigger bonus
+        const COMBO_BONUS     = 4;    // extra rope pull on combo
+
         function saveHighScore(value) {
             const best = Number(localStorage.getItem('tugofwar-highscore') || 0);
             if (value > best) localStorage.setItem('tugofwar-highscore', String(value));
@@ -405,18 +551,34 @@
             setTimeout(() => el.remove(), 800);
         }
 
-        // Add this missing keyframe to the style block via JS for simplicity
-        const style = document.createElement('style');
-        style.innerHTML = `@keyframes floatUp { 0% { opacity:1; transform:translate(-50%,0); } 100% { opacity:0; transform:translate(-50%,-50px); } }`;
-        document.head.appendChild(style);
+        // floatUp keyframe is now in the <style> block above
 
-        // ── MODIFIED: submitAnswer now handles online-client routing ─────────────
+        // NEW: decimal dot input
+        function inputDot(team) {
+            if (gameMode === 'online-client' && team === 'blue') return;
+            const input = document.getElementById(`input-${team}`);
+            if (input.value.includes('.')) return; // only one dot allowed
+            if (input.value.length < 8) input.value += '.';
+        }
+
+        // NEW: toggle negative sign
+        function inputNegative(team) {
+            if (gameMode === 'online-client' && team === 'blue') return;
+            const input = document.getElementById(`input-${team}`);
+            if (input.value.startsWith('-')) {
+                input.value = input.value.slice(1);
+            } else {
+                input.value = '-' + input.value;
+            }
+        }
+
+        // ── MODIFIED: submitAnswer handles combo, shake, and online-client routing ─
         function submitAnswer(team) {
             if (!gameState.active) return;
 
-            // NEW ── Online client: send answer to host instead of processing locally
+            // Online client: send answer to host instead of processing locally
             if (gameMode === 'online-client') {
-                if (team === 'blue') return; // not this player's team
+                if (team === 'blue') return;
                 if (team === 'red') {
                     const inputEl = document.getElementById('input-red');
                     if (conn && conn.open) conn.send({ type: 'submit', value: inputEl.value });
@@ -424,29 +586,44 @@
                     return;
                 }
             }
-            // END NEW ────────────────────────────────────────────────────────────
 
             const inputEl = document.getElementById(`input-${team}`);
-            const val = parseFloat(inputEl.value);
+            const val     = parseFloat(inputEl.value);
             const correct = gameState.currentQ[team].a;
 
             if (val === correct) {
                 SoundFX.correct();
                 gameState.scores[team]++;
                 document.getElementById(`score-${team}`).innerText = gameState.scores[team];
-                gameState.ropePos += (team === 'red' ? PULL_STRENGTH : -PULL_STRENGTH);
+
+                // NEW: combo tracking
+                comboState[team]++;
+                let pullBonus = 0;
+                if (comboState[team] >= COMBO_THRESHOLD) {
+                    pullBonus = COMBO_BONUS;
+                    showCombo(team, comboState[team]);
+                } else {
+                    clearCombo(team);
+                }
+
+                gameState.ropePos += (team === 'red' ? PULL_STRENGTH : -PULL_STRENGTH) + (team === 'red' ? pullBonus : -pullBonus);
                 createPullEffect(team);
                 updateRope();
+                updateScoreGlow();
                 inputEl.value = '';
                 renderQ(team);
-                if (gameMode === 'online-host') sendSync(); // NEW ── push state to client after correct answer
+                if (gameMode === 'online-host') sendSync();
             } else {
                 SoundFX.wrong();
-                const card = document.getElementById(`card-${team}`);
+                // NEW: shake the question card
+                const card = document.getElementById(`q-card-${team}`);
                 if (card) {
-                    card.classList.add('straining');
-                    setTimeout(() => card.classList.remove('straining'), 400);
+                    card.classList.add('shake-anim');
+                    setTimeout(() => card.classList.remove('shake-anim'), 400);
                 }
+                // NEW: reset combo on wrong
+                comboState[team] = 0;
+                clearCombo(team);
             }
         }
 
@@ -488,19 +665,68 @@
             if (window.MathJax) MathJax.typesetPromise([el]);
         }
 
+        // NEW: combo display helpers
+        function showCombo(team, count) {
+            const el = document.getElementById(`combo-${team}`);
+            if (!el) return;
+            el.textContent = `🔥 COMBO ×${count}! +${COMBO_BONUS} BONUS`;
+            el.classList.add('combo-pop');
+            setTimeout(() => el.classList.remove('combo-pop'), 300);
+        }
+        function clearCombo(team) {
+            const el = document.getElementById(`combo-${team}`);
+            if (el) el.textContent = '';
+        }
+
+        // NEW: score leader glow
+        function updateScoreGlow() {
+            const bEl = document.getElementById('score-blue');
+            const rEl = document.getElementById('score-red');
+            bEl.className = 'text-lg sm:text-3xl font-black';
+            rEl.className = 'text-lg sm:text-3xl font-black';
+            if (gameState.scores.blue > gameState.scores.red) {
+                bEl.classList.add('score-leading-blue');
+            } else if (gameState.scores.red > gameState.scores.blue) {
+                rEl.classList.add('score-leading-red');
+            }
+        }
+
+        // NEW: timer urgency visual
+        function updateTimerStyle(t) {
+            const timerEl = document.getElementById('timer');
+            timerEl.classList.remove('timer-warn', 'timer-panic');
+            if (t <= 5)       timerEl.classList.add('timer-panic');
+            else if (t <= 15) timerEl.classList.add('timer-warn');
+        }
+
+        // NEW: sudden death reveal
+        function checkSuddenDeath(t) {
+            const banner = document.getElementById('sudden-death-banner');
+            if (!banner) return;
+            const closeFight = Math.abs(gameState.ropePos) < 15;
+            banner.style.display = (t <= 10 && closeFight) ? 'block' : 'none';
+        }
+
         async function startGame() {
             SoundFX.init();
             await loadQuestionsFromSheet();
+            // Reset combos
+            comboState.blue = 0; comboState.red = 0;
+            clearCombo('blue'); clearCombo('red');
+            updateScoreGlow();
             document.getElementById('modal-overlay').classList.add('hidden');
             gameState.active = true;
             renderQ('blue');
             renderQ('red');
-            
+
             const timerInterval = setInterval(() => {
                 gameState.time--;
                 document.getElementById('timer').innerText = gameState.time;
+                updateTimerStyle(gameState.time);
+                checkSuddenDeath(gameState.time);
                 if (gameState.time <= 0 || !gameState.active) {
                     clearInterval(timerInterval);
+                    document.getElementById('sudden-death-banner').style.display = 'none';
                     if(gameState.time <= 0 && gameState.active) {
                         let winner = 'Draw';
                         if (gameState.ropePos < -5) winner = 'Blue';
@@ -541,22 +767,46 @@
         // can tap simultaneously on the same screen without conflicts.
         // ═══════════════════════════════════════════════════════════════════════════
 
+        // ═══════════════════════════════════════════════════════════════════════════
+        // Multi-touch support — both players can tap simultaneously with no conflicts
+        // Uses touchstart (not click) to eliminate the 300ms iOS delay entirely.
+        // ═══════════════════════════════════════════════════════════════════════════
         function setupMultiTouch() {
             document.querySelectorAll('.math-btn').forEach(btn => {
+                // Track per-button debounce to prevent double-fire on fast taps
+                let _blocked = false;
+
                 btn.addEventListener('touchstart', function(e) {
-                    e.preventDefault(); // stops 300ms click delay AND duplicate click event
-                    if (this.disabled) return;
-                    // Fire the onclick handler directly
+                    e.preventDefault(); // kills 300ms delay AND the synthetic click
+                    e.stopPropagation();
+                    if (this.disabled || _blocked) return;
+                    _blocked = true;
+                    setTimeout(() => { _blocked = false; }, 100);
+
+                    // Fire onclick
                     if (this.onclick) this.onclick(e);
-                    // Instant visual feedback (mirrors :active CSS since preventDefault blocks it)
-                    this.style.transform = 'scale(0.92)';
+
+                    // Visual feedback (preventDefault blocks :active so we do it manually)
+                    this.style.transform = 'scale(0.9)';
                     this.style.background = 'rgba(255,255,255,0.3)';
                     setTimeout(() => {
                         this.style.transform = '';
                         this.style.background = '';
-                    }, 130);
+                    }, 120);
                 }, { passive: false });
+
+                // Block the synthetic click that fires after touchend — prevents double action
+                btn.addEventListener('click', function(e) {
+                    if (_blocked) e.stopImmediatePropagation();
+                });
             });
+
+            // Prevent page zooming on double-tap anywhere in-game
+            document.addEventListener('touchend', function(e) {
+                const now = Date.now();
+                if (now - (document._lastTap || 0) < 300) e.preventDefault();
+                document._lastTap = now;
+            }, { passive: false });
         }
 
 
@@ -663,10 +913,11 @@
                 gameState.time = 60;
                 gameState.ropePos = 0;
                 gameState.scores = { blue: 0, red: 0 };
+                comboState.blue = 0; comboState.red = 0;   // NEW
+                clearCombo('blue'); clearCombo('red');       // NEW
                 renderQ('blue');
                 renderQ('red');
 
-                // Tell client to start and send initial questions
                 if (conn && conn.open) {
                     conn.send({
                         type: 'start',
@@ -676,19 +927,21 @@
                 }
 
                 document.getElementById('modal-overlay').classList.add('hidden');
-                setupOnlinePanels(); // dim the Red panel on host device
+                setupOnlinePanels();
 
                 const timerInterval = setInterval(() => {
                     gameState.time--;
                     document.getElementById('timer').innerText = gameState.time;
-                    sendSync(); // stream timer tick to client every second
+                    updateTimerStyle(gameState.time);         // NEW
+                    checkSuddenDeath(gameState.time);         // NEW
+                    sendSync();
                     if (gameState.time <= 0 || !gameState.active) {
                         clearInterval(timerInterval);
+                        document.getElementById('sudden-death-banner').style.display = 'none'; // NEW
                         if (gameState.time <= 0 && gameState.active) {
                             let winner = 'Draw';
                             if (gameState.ropePos < -5) winner = 'Blue';
                             else if (gameState.ropePos > 5) winner = 'Red';
-                            // Notify client of time-based winner
                             if (conn && conn.open) conn.send({ type: 'gameover', winner });
                             endGame(winner);
                         }
