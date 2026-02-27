@@ -38,9 +38,6 @@
         #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 
-    <!-- ═══════════════════════════════════════════════
-         NEW FEATURE STYLES — purely additive, no existing code touched
-    ═══════════════════════════════════════════════ -->
     <style>
         /* ── Toast ── */
         #mp-toast {
@@ -156,6 +153,7 @@
 
     <button id="menu-overlay" type="button" aria-label="Close menu" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></button>
 
+    <!-- ═══ MOBILE SIDEBAR MENU ═══ -->
     <div id="mobile-menu" class="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-xl font-extrabold">Settings & Search</h2>
@@ -175,40 +173,9 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Stats</p>
                 <div class="p-4 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-2xl flex justify-between items-center">
                     <span class="font-bold">Active Modules</span>
-                    <span class="text-xl font-black">17</span>
+                    <span class="text-xl font-black">18</span>
                 </div>
             </div>
-
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-cyan-900 via-slate-900 to-violet-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
-        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
-        <i class="fas fa-building text-5xl text-cyan-400 z-10 drop-shadow-[0_0_15px_rgba(0,212,255,0.5)]"></i>
-        <div class="z-10 mt-3 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Build & Conquer</div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Trigonometry</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Trig Tower</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve sin, cos and tan problems to build your tower floor by floor. Wrong answers cost lives — how high can you reach?</p>
-        <a href="trigtower.html" class="flex items-center justify-center w-full py-4 bg-cyan-600 text-white rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-200 dark:shadow-none">
-            <i class="fas fa-layer-group mr-2 text-xs"></i> Launch Tower
-        </a>
-    </div>
-</div>
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-cyan-900 via-slate-900 to-violet-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
-        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
-        <i class="fas fa-building text-5xl text-cyan-400 z-10 drop-shadow-[0_0_15px_rgba(0,212,255,0.5)]"></i>
-        <div class="z-10 mt-3 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Build & Conquer</div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Trigonometry</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Trig Tower</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve sin, cos and tan problems to build your tower floor by floor. Wrong answers cost lives — how high can you reach?</p>
-        <a href="trigtower.html" class="flex items-center justify-center w-full py-4 bg-cyan-600 text-white rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-200 dark:shadow-none">
-            <i class="fas fa-layer-group mr-2 text-xs"></i> Launch Tower
-        </a>
-    </div>
-</div>
 
             <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Dashboard Tools</p>
@@ -224,13 +191,13 @@
         </div>
     </div>
 
+    <!-- ═══ NAVBAR ═══ -->
     <nav class="glass-nav sticky top-0 z-50 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button id="theme-toggle-btn" type="button" aria-label="Toggle dark mode" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
-
                 <button id="open-menu-btn" type="button" aria-label="Open settings menu" class="p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -238,6 +205,7 @@
         </div>
     </nav>
 
+    <!-- ═══ HEADER ═══ -->
     <header class="max-w-7xl mx-auto px-6 pt-16 pb-8 text-center">
         <span class="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-900/20 rounded-full">Ready to Play?</span>
         <h1 class="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight">
@@ -262,6 +230,7 @@
         </div>
     </header>
 
+    <!-- ═══ LEADERBOARD + AI ═══ -->
     <section class="max-w-7xl mx-auto px-6 pb-10">
         <div class="grid lg:grid-cols-2 gap-6">
             <article id="leaderboardPanel" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg scroll-mt-24">
@@ -282,155 +251,164 @@
         </div>
     </section>
 
+    <!-- ═══ MAIN GAME GRID ═══ -->
     <main class="max-w-7xl mx-auto px-6 pb-24">
         <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
 
-          <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-900 to-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
-        <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 0deg, transparent, #06b6d4, transparent); animation: spin 4s linear infinite;"></div>
-
-        <div class="z-10 grid grid-cols-3 gap-1 mb-2">
-            <script>
-                for(let i=0; i<9; i++) {
-                    const op = [0.5, 1, 0.5, 1, 0.2, 1, 0.5, 1, 0.5][i];
-                    document.write(`<div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity: ${op}"></div>`);
-                }
-            </script>
-        </div>
-
-        <div class="z-10 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Protocol Lo Shu</div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Arithmetic Balance</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Magic Square</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Balance the grid so every row, column, and diagonal matches the magic constant.</p>
-        <a href="magic.html" class="flex items-center justify-center w-full py-4 bg-cyan-600 text-white rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-200 dark:shadow-none">
-            <i class="fas fa-cube mr-2 text-xs"></i> Enter Protocol
-        </a>
-    </div>
-</div>
-
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-indigo-900 via-slate-900 to-amber-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
-        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
-        <i class="fas fa-table-cells text-5xl text-indigo-400 z-10 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]"></i>
-        <div class="z-10 mt-3 mono text-[9px] font-black text-amber-500 uppercase tracking-[0.4em]">Elimination Strategy</div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Logic Puzzle</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Deduction Protocol</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Ayo doesn't study Algebra. The UTME student is not Musa. Use the grid to solve the master puzzle.</p>
-        <a href="logic.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200 dark:shadow-none">
-            <i class="fas fa-search-plus mr-2 text-xs"></i> Open Case File
-        </a>
-    </div>
-</div>
-
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-    <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
-        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#10b981 1px, transparent 1px); background-size: 15px 15px;"></div>
-        <div class="z-10 flex gap-2 mb-2">
-            <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-500 font-bold">2</div>
-            <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-500 font-bold">6</div>
-            <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-400 font-bold">?</div>
-        </div>
-        <i class="fas fa-brain text-4xl text-emerald-500 z-10 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"></i>
-        <div class="z-10 mt-3 mono text-[9px] font-black text-emerald-500 uppercase tracking-[0.4em]">Protocol Sigma</div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Reasoning Trap</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Pattern Detective</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Detect shifting logic protocols. You must identify the number AND the rule to verify the sequence.</p>
-        <a href="sequence.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
-            <i class="fas fa-terminal mr-2 text-xs"></i> Initialize Decoder
-        </a>
-    </div>
-</div>
-
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-slate-900 to-emerald-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
-        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#22c55e 1px, transparent 1px); background-size: 15px 15px;"></div>
-        <i class="fas fa-vector-square text-6xl text-emerald-500 z-10 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]"></i>
-        <div class="z-10 mt-2 mono text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em]">Protocol Alpha</div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Quick Calculation</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Algebra Snake</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve linear equations to grow your snake. Avoid the wrong answers to prevent system corruption!</p>
-        <a href="snake.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
-            <i class="fas fa-play mr-2 text-xs"></i> Initialize Game
-        </a>
-    </div>
-</div>
-
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="stats">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-white relative overflow-hidden">
-        <i class="fas fa-sync-alt text-6xl opacity-20 absolute animate-spin-slow"></i>
-        <div class="z-10 text-center">
-            <div class="text-xs font-black uppercase tracking-widest opacity-70">Vault Bridge</div>
-            <div class="text-4xl font-black">PROBABILITY</div>
-        </div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Statistics</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Probability Vault</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Predict the odds and unlock the Vault.</p>
-        <a href="probability.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200">Test Your Luck</a>
-    </div>
-</div>
-
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-blue-900 to-black flex items-center justify-center text-white relative overflow-hidden">
-        <i class="fas fa-trophy text-6xl text-amber-500 z-10 shadow-2xl"></i>
-        <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full">Exam Prep</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Math Millionaire</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">The ultimate WAEC objective test. Use your lifelines wisely to win ₦1,000,000!</p>
-        <a href="millionaire.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Enter Hotseat</a>
-    </div>
-</div>
-
-            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-    <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
-        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#4f46e5 1px, transparent 1px), linear-gradient(90deg, #4f46e5 1px, transparent 1px); background-size: 20px 20px;"></div>
-        <i class="fas fa-chart-line text-6xl text-indigo-500 z-10"></i>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">IGCSE / WAEC</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Graph Master</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Visualize linear equations. Plot the points and draw the perfect line.</p>
-        <a href="graphs.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all">Draw Graph</a>
-    </div>
-</div>
-
+            <!-- Magic Square -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-cyan-500 flex flex-col items-center justify-center text-white relative overflow-hidden">
-        <div class="text-4xl font-mono font-bold z-10">¾ vs ⅚</div>
-        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">New Release</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Fraction Frenzy</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Visual comparison and arithmetic battle. Master the number line!</p>
-        <a href="fractions.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">Play Blitz</a>
-    </div>
-</div>
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-900 to-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
+                    <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 0deg, transparent, #06b6d4, transparent); animation: spin 4s linear infinite;"></div>
+                    <div class="z-10 grid grid-cols-3 gap-1 mb-2">
+                        <script>
+                            for(let i=0; i<9; i++) {
+                                const op = [0.5, 1, 0.5, 1, 0.2, 1, 0.5, 1, 0.5][i];
+                                document.write(`<div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity: ${op}"></div>`);
+                            }
+                        </script>
+                    </div>
+                    <div class="z-10 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Protocol Lo Shu</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Arithmetic Balance</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Magic Square</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Balance the grid so every row, column, and diagonal matches the magic constant.</p>
+                    <a href="magic.html" class="flex items-center justify-center w-full py-4 bg-cyan-600 text-white rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-200 dark:shadow-none">
+                        <i class="fas fa-cube mr-2 text-xs"></i> Enter Protocol
+                    </a>
+                </div>
+            </div>
 
+            <!-- Deduction Protocol -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-indigo-900 via-slate-900 to-amber-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
+                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
+                    <i class="fas fa-table-cells text-5xl text-indigo-400 z-10 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]"></i>
+                    <div class="z-10 mt-3 mono text-[9px] font-black text-amber-500 uppercase tracking-[0.4em]">Elimination Strategy</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Logic Puzzle</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Deduction Protocol</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Ayo doesn't study Algebra. The UTME student is not Musa. Use the grid to solve the master puzzle.</p>
+                    <a href="logic.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200 dark:shadow-none">
+                        <i class="fas fa-search-plus mr-2 text-xs"></i> Open Case File
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pattern Detective -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
+                <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#10b981 1px, transparent 1px); background-size: 15px 15px;"></div>
+                    <div class="z-10 flex gap-2 mb-2">
+                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-500 font-bold">2</div>
+                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-500 font-bold">6</div>
+                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-400 font-bold">?</div>
+                    </div>
+                    <i class="fas fa-brain text-4xl text-emerald-500 z-10 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"></i>
+                    <div class="z-10 mt-3 mono text-[9px] font-black text-emerald-500 uppercase tracking-[0.4em]">Protocol Sigma</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Reasoning Trap</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Pattern Detective</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Detect shifting logic protocols. You must identify the number AND the rule to verify the sequence.</p>
+                    <a href="sequence.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
+                        <i class="fas fa-terminal mr-2 text-xs"></i> Initialize Decoder
+                    </a>
+                </div>
+            </div>
+
+            <!-- Algebra Snake -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-slate-900 to-emerald-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#22c55e 1px, transparent 1px); background-size: 15px 15px;"></div>
+                    <i class="fas fa-vector-square text-6xl text-emerald-500 z-10 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]"></i>
+                    <div class="z-10 mt-2 mono text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em]">Protocol Alpha</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Quick Calculation</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Algebra Snake</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve linear equations to grow your snake. Avoid the wrong answers to prevent system corruption!</p>
+                    <a href="snake.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
+                        <i class="fas fa-play mr-2 text-xs"></i> Initialize Game
+                    </a>
+                </div>
+            </div>
+
+            <!-- Probability Vault -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="stats">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-white relative overflow-hidden">
+                    <i class="fas fa-sync-alt text-6xl opacity-20 absolute animate-spin-slow"></i>
+                    <div class="z-10 text-center">
+                        <div class="text-xs font-black uppercase tracking-widest opacity-70">Vault Bridge</div>
+                        <div class="text-4xl font-black">PROBABILITY</div>
+                    </div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Statistics</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Probability Vault</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Predict the odds and unlock the Vault.</p>
+                    <a href="probability.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200">Test Your Luck</a>
+                </div>
+            </div>
+
+            <!-- Math Millionaire -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-blue-900 to-black flex items-center justify-center text-white relative overflow-hidden">
+                    <i class="fas fa-trophy text-6xl text-amber-500 z-10 shadow-2xl"></i>
+                    <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full">Exam Prep</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Math Millionaire</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">The ultimate WAEC objective test. Use your lifelines wisely to win ₦1,000,000!</p>
+                    <a href="millionaire.html" class="flex items-center justify-center w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:opacity-90 transition-all">Enter Hotseat</a>
+                </div>
+            </div>
+
+            <!-- Graph Master -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-    <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-900 to-black flex items-center justify-center text-white relative overflow-hidden">
-        <div class="absolute w-32 h-32 border-4 border-dashed border-amber-500/30 rounded-full"></div>
-        <i class="fas fa-bullseye text-6xl text-amber-500 z-10 animate-pulse"></i>
-    </div>
-    <div class="px-2">
-        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full">Arcade Math</span>
-        <h3 class="text-2xl font-bold mt-3 mb-2">Target Practice</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Hunt for missing angles! Pop the bubbles that solve the geometric proof.</p>
-        <a href="geometry.html" class="flex items-center justify-center w-full py-4 bg-amber-600 text-white rounded-2xl font-bold hover:bg-amber-500 transition-all">Start Hunting</a>
-    </div>
-</div>
+                <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
+                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#4f46e5 1px, transparent 1px), linear-gradient(90deg, #4f46e5 1px, transparent 1px); background-size: 20px 20px;"></div>
+                    <i class="fas fa-chart-line text-6xl text-indigo-500 z-10"></i>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">IGCSE / WAEC</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Graph Master</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Visualize linear equations. Plot the points and draw the perfect line.</p>
+                    <a href="graphs.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all">Draw Graph</a>
+                </div>
+            </div>
 
+            <!-- Fraction Frenzy -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-cyan-500 flex flex-col items-center justify-center text-white relative overflow-hidden">
+                    <div class="text-4xl font-mono font-bold z-10">¾ vs ⅚</div>
+                    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">New Release</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Fraction Frenzy</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Visual comparison and arithmetic battle. Master the number line!</p>
+                    <a href="fractions.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">Play Blitz</a>
+                </div>
+            </div>
+
+            <!-- Target Practice -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-900 to-black flex items-center justify-center text-white relative overflow-hidden">
+                    <div class="absolute w-32 h-32 border-4 border-dashed border-amber-500/30 rounded-full"></div>
+                    <i class="fas fa-bullseye text-6xl text-amber-500 z-10 animate-pulse"></i>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full">Arcade Math</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Target Practice</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Hunt for missing angles! Pop the bubbles that solve the geometric proof.</p>
+                    <a href="geometry.html" class="flex items-center justify-center w-full py-4 bg-amber-600 text-white rounded-2xl font-bold hover:bg-amber-500 transition-all">Start Hunting</a>
+                </div>
+            </div>
+
+            <!-- Speed Arithmetic -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <i class="fas fa-bolt text-6xl z-10 opacity-90 animate-pulse"></i>
@@ -444,6 +422,7 @@
                 </div>
             </div>
 
+            <!-- Memory Pro -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-600 to-purple-700 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <i class="fas fa-brain text-6xl z-10 opacity-90"></i>
@@ -458,6 +437,7 @@
                 </div>
             </div>
 
+            <!-- Divisibility Rules -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-400 to-blue-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <span class="text-6xl z-10 font-bold">÷</span>
@@ -470,6 +450,7 @@
                 </div>
             </div>
 
+            <!-- Tug of War -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-red-500 to-indigo-600 flex items-center justify-center text-white overflow-hidden relative">
                     <i class="fas fa-hands-helping text-6xl opacity-80 rotate-12"></i>
@@ -482,6 +463,7 @@
                 </div>
             </div>
 
+            <!-- Escape Algebra -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white overflow-hidden relative">
                     <i class="fas fa-door-open text-6xl opacity-80"></i>
@@ -494,6 +476,7 @@
                 </div>
             </div>
 
+            <!-- Geometry Proofs -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-white overflow-hidden">
                     <i class="fas fa-shapes text-6xl opacity-80"></i>
@@ -506,6 +489,7 @@
                 </div>
             </div>
 
+            <!-- Quadratic Equation -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
                 <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white relative overflow-hidden">
                     <div class="text-2xl font-mono italic z-10">ax² + bx + c = 0</div>
@@ -518,6 +502,7 @@
                 </div>
             </div>
 
+            <!-- Flowchart Logic -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
                 <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex items-center justify-center text-cyan-400 border border-slate-700 relative overflow-hidden">
                     <i class="fas fa-microchip text-6xl z-10"></i>
@@ -529,6 +514,24 @@
                     <a href="loop.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all">Solve Algorithms</a>
                 </div>
             </div>
+
+            <!-- ══ TRIG TOWER — NEW CARD ══ -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
+                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-cyan-900 via-slate-900 to-violet-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
+                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
+                    <i class="fas fa-building text-5xl text-cyan-400 z-10 drop-shadow-[0_0_15px_rgba(0,212,255,0.5)]"></i>
+                    <div class="z-10 mt-3 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Build & Conquer</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Trigonometry</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">Trig Tower</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve sin, cos and tan problems to build your tower floor by floor. Wrong answers cost lives — how high can you reach?</p>
+                    <a href="trigtower.html" class="flex items-center justify-center w-full py-4 bg-cyan-600 text-white rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-200 dark:shadow-none">
+                        <i class="fas fa-layer-group mr-2 text-xs"></i> Launch Tower
+                    </a>
+                </div>
+            </div>
+
         </div>
 
         <div id="noResults" class="hidden text-center py-20">
@@ -542,7 +545,6 @@
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('menu-overlay');
             if (!menu || !overlay) return;
-
             const isOpen = !menu.classList.contains('translate-x-full');
             if (isOpen) {
                 menu.classList.add('translate-x-full');
@@ -570,17 +572,17 @@
         }
 
         const desktopSearch = document.getElementById('gameSearch');
-        const mobileSearch = document.getElementById('mobileSearch');
-        const cards = document.querySelectorAll('.game-card');
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const noResults = document.getElementById('noResults');
-        const leaderboardList = document.getElementById('leaderboardList');
+        const mobileSearch  = document.getElementById('mobileSearch');
+        const cards         = document.querySelectorAll('.game-card');
+        const filterBtns    = document.querySelectorAll('.filter-btn');
+        const noResults     = document.getElementById('noResults');
+        const leaderboardList  = document.getElementById('leaderboardList');
         const aiPredictionList = document.getElementById('aiPredictionList');
-        const menuOverlay = document.getElementById('menu-overlay');
-        const openMenuBtn = document.getElementById('open-menu-btn');
-        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const menuOverlay   = document.getElementById('menu-overlay');
+        const openMenuBtn   = document.getElementById('open-menu-btn');
+        const closeMenuBtn  = document.getElementById('close-menu-btn');
         const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        let activeCategory = 'all';
+        let activeCategory  = 'all';
 
         function extractHighScore(slug) {
             const values = [];
@@ -588,26 +590,21 @@
                 const score = Number(raw);
                 if (Number.isFinite(score) && score >= 0) values.push(score);
             };
-
             const exactKey = `${slug}HighScore`;
             pushNumber(localStorage.getItem(exactKey));
-
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (!key || !key.toLowerCase().includes(slug.toLowerCase()) || !key.toLowerCase().includes('score')) {
-                    continue;
-                }
+                if (!key || !key.toLowerCase().includes(slug.toLowerCase()) || !key.toLowerCase().includes('score')) continue;
                 pushNumber(localStorage.getItem(key));
             }
-
             return values.length ? Math.max(...values) : 0;
         }
 
         function renderLeaderboard() {
             const scores = [...cards].map((card) => {
                 const title = card.querySelector('h3')?.innerText.trim() || 'Game';
-                const href = card.querySelector('a')?.getAttribute('href') || '';
-                const slug = href.replace('.html', '').toLowerCase();
+                const href  = card.querySelector('a')?.getAttribute('href') || '';
+                const slug  = href.replace('.html', '').toLowerCase();
                 return { title, score: extractHighScore(slug) };
             }).sort((a, b) => b.score - a.score).slice(0, 6);
 
@@ -629,10 +626,10 @@
         function buildPrediction(title, category) {
             const categoryHints = {
                 arithmetic: 'prioritize speed rounds, begin with easiest operators, and use estimation before committing.',
-                algebra: 'predict variable isolation steps, keep coefficients balanced, and verify with substitution.',
-                geometry: 'identify known angles first, map symmetry, and infer missing values from shape properties.',
-                logic: 'eliminate impossible options early, track clues as constraints, and iterate with consistency checks.',
-                stats: 'estimate likely outcomes first, then compare to exact probability formulas for precision.'
+                algebra:    'predict variable isolation steps, keep coefficients balanced, and verify with substitution.',
+                geometry:   'identify known angles first, map symmetry, and infer missing values from shape properties.',
+                logic:      'eliminate impossible options early, track clues as constraints, and iterate with consistency checks.',
+                stats:      'estimate likely outcomes first, then compare to exact probability formulas for precision.'
             };
             return `AI predicts that in ${title}, you should ${categoryHints[category] || 'break the challenge into smaller verified steps.'}`;
         }
@@ -640,7 +637,7 @@
         function renderAiPredictions() {
             if (!aiPredictionList) return;
             aiPredictionList.innerHTML = [...cards].map((card) => {
-                const title = card.querySelector('h3')?.innerText.trim() || 'Game';
+                const title    = card.querySelector('h3')?.innerText.trim() || 'Game';
                 const category = card.getAttribute('data-category');
                 return `
                     <div class="p-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30">
@@ -662,18 +659,15 @@
         function applyFilters() {
             const searchTerm = (desktopSearch?.value || '').toLowerCase();
             let visibleCount = 0;
-
             cards.forEach((card) => {
-                const title = card.querySelector('h3')?.innerText.toLowerCase() || '';
+                const title       = card.querySelector('h3')?.innerText.toLowerCase() || '';
                 const description = card.querySelector('p')?.innerText.toLowerCase() || '';
-                const category = card.getAttribute('data-category');
-                const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+                const category    = card.getAttribute('data-category');
+                const matchesSearch   = title.includes(searchTerm) || description.includes(searchTerm);
                 const matchesCategory = activeCategory === 'all' || category === activeCategory;
-
                 card.classList.toggle('hidden', !(matchesSearch && matchesCategory));
                 if (matchesSearch && matchesCategory) visibleCount++;
             });
-
             if (noResults) noResults.classList.toggle('hidden', visibleCount > 0);
         }
 
@@ -687,7 +681,7 @@
             input?.addEventListener('input', (event) => {
                 const value = event.target.value;
                 if (desktopSearch) desktopSearch.value = value;
-                if (mobileSearch) mobileSearch.value = value;
+                if (mobileSearch)  mobileSearch.value  = value;
                 applyFilters();
             });
         });
@@ -702,9 +696,6 @@
         renderAiPredictions();
         applyFilters();
     </script>
-    <!-- ═══════════════════════════════════════════════
-         NEW FEATURE HTML — purely additive
-    ═══════════════════════════════════════════════ -->
 
     <!-- Toast notification -->
     <div id="mp-toast" role="status" aria-live="polite">
@@ -719,48 +710,31 @@
 
     <!-- Stats footer strip -->
     <footer id="mp-footer" aria-label="Portal stats">
-        <span><strong id="mpf-total">17</strong> Games Available</span>
+        <span><strong id="mpf-total">18</strong> Games Available</span>
         <span><strong id="mpf-streak">0</strong> Day Streak 🔥</span>
         <span><strong id="mpf-today">0</strong> Played Today</span>
     </footer>
 
-    <!-- ═══════════════════════════════════════════════
-         NEW FEATURE SCRIPT — a completely separate block,
-         zero changes to any existing code above
-    ═══════════════════════════════════════════════ -->
     <script>
     (function () {
         'use strict';
-
-        /* ───────────────────────────────────────────
-           HELPERS
-        ─────────────────────────────────────────── */
         function $(id) { return document.getElementById(id); }
 
-        /* ───────────────────────────────────────────
-           1. TOAST
-        ─────────────────────────────────────────── */
         function showToast(msg, icon, ms) {
             var t = $('mp-toast'), m = $('mp-toast-msg'), ic = $('mp-toast-icon');
             if (!t) return;
-            m.textContent = msg;
-            ic.textContent = icon || '✨';
+            m.textContent = msg; ic.textContent = icon || '✨';
             t.classList.add('mp-show');
             clearTimeout(t._tid);
             t._tid = setTimeout(function () { t.classList.remove('mp-show'); }, ms || 3500);
         }
 
-        /* ───────────────────────────────────────────
-           2. STREAK
-        ─────────────────────────────────────────── */
         function manageStreak() {
             var today     = new Date().toDateString();
             var yesterday = new Date(Date.now() - 864e5).toDateString();
             var last      = localStorage.getItem('mp_last');
             var streak    = parseInt(localStorage.getItem('mp_streak') || '0', 10);
-
             if (last === today) {
-                /* same day – no change */
             } else if (last === yesterday) {
                 streak += 1;
             } else {
@@ -768,12 +742,8 @@
             }
             localStorage.setItem('mp_streak', streak);
             localStorage.setItem('mp_last', today);
-
-            /* Footer */
             var fs = $('mpf-streak');
             if (fs) fs.textContent = streak;
-
-            /* Inject streak pill into sidebar stats section */
             var sidebarStats = document.querySelector('#mobile-menu .pt-6');
             if (sidebarStats && !$('mp-streak-pill')) {
                 var pill = document.createElement('div');
@@ -787,45 +757,34 @@
             return streak;
         }
 
-        /* ───────────────────────────────────────────
-           3. RECENTLY PLAYED
-        ─────────────────────────────────────────── */
         function getRecent() {
-            try { return JSON.parse(localStorage.getItem('mp_recent') || '[]'); }
-            catch (e) { return []; }
+            try { return JSON.parse(localStorage.getItem('mp_recent') || '[]'); } catch (e) { return []; }
         }
-
         function saveRecent(title, href) {
             var list = getRecent().filter(function (r) { return r.href !== href; });
             list.unshift({ title: title, href: href });
             localStorage.setItem('mp_recent', JSON.stringify(list.slice(0, 5)));
         }
-
         function renderRecentSidebar() {
             var list = getRecent();
             if (!list.length) return;
             var toolsSection = document.querySelector('#mobile-menu .pt-6.border-t');
             if (!toolsSection || $('mp-recent-section')) return;
-
             var sec = document.createElement('div');
-            sec.id = 'mp-recent-section';
-            sec.className = 'pt-5';
+            sec.id = 'mp-recent-section'; sec.className = 'pt-5';
             sec.innerHTML = '<p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Recently Played</p>' +
                 list.slice(0, 3).map(function (r) {
-                    return '<a href="' + r.href + '" class="mp-recent-link">' +
-                           '<span class="mp-rdot"></span>' + r.title + '</a>';
+                    return '<a href="' + r.href + '" class="mp-recent-link"><span class="mp-rdot"></span>' + r.title + '</a>';
                 }).join('');
             toolsSection.before(sec);
         }
 
-        /* Track card link clicks for recently played */
         document.querySelectorAll('.game-card').forEach(function (card) {
             var link  = card.querySelector('a');
             var title = card.querySelector('h3') ? card.querySelector('h3').innerText.trim() : '';
             if (!link || !title) return;
             link.addEventListener('click', function () {
                 saveRecent(title, link.getAttribute('href'));
-                /* Track today's played count */
                 var key     = 'mp_today_' + new Date().toDateString();
                 var visited = JSON.parse(localStorage.getItem(key) || '[]');
                 if (!visited.includes(link.getAttribute('href'))) {
@@ -842,42 +801,28 @@
             if (ft) ft.textContent = visited.length;
         }
 
-        /* ───────────────────────────────────────────
-           4. DAILY CHALLENGE
-        ─────────────────────────────────────────── */
         function applyDailyChallenge() {
             var allCards = document.querySelectorAll('.game-card');
             if (!allCards.length) return;
-
             var dayIdx = Math.floor(Date.now() / 864e5) % allCards.length;
             var chosen = allCards[dayIdx];
-
             chosen.classList.add('mp-daily-card');
             chosen.style.position = 'relative';
-
             if (!chosen.querySelector('.mp-daily-badge')) {
                 var badge = document.createElement('div');
                 badge.className = 'mp-daily-badge';
                 badge.textContent = '⭐ Daily Challenge';
                 chosen.prepend(badge);
             }
-
-            /* Bubble it to the front of the grid */
             var grid = $('gameGrid');
-            if (grid && grid.firstElementChild !== chosen) {
-                grid.prepend(chosen);
-            }
+            if (grid && grid.firstElementChild !== chosen) { grid.prepend(chosen); }
         }
 
-        /* ───────────────────────────────────────────
-           5. GAME COUNT BAR  (injected below filters)
-        ─────────────────────────────────────────── */
         function injectCountBar() {
             var filterRow = document.querySelector('header .flex.flex-wrap.justify-center');
             if (!filterRow || $('mp-count-bar')) return;
             var bar = document.createElement('div');
-            bar.id = 'mp-count-bar';
-            bar.setAttribute('aria-live', 'polite');
+            bar.id = 'mp-count-bar'; bar.setAttribute('aria-live', 'polite');
             filterRow.after(bar);
         }
 
@@ -889,20 +834,15 @@
             bar.textContent = visible === total
                 ? 'Showing all ' + total + ' challenges'
                 : 'Showing ' + visible + ' of ' + total + ' challenges';
-
             var ft = $('mpf-total');
             if (ft) ft.textContent = total;
         }
 
-        /* Watch for hidden class changes on cards to auto-update count */
         var observer = new MutationObserver(refreshCountBar);
         document.querySelectorAll('.game-card').forEach(function (c) {
             observer.observe(c, { attributes: true, attributeFilter: ['class'] });
         });
 
-        /* ───────────────────────────────────────────
-           6. KEYBOARD SHORTCUT  "/" → focus search
-        ─────────────────────────────────────────── */
         function injectKbdHint() {
             var searchWrap = document.querySelector('header .group.hidden');
             if (!searchWrap || $('mp-kbd-hint')) return;
@@ -913,36 +853,25 @@
         }
 
         document.addEventListener('keydown', function (e) {
-            var active = document.activeElement;
+            var active  = document.activeElement;
             var isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
-
             if (e.key === '/' && !isInput) {
                 e.preventDefault();
                 var search = $('gameSearch') || $('mobileSearch');
                 if (search) { search.focus(); search.select(); }
             }
-            if (e.key === 'Escape' && isInput) {
-                active.blur();
-            }
+            if (e.key === 'Escape' && isInput) { active.blur(); }
         });
 
-        /* ───────────────────────────────────────────
-           7. BACK TO TOP
-        ─────────────────────────────────────────── */
         var btt = $('mp-btt');
         window.addEventListener('scroll', function () {
             if (!btt) return;
             btt.classList.toggle('mp-visible', window.scrollY > 380);
         }, { passive: true });
         if (btt) {
-            btt.addEventListener('click', function () {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            btt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
         }
 
-        /* ───────────────────────────────────────────
-           8. WELCOME TOAST
-        ─────────────────────────────────────────── */
         function welcomeToast(streak) {
             var recent = getRecent();
             var msg, icon;
@@ -953,9 +882,6 @@
             setTimeout(function () { showToast(msg, icon, 4000); }, 900);
         }
 
-        /* ───────────────────────────────────────────
-           INITIALISE ALL FEATURES
-        ─────────────────────────────────────────── */
         var streak = manageStreak();
         renderRecentSidebar();
         applyDailyChallenge();
@@ -964,20 +890,8 @@
         refreshCountBar();
         updateTodayCount();
         welcomeToast(streak);
-
     })();
     </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
- 
