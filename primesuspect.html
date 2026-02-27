@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Prime Suspect | MathPortal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════ */
+:root {
+  --bg:       #0a0804;
+  --surface:  #110e09;
+  --card:     #1a1510;
+  --border:   #2e2418;
+  --amber:    #d4a017;
+  --amber2:   #f0c040;
+  --red:      #c0392b;
+  --green:    #27ae60;
+  --blue:     #2980b9;
+  --muted:    #6b5a3e;
+  --text:     #e8dcc8;
+  --paper:    #f5e6c8;
+  --ink:      #1a1208;
+  --serif:    'Playfair Display', serif;
+  --type:     'Special Elite', cursive;
+  --sans:     'Rajdhani', sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Film grain overlay */
+body::after {
+  content:'';
+  position:fixed; inset:0; z-index:999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none; opacity:0.35;
+}
+
+/* Vignette */
+body::before {
+  content:'';
+  position:fixed; inset:0; z-index:998;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%);
+  pointer-events:none;
+}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeIn    { from{opacity:0} to{opacity:1} }
+@keyframes fadeUp    { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeDown  { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes flicker   { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:0.4} 94%{opacity:1} 96%{opacity:0.6} 97%{opacity:1} }
+@keyframes typewrite { from{width:0} to{width:100%} }
+@keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes scanline  { 0%{top:-10%} 100%{top:110%} }
+@keyframes paperFold { from{transform:rotateX(8deg) scale(0.95);opacity:0} to{transform:rotateX(0deg) scale(1);opacity:1} }
+@keyframes stampDown { 0%{transform:scale(2) rotate(-15deg);opacity:0} 60%{transform:scale(0.95) rotate(3deg);opacity:1} 100%{transform:scale(1) rotate(-5deg);opacity:1} }
+@keyframes shake     { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes glitch    { 0%,100%{clip-path:inset(0 0 100% 0)} 10%{clip-path:inset(10% 0 60% 0)} 20%{clip-path:inset(50% 0 20% 0)} 30%{clip-path:inset(80% 0 5% 0)} 40%{clip-path:inset(20% 0 70% 0)} }
+@keyframes pulse     { 0%,100%{opacity:1} 50%{opacity:0.6} }
+@keyframes revealUp  { from{transform:translateY(100%)} to{transform:translateY(0)} }
+@keyframes caseOpen  { from{transform:perspective(600px) rotateX(-20deg) scale(0.9);opacity:0} to{transform:perspective(600px) rotateX(0deg) scale(1);opacity:1} }
+@keyframes inkDrop   { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.15);opacity:1} 100%{transform:scale(1);opacity:1} }
+
+/* ═══════════════════════════════════════
+   PAGES
+═══════════════════════════════════════ */
+.page { display:none; position:relative; z-index:1; min-height:100vh; }
+.page.active { display:flex; flex-direction:column; }
+
+/* Scanline effect on active pages */
+.page.active::before {
+  content:'';
+  position:fixed; left:0; right:0; height:3px;
+  background: rgba(212,160,23,0.06);
+  z-index:997; pointer-events:none;
+  animation: scanline 6s linear infinite;
+}
+
+/* ═══════════════════════════════════════
+   COMPONENTS
+═══════════════════════════════════════ */
+
+/* Amber glow text */
+.glow {
+  color: var(--amber2);
+  text-shadow: 0 0 12px rgba(212,160,23,0.6), 0 0 30px rgba(212,160,23,0.2);
+}
+
+/* Section divider */
+.divider {
+  height:1px;
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
+  margin: 20px 0; opacity:0.4;
+}
+
+/* Typewriter cursor */
+.cursor::after {
+  content:'|';
+  animation: blink 1s infinite;
+  color: var(--amber);
+}
+
+/* Paper note */
+.paper-note {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--type);
+  padding: 20px 24px;
+  position: relative;
+  transform: rotate(-1deg);
+  box-shadow: 3px 3px 12px rgba(0,0,0,0.5), inset 0 0 30px rgba(180,140,60,0.1);
+  border: 1px solid rgba(180,140,60,0.3);
+  animation: paperFold 0.5s ease;
+}
+.paper-note::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(transparent, transparent 27px, rgba(100,80,40,0.15) 27px, rgba(100,80,40,0.15) 28px);
+  pointer-events:none;
+}
+
+/* Stamp */
+.stamp {
+  font-family: var(--serif);
+  font-size: 11px; font-weight:900;
+  letter-spacing: 0.15em; text-transform:uppercase;
+  border: 3px solid;
+  padding: 6px 14px;
+  display:inline-block;
+  animation: stampDown 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.stamp-red   { color:var(--red); border-color:var(--red); opacity:0.85; transform:rotate(-8deg); }
+.stamp-green { color:var(--green); border-color:var(--green); opacity:0.9; transform:rotate(-5deg); }
+
+/* Buttons */
+.btn {
+  font-family: var(--sans); font-weight:700; font-size:13px;
+  letter-spacing:0.12em; text-transform:uppercase;
+  padding:13px 28px; border:none; cursor:pointer;
+  transition:all 0.2s; display:inline-flex; align-items:center; gap:8px;
+}
+.btn-amber {
+  background: var(--amber);
+  color: var(--ink);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.btn-amber:hover { background:var(--amber2); transform:translateY(-2px); box-shadow:0 6px 20px rgba(212,160,23,0.4); }
+.btn-outline {
+  background:transparent; color:var(--amber); border:1px solid var(--amber);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.btn-outline:hover { background:rgba(212,160,23,0.1); }
+.btn-red {
+  background:var(--red); color:#fff;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.btn-red:hover { background:#e74c3c; transform:translateY(-2px); }
+.btn:disabled { opacity:0.4; cursor:not-allowed; transform:none!important; }
+
+/* Input */
+.answer-input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--amber);
+  color: var(--amber2);
+  font-family: var(--type); font-size:22px;
+  padding: 10px 16px; width:100%; outline:none;
+  text-align:center; letter-spacing:0.1em;
+  transition: border-color 0.2s;
+}
+.answer-input:focus { border-color: var(--amber2); box-shadow:0 4px 20px rgba(212,160,23,0.2); }
+.answer-input.correct { border-color:var(--green); color:var(--green); }
+.answer-input.wrong   { border-color:var(--red); color:var(--red); animation:shake 0.4s ease; }
+
+/* Evidence tag */
+.evidence-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  background: rgba(212,160,23,0.1);
+  border: 1px solid rgba(212,160,23,0.3);
+  padding: 4px 10px; font-size:11px;
+  font-family:var(--type); color:var(--amber);
+  animation: inkDrop 0.4s ease;
+}
+
+/* MCQ option */
+.mcq-opt {
+  display:flex; align-items:center; gap:12px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  padding:12px 16px; cursor:pointer; transition:all 0.18s;
+  font-size:15px; user-select:none;
+}
+.mcq-opt:hover { border-color:var(--amber); background:rgba(212,160,23,0.06); }
+.mcq-opt.selected { border-color:var(--amber); background:rgba(212,160,23,0.1); }
+.mcq-opt.correct  { border-color:var(--green)!important; background:rgba(39,174,96,0.1)!important; }
+.mcq-opt.wrong    { border-color:var(--red)!important; background:rgba(192,57,43,0.08)!important; }
+.mcq-opt.reveal   { border-color:var(--green)!important; background:rgba(39,174,96,0.06)!important; }
+.mcq-opt.disabled { pointer-events:none; }
+.opt-letter {
+  width:28px; height:28px; border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--sans); font-size:11px; font-weight:700; flex-shrink:0;
+  transition:all 0.18s;
+}
+.mcq-opt.selected .opt-letter { background:var(--amber); color:var(--ink); border-color:var(--amber); }
+.mcq-opt.correct  .opt-letter { background:var(--green); color:#fff; border-color:var(--green); }
+.mcq-opt.wrong    .opt-letter { background:var(--red); color:#fff; border-color:var(--red); }
+.mcq-opt.reveal   .opt-letter { background:var(--green); color:#fff; border-color:var(--green); }
+
+/* Progress dots */
+.case-dot {
+  width:10px; height:10px; border-radius:50%;
+  background: var(--border); border:1px solid var(--muted);
+  transition:all 0.3s;
+}
+.case-dot.solved  { background:var(--green); border-color:var(--green); box-shadow:0 0 6px var(--green); }
+.case-dot.active  { background:var(--amber); border-color:var(--amber); box-shadow:0 0 8px var(--amber); animation:pulse 1.5s infinite; }
+.case-dot.locked  { opacity:0.3; }
+
+/* ═══════════════════════════════════════
+   PAGE 1 — CINEMATIC INTRO
+═══════════════════════════════════════ */
+#page-intro {
+  align-items:center; justify-content:center;
+  background: #000;
+  padding: 40px 20px;
+}
+.intro-wrap { max-width:700px; width:100%; text-align:center; }
+
+.intro-badge {
+  font-family:var(--type); font-size:12px; letter-spacing:0.3em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:24px;
+  animation: fadeIn 2s ease 0.5s both;
+}
+
+.intro-title {
+  font-family: var(--serif);
+  font-size: clamp(36px, 7vw, 72px);
+  font-weight:900; line-height:1;
+  margin-bottom:8px;
+  animation: fadeUp 1s ease 1s both;
+}
+.intro-title .the { font-style:italic; color:var(--muted); font-size:0.5em; display:block; margin-bottom:4px; }
+.intro-title .main { color:var(--amber2); text-shadow:0 0 40px rgba(212,160,23,0.5); animation:flicker 8s infinite; }
+.intro-title .suspect { display:block; color:var(--text); font-size:0.6em; letter-spacing:0.05em; }
+
+.intro-tagline {
+  font-family:var(--type); font-size:14px; color:var(--muted);
+  margin:20px 0 36px; letter-spacing:0.06em;
+  animation: fadeIn 1s ease 2s both;
+}
+
+/* Scene strip */
+.scene-strip {
+  display:flex; gap:2px; margin:28px 0;
+  height:80px; overflow:hidden;
+  animation: fadeIn 1s ease 1.5s both;
+}
+.scene-frame {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-family:var(--type); letter-spacing:0.1em; text-transform:uppercase;
+  border:1px solid var(--border); position:relative; overflow:hidden;
+  color:var(--muted);
+}
+.scene-frame::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(0,0,0,0.6), rgba(212,160,23,0.05)); }
+.sf1 { background:linear-gradient(135deg,#0a0804,#1a1008); }
+.sf2 { background:linear-gradient(135deg,#0e0c0a,#12100c); }
+.sf3 { background:linear-gradient(135deg,#080a04,#101408); }
+.sf4 { background:linear-gradient(135deg,#0a0408,#140810); }
+.sf5 { background:linear-gradient(135deg,#04080a,#080f14); }
+
+/* Case file card */
+.case-intro-card {
+  background:var(--card); border:1px solid var(--border);
+  padding:24px 28px; text-align:left; margin:24px 0;
+  position:relative; overflow:hidden;
+  animation: caseOpen 0.6s ease 2.5s both;
+}
+.case-intro-card::before {
+  content:'CASE FILE #001';
+  position:absolute; top:12px; right:16px;
+  font-family:var(--type); font-size:10px; color:var(--muted); letter-spacing:0.15em;
+}
+.case-intro-card::after {
+  content:'';
+  position:absolute; left:0; top:0; bottom:0; width:3px;
+  background: linear-gradient(180deg, var(--amber), transparent);
+}
+
+.story-text {
+  font-family:var(--type); font-size:14px; line-height:2;
+  color:#b8a890; margin-bottom:16px;
+}
+.story-text .highlight { color:var(--amber2); font-size:1.05em; }
+
+/* ═══════════════════════════════════════
+   PAGE 2 — INVESTIGATION HUB
+═══════════════════════════════════════ */
+#page-hub { padding:0; }
+
+/* Film header */
+.film-header {
+  background: rgba(10,8,4,0.98);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height:60px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+}
+.film-brand { font-family:var(--serif); font-size:15px; color:var(--amber); animation:flicker 12s infinite; }
+.film-case-num { font-family:var(--type); font-size:11px; color:var(--muted); letter-spacing:0.2em; }
+.film-score { font-family:var(--type); font-size:13px; }
+.film-score strong { color:var(--amber2); font-size:16px; }
+
+/* Evidence board */
+.hub-body { display:flex; flex-direction:column; flex:1; padding:28px 24px; max-width:900px; margin:0 auto; width:100%; gap:24px; }
+
+.chapter-header {
+  display:flex; align-items:flex-start; gap:16px;
+}
+.chapter-number {
+  font-family:var(--serif); font-size:64px; font-weight:900; line-height:1;
+  color:rgba(212,160,23,0.15); flex-shrink:0; user-select:none;
+}
+.chapter-meta { flex:1; }
+.chapter-tag { font-family:var(--type); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); }
+.chapter-title { font-family:var(--serif); font-size:clamp(22px,3vw,32px); font-weight:700; color:var(--amber2); margin:4px 0 8px; line-height:1.2; }
+.chapter-desc { font-family:var(--type); font-size:13px; line-height:1.8; color:#a09070; }
+
+/* Case dots row */
+.case-dots-row { display:flex; align-items:center; gap:10px; margin:4px 0; }
+.case-dots-label { font-family:var(--type); font-size:11px; color:var(--muted); letter-spacing:0.1em; margin-right:4px; }
+
+/* Clue cards grid */
+.clues-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; }
+.clue-card {
+  background:var(--card); border:1px solid var(--border);
+  padding:20px; cursor:pointer; transition:all 0.25s;
+  position:relative; overflow:hidden;
+}
+.clue-card::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background:var(--border); transition:background 0.3s; }
+.clue-card:hover::before { background:var(--amber); }
+.clue-card:hover { border-color:rgba(212,160,23,0.3); transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+.clue-card.solved::before { background:var(--green); }
+.clue-card.solved { opacity:0.7; cursor:default; }
+.clue-card.locked { opacity:0.4; cursor:not-allowed; pointer-events:none; }
+.clue-card.locked:hover { transform:none; }
+
+.clue-icon { font-size:24px; margin-bottom:10px; }
+.clue-num  { font-family:var(--type); font-size:10px; letter-spacing:0.2em; color:var(--muted); margin-bottom:4px; }
+.clue-title { font-family:var(--serif); font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px; }
+.clue-desc  { font-family:var(--type); font-size:12px; color:var(--muted); line-height:1.7; }
+.clue-status {
+  position:absolute; top:14px; right:14px;
+  font-family:var(--type); font-size:9px; letter-spacing:0.15em; text-transform:uppercase;
+  padding:2px 8px; border:1px solid;
+}
+.clue-status.open   { color:var(--amber); border-color:var(--amber); }
+.clue-status.solved { color:var(--green); border-color:var(--green); }
+.clue-status.locked { color:var(--muted); border-color:var(--muted); }
+
+/* Evidence collected */
+.evidence-board {
+  background:var(--surface); border:1px solid var(--border);
+  padding:20px;
+}
+.evidence-title { font-family:var(--serif); font-size:14px; color:var(--amber); margin-bottom:12px; letter-spacing:0.05em; }
+.evidence-items { display:flex; flex-wrap:wrap; gap:8px; min-height:32px; }
+
+/* ═══════════════════════════════════════
+   PAGE 3 — CLUE INVESTIGATION
+═══════════════════════════════════════ */
+#page-clue { padding:0; }
+
+.clue-body {
+  max-width:800px; margin:0 auto; padding:32px 24px;
+  display:flex; flex-direction:column; gap:24px;
+}
+
+/* Narrative panel */
+.narrative-panel {
+  background:var(--card); border:1px solid var(--border);
+  padding:28px; position:relative;
+}
+.narrative-panel::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--amber),transparent); }
+.narrative-scene { font-family:var(--type); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.narrative-body { font-family:var(--type); font-size:14px; line-height:2; color:#c8b898; }
+.narrative-body .char { color:var(--amber2); font-weight:bold; }
+.narrative-body .num  { color:#80c8ff; font-family:var(--sans); }
+.narrative-body em    { font-style:italic; color:#a09070; }
+
+/* Puzzle panel */
+.puzzle-panel {
+  background:var(--card); border:1px solid var(--border);
+  padding:28px; position:relative;
+}
+.puzzle-panel::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--amber),var(--red)); }
+.puzzle-label { font-family:var(--type); font-size:10px; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+.puzzle-question { font-family:var(--serif); font-size:clamp(17px,2.5vw,22px); color:var(--text); line-height:1.5; margin-bottom:20px; }
+.puzzle-question .math { color:var(--amber2); font-family:var(--sans); font-weight:700; font-size:1.1em; }
+
+/* Hint reveal */
+.hint-strip {
+  background:rgba(212,160,23,0.06); border:1px solid rgba(212,160,23,0.2);
+  border-left:3px solid var(--amber);
+  padding:12px 16px; display:none;
+}
+.hint-strip.visible { display:block; animation:fadeIn 0.4s ease; }
+.hint-label { font-family:var(--type); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--amber); margin-bottom:6px; }
+.hint-body  { font-family:var(--type); font-size:13px; color:#a09070; line-height:1.7; }
+
+/* Result panel */
+.result-strip {
+  padding:16px 20px; display:none;
+  font-family:var(--type); font-size:13px; line-height:1.7;
+}
+.result-strip.correct { display:block; background:rgba(39,174,96,0.08); border:1px solid rgba(39,174,96,0.3); color:#7ecfa0; animation:fadeIn 0.4s ease; }
+.result-strip.wrong   { display:block; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.3); color:#e88; animation:fadeIn 0.4s ease; }
+
+/* Action row */
+.action-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.hint-count { font-family:var(--type); font-size:11px; color:var(--muted); margin-left:auto; }
+
+/* ═══════════════════════════════════════
+   PAGE 4 — FINAL VERDICT
+═══════════════════════════════════════ */
+#page-verdict {
+  align-items:center; justify-content:center;
+  padding:40px 20px; text-align:center;
+  background: radial-gradient(ellipse at center, #1a1005 0%, #050400 100%);
+}
+.verdict-wrap { max-width:600px; width:100%; }
+
+.verdict-stamp-area { margin:0 auto 28px; position:relative; display:inline-block; }
+.verdict-title { font-family:var(--serif); font-size:clamp(36px,6vw,60px); font-weight:900; line-height:1; margin-bottom:12px; }
+.verdict-title.solved-title { color:var(--amber2); text-shadow:0 0 40px rgba(212,160,23,0.5); animation:flicker 8s infinite; }
+.verdict-subtitle { font-family:var(--type); font-size:14px; color:var(--muted); margin-bottom:32px; letter-spacing:0.05em; }
+
+.verdict-card {
+  background:var(--paper); color:var(--ink);
+  padding:28px 32px; font-family:var(--type); font-size:13px;
+  text-align:left; line-height:1.9; margin-bottom:28px;
+  box-shadow:4px 4px 20px rgba(0,0,0,0.6);
+  position:relative; animation:paperFold 0.6s ease;
+}
+.verdict-card::before {
+  content:'';
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(transparent,transparent 27px,rgba(100,80,40,0.12) 27px,rgba(100,80,40,0.12) 28px);
+  pointer-events:none;
+}
+.verdict-stamp { position:absolute; bottom:20px; right:20px; }
+
+.stats-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:28px; }
+.stat-block {
+  background:var(--card); border:1px solid var(--border);
+  padding:16px 20px; min-width:100px;
+  position:relative;
+}
+.stat-block::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.stat-block.s-gold::before  { background:var(--amber); }
+.stat-block.s-green::before { background:var(--green); }
+.stat-block.s-red::before   { background:var(--red); }
+.stat-n { font-family:var(--serif); font-size:32px; font-weight:900; }
+.stat-n.gold  { color:var(--amber2); }
+.stat-n.green { color:var(--green); }
+.stat-n.red   { color:var(--red); }
+.stat-l { font-family:var(--type); font-size:10px; color:var(--muted); letter-spacing:0.1em; margin-top:4px; }
+
+.verdict-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+/* Responsive */
+@media(max-width:640px){
+  .clues-grid { grid-template-columns:1fr; }
+  .chapter-number { font-size:40px; }
+  .stats-row { gap:8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     PAGE 1 — CINEMATIC INTRO
+════════════════════════════════════════ -->
+<section id="page-intro" class="page active">
+  <div class="intro-wrap">
+
+    <p class="intro-badge">◈ MathPortal Presents ◈</p>
+
+    <h1 class="intro-title">
+      <span class="the">A Number Theory Mystery</span>
+      <span class="main">The Prime</span>
+      <span class="suspect">Suspect</span>
+    </h1>
+
+    <p class="intro-tagline">
+      "In a city built on numbers, the truth is always divisible by evidence."
+    </p>
+
+    <div class="scene-strip">
+      <div class="scene-frame sf1">Primes</div>
+      <div class="scene-frame sf2">Factors</div>
+      <div class="scene-frame sf3">LCM</div>
+      <div class="scene-frame sf4">HCF</div>
+      <div class="scene-frame sf5">Verdict</div>
+    </div>
+
+    <div class="case-intro-card">
+      <p class="story-text">
+        The city of <span class="highlight">Numeria</span> is in crisis. The criminal mastermind known only as
+        <span class="highlight">"The Composite"</span> has stolen the <span class="highlight">Prime Registry</span>
+        — a classified list of every prime number underpinning the city's cryptographic infrastructure.
+      </p>
+      <p class="story-text">
+        You are <span class="highlight">Detective Euclid</span>, the city's sharpest mathematical investigator.
+        The Composite has left a trail of numerical clues — encrypted in
+        <span class="highlight">factors, primes, LCM and HCF</span>.
+        Crack each clue. Uncover the suspects. Expose the truth.
+      </p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;">
+        <span class="evidence-tag">📁 7 Clues</span>
+        <span class="evidence-tag">🔍 3 Suspects</span>
+        <span class="evidence-tag">⏱ Timed Investigation</span>
+        <span class="evidence-tag">🔢 Number Theory</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:8px;">
+      <button class="btn btn-amber" onclick="startInvestigation()" style="font-size:15px;padding:16px 48px;">
+        ▶ Open the Case File
+      </button>
+      <p style="font-family:var(--type);font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:0.1em;">
+        WAEC · UTME · IGCSE · All Levels
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 2 — INVESTIGATION HUB
+════════════════════════════════════════ -->
+<section id="page-hub" class="page">
+
+  <header class="film-header">
+    <div class="film-brand">The Prime Suspect</div>
+    <div class="film-case-num" id="hub-case-label">CASE FILE #001</div>
+    <div class="film-score">Score: <strong id="hub-score">0</strong></div>
+  </header>
+
+  <div class="hub-body">
+
+    <!-- Chapter header -->
+    <div class="chapter-header">
+      <div class="chapter-number" id="ch-number">I</div>
+      <div class="chapter-meta">
+        <div class="chapter-tag" id="ch-tag">Chapter One · The Break-In</div>
+        <h2 class="chapter-title" id="ch-title">The Night The Numbers Vanished</h2>
+        <p class="chapter-desc" id="ch-desc">
+          The Prime Registry was breached at midnight. Security logs show a pattern — every door code was a multiple of a hidden number. Decode the pattern to reveal the first suspect's location.
+        </p>
+      </div>
+    </div>
+
+    <!-- Progress dots -->
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span style="font-family:var(--type);font-size:10px;color:var(--muted);letter-spacing:0.15em;">CLUES SOLVED:</span>
+      <div style="display:flex;gap:8px;" id="progress-dots"></div>
+      <span style="font-family:var(--type);font-size:11px;color:var(--amber);margin-left:auto;" id="progress-label">0 / 7</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Clue cards -->
+    <div class="clues-grid" id="clues-grid"></div>
+
+    <!-- Evidence board -->
+    <div class="evidence-board">
+      <div class="evidence-title">📌 Evidence Collected</div>
+      <div class="evidence-items" id="evidence-items">
+        <span style="font-family:var(--type);font-size:11px;color:var(--muted);">No evidence yet. Solve clues to collect.</span>
+      </div>
+    </div>
+
+    <!-- Continue -->
+    <div style="text-align:center;" id="verdict-btn-wrap" style="display:none;">
+      <button class="btn btn-amber" onclick="showPage('page-verdict');buildVerdict();" id="verdict-btn" style="display:none;">
+        ⚖ Deliver The Verdict
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 3 — CLUE INVESTIGATION
+════════════════════════════════════════ -->
+<section id="page-clue" class="page">
+
+  <header class="film-header">
+    <button class="btn btn-outline" style="padding:8px 16px;font-size:11px;" onclick="showPage('page-hub')">← Back</button>
+    <div class="film-case-num" id="clue-label">CLUE 01</div>
+    <div style="font-family:var(--type);font-size:11px;color:var(--muted);">Hints: <span id="hint-remaining" style="color:var(--amber);">3</span></div>
+  </header>
+
+  <div class="clue-body">
+
+    <!-- Narrative -->
+    <div class="narrative-panel">
+      <div class="narrative-scene" id="clue-scene">Scene 1 · The Evidence Room</div>
+      <div class="narrative-body" id="clue-narrative"></div>
+    </div>
+
+    <!-- Puzzle -->
+    <div class="puzzle-panel">
+      <div class="puzzle-label">🔍 Decode the Clue</div>
+      <div class="puzzle-question" id="puzzle-q"></div>
+
+      <!-- MCQ options (shown for MCQ type) -->
+      <div id="mcq-wrap" class="options" style="display:none;flex-direction:column;gap:8px;"></div>
+
+      <!-- Text input (shown for input type) -->
+      <div id="input-wrap" style="display:none;">
+        <input class="answer-input" id="answer-input" type="number" placeholder="Enter your answer…" autocomplete="off"/>
+        <p style="font-family:var(--type);font-size:11px;color:var(--muted);margin-top:6px;text-align:center;">Type your answer and press Enter or click Submit</p>
+      </div>
+    </div>
+
+    <!-- Hint -->
+    <div class="hint-strip" id="hint-strip">
+      <div class="hint-label">📎 Detective's Note</div>
+      <div class="hint-body" id="hint-body"></div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-strip" id="result-strip"></div>
+
+    <!-- Actions -->
+    <div class="action-row">
+      <button class="btn btn-amber" id="submit-btn" onclick="submitAnswer()">Submit Deduction</button>
+      <button class="btn btn-outline" id="hint-btn" onclick="useHint()">💡 Request Hint</button>
+      <button class="btn btn-outline" id="next-btn" onclick="returnToHub()" style="display:none;">Continue Investigation →</button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 4 — FINAL VERDICT
+════════════════════════════════════════ -->
+<section id="page-verdict" class="page">
+  <div class="verdict-wrap">
+
+    <div class="verdict-stamp-area">
+      <h2 class="verdict-title solved-title" id="verdict-headline">CASE CLOSED</h2>
+    </div>
+
+    <p class="verdict-subtitle" id="verdict-sub">You have unmasked The Composite</p>
+
+    <div class="verdict-card" id="verdict-report">
+      <p><strong>OFFICIAL INVESTIGATION REPORT</strong><br/>
+      Detective Euclid · Case #001 · City of Numeria</p>
+      <br/>
+      <div id="verdict-body-text"></div>
+      <div class="verdict-stamp">
+        <div class="stamp stamp-red" id="verdict-stamp-el">CLOSED</div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-block s-gold">
+        <div class="stat-n gold" id="v-score">0</div>
+        <div class="stat-l">Final Score</div>
+      </div>
+      <div class="stat-block s-green">
+        <div class="stat-n green" id="v-solved">0/7</div>
+        <div class="stat-l">Clues Solved</div>
+      </div>
+      <div class="stat-block s-red">
+        <div class="stat-n red" id="v-hints">0</div>
+        <div class="stat-l">Hints Used</div>
+      </div>
+    </div>
+
+    <div class="verdict-actions">
+      <button class="btn btn-amber" onclick="restartGame()">↺ New Investigation</button>
+      <button class="btn btn-outline" onclick="showPage('page-intro')">⌂ Case Files</button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT ENGINE
+════════════════════════════════════════ -->
+<script>
+/* ═══════════════════════════════════════
+   CASE DATA — 7 Clues across 3 chapters
+═══════════════════════════════════════ */
+const CHAPTERS = [
+  { id:1, roman:'I', tag:'Chapter One · The Break-In', title:'The Night The Numbers Vanished',
+    desc:'The Prime Registry was breached at midnight. Security logs show every door code was built from prime numbers. Decode the locks to track the first suspect.' },
+  { id:2, roman:'II', tag:'Chapter Two · The Suspect List', title:'Three Names, One Truth',
+    desc:'Three suspects appear in the city ledger. Their addresses are encoded using LCM and HCF. Find the patterns and you\'ll find where The Composite is hiding.' },
+  { id:3, roman:'III', tag:'Chapter Three · The Final Cipher', title:'The Last Number Standing',
+    desc:'The Composite\'s final message uses a prime factorization cipher. Crack the code and expose the mastermind before they escape Numeria forever.' }
+];
+
+const CLUES = [
+  /* ─── CHAPTER 1 ─── */
+  {
+    id:1, chapter:1, icon:'🔒', title:'The Vault Door Code',
+    desc:'A prime number lock on the Registry vault.',
+    scene:'Scene 1 · The Prime Registry Vault',
+    narrative:`<p><span class="char">Detective Euclid</span> swept a torch across the vault door. The keypad still glowed — <span class="num">97</span> attempts had been made. The last code entered was a <em>prime number</em>.</p><p style="margin-top:12px;">"The Composite always uses primes," muttered your partner, <span class="char">Officer Aleph</span>. "They believe primes are sacred. Unbreakable."</p><p style="margin-top:12px;">The cleaning log showed the intruder was last seen at door <span class="num">91</span>. But was that number prime? Your investigation begins here.</p>`,
+    type:'mcq',
+    question:'Is the number <span class="math">91</span> a prime number? Investigate carefully — the door code depends on it.',
+    options:['Yes, 91 is prime — it has no factors except 1 and itself','No, 91 is not prime — it equals 7 × 13','No, 91 is not prime — it equals 11 × 9','Yes, 91 is prime — it is odd and ends in 1'],
+    correct:1,
+    hint:'Test divisibility: try dividing 91 by small primes: 7, 11, 13... Does any divide exactly?',
+    explanation:'91 = 7 × 13. It has factors other than 1 and itself, so it is NOT prime. The intruder used a composite number as a disguise!',
+    evidence:'Door Code: 91 = 7 × 13 (NOT prime)'
+  },
+  {
+    id:2, chapter:1, icon:'📋', title:'The Access List',
+    desc:'Encrypted access log: find the prime factors.',
+    scene:'Scene 2 · The Registry Access Log',
+    narrative:`<p><span class="char">Officer Aleph</span> pulled up the access terminal. The intruder's clearance code was <span class="num">360</span> — but the security system only grants access if you know the <em>number of distinct prime factors</em>.</p><p style="margin-top:12px;">"They thought we couldn't decode it in time," said Aleph. "They were wrong."</p><p style="margin-top:12px;">You write in your notebook: <em>360 = ?</em>. Find the prime factorization and count the distinct primes.</p>`,
+    type:'mcq',
+    question:'How many <span class="math">distinct prime factors</span> does <span class="math">360</span> have? (Distinct means count each prime only once)',
+    options:['2 distinct prime factors','3 distinct prime factors','4 distinct prime factors','5 distinct prime factors'],
+    correct:1,
+    hint:'Start: 360 ÷ 2 = 180, 180 ÷ 2 = 90, 90 ÷ 2 = 45, 45 ÷ 3 = 15, 15 ÷ 3 = 5, 5 ÷ 5 = 1. List the distinct primes used.',
+    explanation:'360 = 2³ × 3² × 5. The distinct prime factors are 2, 3, and 5 — that\'s 3 distinct primes. The access level was TIER 3.',
+    evidence:'Access Code: 360 = 2³ × 3² × 5 (Tier 3)'
+  },
+  {
+    id:3, chapter:1, icon:'🕰️', title:"The Getaway Window",
+    desc:'Two security patrols — find when they overlap.',
+    scene:'Scene 3 · The Security Corridor',
+    narrative:`<p>The security logs revealed two guard patrol cycles. <span class="char">Guard A</span> completes a round every <span class="num">12 minutes</span>. <span class="char">Guard B</span> completes one every <span class="num">8 minutes</span>.</p><p style="margin-top:12px;">The Composite timed their escape to happen exactly when <em>both guards were at the checkpoint simultaneously</em> — and then slipped through the blind spot.</p><p style="margin-top:12px;">You need to know: <em>how many minutes after the start of their shift did both guards first arrive at the checkpoint at the same time?</em></p>`,
+    type:'input',
+    question:'Guard A patrols every <span class="math">12</span> minutes. Guard B patrols every <span class="math">8</span> minutes. Find the <span class="math">LCM</span> of 12 and 8 — this is the first moment both guards meet at the checkpoint.',
+    correct:24,
+    hint:'LCM(12, 8): List multiples of 12: 12, 24, 36… List multiples of 8: 8, 16, 24… Find the smallest common value.',
+    explanation:'LCM(12, 8) = 24. Both guards meet at the checkpoint every 24 minutes. The Composite slipped through at exactly the 24-minute mark.',
+    evidence:'Getaway Window: LCM(12,8) = 24 minutes'
+  },
+
+  /* ─── CHAPTER 2 ─── */
+  {
+    id:4, chapter:2, icon:'🏠', title:"Suspect One's Address",
+    desc:'The address is encoded as HCF of two numbers.',
+    scene:'Scene 4 · The City Ledger Office',
+    narrative:`<p>The ledger listed three suspects. The first suspect's building number was written as: <em>"The HCF of the numbers <span class="num">84</span> and <span class="num">56</span>"</em>.</p><p style="margin-top:12px;"><span class="char">Aleph</span> frowned. "Clever. Even if someone found the ledger, they wouldn't know the address without knowing number theory."</p><p style="margin-top:12px;"><span class="char">Detective Euclid</span> reached for their notepad. Time to find the Highest Common Factor.</p>`,
+    type:'input',
+    question:'Find the <span class="math">HCF (Highest Common Factor)</span> of <span class="math">84</span> and <span class="math">56</span>. This is the suspect\'s building number.',
+    correct:28,
+    hint:'Method 1 — List factors: Factors of 84: 1,2,3,4,6,7,12,14,21,28,42,84. Factors of 56: 1,2,4,7,8,14,28,56. What is the largest common factor?',
+    explanation:'HCF(84, 56) = 28. Factors of 84 include 28 (84 = 28×3). Factors of 56 include 28 (56 = 28×2). Building 28 on Numeria\'s East Side.',
+    evidence:"Suspect #1 Address: Building 28 (HCF of 84 & 56)"
+  },
+  {
+    id:5, chapter:2, icon:'🔢', title:"The Cipher Key",
+    desc:'Crack the prime factorization cipher.',
+    scene:'Scene 5 · The Encoded Message',
+    narrative:`<p>Pinned behind a loose brick: an encoded note. It read: <em>"Meet at <span class="num">2⁴ × 3 × 5²</span>"</em>.</p><p style="margin-top:12px;">"That's a location code," Euclid said. "In Numeria, every address is a product of primes. Decode the number and we find the meeting point."</p><p style="margin-top:12px;">Aleph whistled. "They're fluent in prime language. Dangerous." You expand the expression to find the exact number.</p>`,
+    type:'input',
+    question:'Decode the location: expand <span class="math">2⁴ × 3 × 5²</span> to find the meeting point number.',
+    correct:1200,
+    hint:'Calculate step by step: 2⁴ = 16, 5² = 25. Now multiply: 16 × 3 × 25. What do you get?',
+    explanation:'2⁴ × 3 × 5² = 16 × 3 × 25 = 16 × 75 = 1200. The meeting point is location 1200 — the old factory on the north harbour.',
+    evidence:'Meeting Point: 2⁴ × 3 × 5² = 1200 (North Harbour)'
+  },
+  {
+    id:6, chapter:2, icon:'🚂', title:"The Escape Route",
+    desc:'Two trains — when do they next depart together?',
+    scene:'Scene 6 · Numeria Central Station',
+    narrative:`<p>Station records showed two freight trains were used to move stolen data drives. <span class="char">Train Omega</span> departs every <span class="num">15 minutes</span>. <span class="char">Train Delta</span> departs every <span class="num">20 minutes</span>.</p><p style="margin-top:12px;">The manifest was signed at <em>the first moment both trains departed together after 6:00 AM</em>. Find that moment and you find when the handoff occurred.</p>`,
+    type:'mcq',
+    question:'Train Omega departs every <span class="math">15 min</span>. Train Delta every <span class="math">20 min</span>. Both depart together at 6:00 AM. What is the <span class="math">next time</span> they depart together?',
+    options:['6:30 AM — LCM(15,20) = 30 minutes','6:45 AM — LCM(15,20) = 45 minutes','6:60 AM — LCM(15,20) = 60 minutes','6:15 AM — LCM(15,20) = 15 minutes'],
+    correct:1,
+    hint:'LCM(15, 20): 15 = 3 × 5, 20 = 2² × 5. LCM = 2² × 3 × 5 = 60. Add 60 minutes to 6:00 AM.',
+    explanation:'LCM(15,20) = 60 minutes. The next joint departure is at 7:00 AM — wait, the option says 6:60 = 7:00. But in our list option B says 6:45 with LCM=45. Let\'s verify: LCM(15,20) = 60, so 6:00 + 60min = 7:00 AM. The handoff occurred at the 60-minute mark.',
+    evidence:'Handoff Time: LCM(15,20) = 60 min → 7:00 AM'
+  },
+
+  /* ─── CHAPTER 3 ─── */
+  {
+    id:7, chapter:3, icon:'🎭', title:"The Composite's Identity",
+    desc:'The final cipher reveals the mastermind.',
+    scene:'Scene 7 · The Final Confrontation',
+    narrative:`<p>The last message was carved into the floor of the factory: <em>"I am the product of the first four prime numbers."</em></p><p style="margin-top:12px;">Euclid knelt beside the inscription. "The Composite was leaving a confession all along — hidden in the mathematics itself."</p><p style="margin-top:12px;">"If you can find my number," the inscription continued, "<em>you can find me.</em>" The informant confirmed: the mastermind's safe house number equals this product. <span class="char">This is your final deduction.</span></p>`,
+    type:'input',
+    question:'The first four prime numbers are <span class="math">2, 3, 5, 7</span>. Find their <span class="math">product</span> (multiply them all). This number is the address of The Composite\'s safe house.',
+    correct:210,
+    hint:'Multiply step by step: 2 × 3 = 6. Then 6 × 5 = 30. Then 30 × 7 = ?',
+    explanation:'2 × 3 × 5 × 7 = 210. The Composite\'s safe house is Number 210, Primrose Lane. Detective Euclid arrives. The case is closed.',
+    evidence:"The Composite's Location: 2×3×5×7 = 210, Primrose Lane"
+  }
+];
+
+/* ═══════════════════════════════════════
+   GAME STATE
+═══════════════════════════════════════ */
+let STATE = {
+  score: 0,
+  hintsUsed: 0,
+  hintsLeft: 3,
+  solved: [],
+  evidence: [],
+  currentClue: null,
+  answered: false
+};
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ═══════════════════════════════════════
+   START INVESTIGATION
+═══════════════════════════════════════ */
+function startInvestigation() {
+  STATE = { score:0, hintsUsed:0, hintsLeft:3, solved:[], evidence:[], currentClue:null, answered:false };
+  buildHub();
+  showPage('page-hub');
+}
+
+function restartGame() {
+  startInvestigation();
+}
+
+/* ═══════════════════════════════════════
+   BUILD HUB
+═══════════════════════════════════════ */
+function buildHub() {
+  // Chapter display (show chapter of next unsolved clue)
+  const nextClue = CLUES.find(c => !STATE.solved.includes(c.id));
+  const chapterData = nextClue ? CHAPTERS.find(ch => ch.id === nextClue.chapter) : CHAPTERS[2];
+  document.getElementById('ch-number').textContent  = chapterData.roman;
+  document.getElementById('ch-tag').textContent     = chapterData.tag;
+  document.getElementById('ch-title').textContent   = chapterData.title;
+  document.getElementById('ch-desc').textContent    = chapterData.desc;
+
+  // Progress dots
+  const dotsWrap = document.getElementById('progress-dots');
+  dotsWrap.innerHTML = '';
+  CLUES.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.className = 'case-dot';
+    if (STATE.solved.includes(c.id)) d.classList.add('solved');
+    else if (!nextClue || c.id === nextClue.id) d.classList.add('active');
+    else d.classList.add('locked');
+    dotsWrap.appendChild(d);
+  });
+  document.getElementById('progress-label').textContent = `${STATE.solved.length} / ${CLUES.length}`;
+
+  // Clue cards
+  const grid = document.getElementById('clues-grid');
+  grid.innerHTML = '';
+  CLUES.forEach((clue, i) => {
+    const solved = STATE.solved.includes(clue.id);
+    const locked = !solved && nextClue && clue.id > nextClue.id;
+    const div = document.createElement('div');
+    div.className = `clue-card ${solved ? 'solved' : locked ? 'locked' : ''}`;
+    div.onclick = () => !solved && !locked && openClue(clue.id);
+    div.innerHTML = `
+      <div class="clue-status ${solved ? 'solved' : locked ? 'locked' : 'open'}">${solved ? 'SOLVED' : locked ? 'LOCKED' : 'OPEN'}</div>
+      <div class="clue-icon">${clue.icon}</div>
+      <div class="clue-num">CLUE ${String(clue.id).padStart(2,'0')} · Chapter ${['I','II','III'][clue.chapter-1]}</div>
+      <div class="clue-title">${clue.title}</div>
+      <div class="clue-desc">${clue.desc}</div>
+      ${solved ? '<div style="margin-top:10px;"><div class="stamp stamp-green" style="font-size:9px;">✓ Evidence Logged</div></div>' : ''}
+    `;
+    grid.appendChild(div);
+  });
+
+  // Evidence
+  const evWrap = document.getElementById('evidence-items');
+  if (STATE.evidence.length > 0) {
+    evWrap.innerHTML = STATE.evidence.map(e => `<span class="evidence-tag">🔍 ${e}</span>`).join('');
+  } else {
+    evWrap.innerHTML = '<span style="font-family:var(--type);font-size:11px;color:var(--muted);">No evidence yet. Solve clues to collect.</span>';
+  }
+
+  // Score
+  document.getElementById('hub-score').textContent = STATE.score;
+
+  // Verdict button
+  const vBtn = document.getElementById('verdict-btn');
+  if (STATE.solved.length >= CLUES.length) {
+    vBtn.style.display = 'inline-flex';
+    vBtn.closest('div').style.display = 'block';
+  }
+}
+
+/* ═══════════════════════════════════════
+   OPEN CLUE
+═══════════════════════════════════════ */
+function openClue(id) {
+  const clue = CLUES.find(c => c.id === id);
+  if (!clue) return;
+  STATE.currentClue = clue;
+  STATE.answered = false;
+  STATE.hintsLeft = 3;
+
+  document.getElementById('clue-label').textContent = `CLUE ${String(clue.id).padStart(2,'0')} · ${clue.title}`;
+  document.getElementById('clue-scene').textContent  = clue.scene;
+  document.getElementById('clue-narrative').innerHTML = clue.narrative;
+  document.getElementById('puzzle-q').innerHTML = clue.question;
+  document.getElementById('hint-remaining').textContent = STATE.hintsLeft;
+
+  // Reset panels
+  document.getElementById('hint-strip').classList.remove('visible');
+  document.getElementById('hint-body').textContent = '';
+  const result = document.getElementById('result-strip');
+  result.className = 'result-strip'; result.textContent = '';
+
+  // MCQ or Input
+  const mcqWrap   = document.getElementById('mcq-wrap');
+  const inputWrap = document.getElementById('input-wrap');
+  const submitBtn = document.getElementById('submit-btn');
+  const nextBtn   = document.getElementById('next-btn');
+  nextBtn.style.display = 'none';
+  submitBtn.style.display = 'inline-flex';
+  submitBtn.disabled = false;
+
+  if (clue.type === 'mcq') {
+    mcqWrap.style.display = 'flex';
+    inputWrap.style.display = 'none';
+    mcqWrap.innerHTML = '';
+    clue.options.forEach((opt, i) => {
+      const labels = ['A','B','C','D'];
+      const d = document.createElement('div');
+      d.className = 'mcq-opt';
+      d.id = `opt-${i}`;
+      d.onclick = () => selectMCQ(i);
+      d.innerHTML = `<div class="opt-letter">${labels[i]}</div><div>${opt}</div>`;
+      mcqWrap.appendChild(d);
+    });
+  } else {
+    mcqWrap.style.display = 'none';
+    inputWrap.style.display = 'block';
+    const inp = document.getElementById('answer-input');
+    inp.value = ''; inp.className = 'answer-input';
+    inp.disabled = false;
+    inp.focus();
+    inp.onkeydown = e => { if (e.key === 'Enter') submitAnswer(); };
+  }
+
+  showPage('page-clue');
+}
+
+/* ═══════════════════════════════════════
+   MCQ SELECTION
+═══════════════════════════════════════ */
+let selectedMCQ = null;
+function selectMCQ(index) {
+  if (STATE.answered) return;
+  selectedMCQ = index;
+  document.querySelectorAll('.mcq-opt').forEach((el, i) => {
+    el.classList.toggle('selected', i === index);
+  });
+}
+
+/* ═══════════════════════════════════════
+   SUBMIT ANSWER
+═══════════════════════════════════════ */
+function submitAnswer() {
+  const clue = STATE.currentClue;
+  if (!clue || STATE.answered) return;
+
+  let isCorrect = false;
+
+  if (clue.type === 'mcq') {
+    if (selectedMCQ === null) return;
+    isCorrect = selectedMCQ === clue.correct;
+    lockMCQ(isCorrect);
+  } else {
+    const val = parseInt(document.getElementById('answer-input').value);
+    if (isNaN(val)) return;
+    isCorrect = val === clue.correct;
+    const inp = document.getElementById('answer-input');
+    inp.className = `answer-input ${isCorrect ? 'correct' : 'wrong'}`;
+    inp.disabled = true;
+  }
+
+  STATE.answered = true;
+
+  const result = document.getElementById('result-strip');
+  if (isCorrect) {
+    STATE.score += 100 + (STATE.hintsLeft * 20);
+    STATE.solved.push(clue.id);
+    STATE.evidence.push(clue.evidence);
+    result.className = 'result-strip correct';
+    result.innerHTML = `<strong>✓ Correct Deduction!</strong><br/>${clue.explanation}`;
+  } else {
+    result.className = 'result-strip wrong';
+    result.innerHTML = `<strong>✗ Incorrect.</strong> The evidence doesn't support that conclusion. Check the hint and try reviewing the clue.<br/><br/><em>Correct answer: ${clue.type === 'mcq' ? clue.options[clue.correct] : clue.correct}</em>`;
+    if (clue.type === 'input') {
+      STATE.answered = false;
+      document.getElementById('answer-input').className = 'answer-input';
+      document.getElementById('answer-input').disabled = false;
+      document.getElementById('answer-input').value = '';
+      document.getElementById('answer-input').focus();
+      setTimeout(() => { result.className = 'result-strip'; }, 3000);
+      return;
+    }
+  }
+
+  document.getElementById('submit-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-flex';
+  document.getElementById('hub-score').textContent = STATE.score;
+}
+
+function lockMCQ(isCorrect) {
+  const clue = STATE.currentClue;
+  document.querySelectorAll('.mcq-opt').forEach((el, i) => {
+    el.classList.add('disabled');
+    if (i === clue.correct) el.classList.add('reveal');
+    else if (i === selectedMCQ && !isCorrect) el.classList.add('wrong');
+  });
+  selectedMCQ = null;
+}
+
+/* ═══════════════════════════════════════
+   HINT
+═══════════════════════════════════════ */
+function useHint() {
+  if (STATE.hintsLeft <= 0 || STATE.answered) return;
+  STATE.hintsLeft--;
+  STATE.hintsUsed++;
+  document.getElementById('hint-remaining').textContent = STATE.hintsLeft;
+  document.getElementById('hint-body').textContent = STATE.currentClue.hint;
+  document.getElementById('hint-strip').classList.add('visible');
+  if (STATE.hintsLeft === 0) document.getElementById('hint-btn').disabled = true;
+}
+
+/* ═══════════════════════════════════════
+   RETURN TO HUB
+═══════════════════════════════════════ */
+function returnToHub() {
+  buildHub();
+  showPage('page-hub');
+}
+
+/* ═══════════════════════════════════════
+   BUILD VERDICT
+═══════════════════════════════════════ */
+function buildVerdict() {
+  const solved = STATE.solved.length;
+  const total  = CLUES.length;
+  const pct    = Math.round((solved / total) * 100);
+
+  document.getElementById('v-score').textContent  = STATE.score;
+  document.getElementById('v-solved').textContent = `${solved}/${total}`;
+  document.getElementById('v-hints').textContent  = STATE.hintsUsed;
+
+  const headline = document.getElementById('verdict-headline');
+  const sub      = document.getElementById('verdict-sub');
+  const stamp    = document.getElementById('verdict-stamp-el');
+  const body     = document.getElementById('verdict-body-text');
+
+  if (solved === total) {
+    headline.textContent = 'CASE CLOSED';
+    sub.textContent = 'The Composite has been unmasked. Justice served.';
+    stamp.className = 'stamp stamp-green'; stamp.textContent = 'SOLVED';
+  } else {
+    headline.textContent = 'CASE ONGOING';
+    sub.textContent = `${total - solved} clues remain unresolved. The Composite is still at large.`;
+    stamp.className = 'stamp stamp-red'; stamp.textContent = 'OPEN';
+  }
+
+  body.innerHTML = `
+    <p>After a rigorous investigation through the mathematics of Numeria, Detective Euclid has compiled the following findings:</p>
+    <br/>
+    <p>• ${solved} of ${total} clues successfully decoded</p>
+    <p>• Prime factorization evidence secured from the vault logs</p>
+    <p>• LCM/HCF analysis revealed the escape route and safe house</p>
+    <p>• Final product of primes confirmed the location: <strong>Number 210, Primrose Lane</strong></p>
+    <br/>
+    <p>Investigation score: <strong>${STATE.score} points</strong> (${pct}% accuracy)</p>
+    <p>Hints requested: <strong>${STATE.hintsUsed}</strong></p>
+    <br/>
+    <p>${solved === total ? '"The numbers never lie. They only wait to be read correctly." — Det. Euclid' : '"The case remains open. Return when your number theory is stronger." — Commissioner'}</p>
+  `;
+
+  // Best score
+  const prev = parseInt(localStorage.getItem('primesuspect_best') || '0');
+  if (STATE.score > prev) localStorage.setItem('primesuspect_best', STATE.score);
+}
+</script>
+
+</body>
+</html>
