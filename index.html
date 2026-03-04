@@ -4,41 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>MathPortal | Interactive Learning</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: '#0f172a',
-                        darker: '#020617',
-                    }
-                }
-            }
+            theme: { extend: { colors: { dark: '#0f172a', darker: '#020617' } } }
         }
     </script>
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
-        .glass-nav { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); }
-        .dark .glass-nav { background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .game-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .game-card:hover { transform: scale(1.03) translateY(-12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); }
-        .math-pattern { background-color: #f8fafc; background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px); background-size: 30px 30px; }
-        .dark .math-pattern { background-color: #020617; background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px); }
-        .hero-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
-        .filter-btn.active { background-color: #6366f1; color: white; border-color: #6366f1; }
-        #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    </style>
+        :root {
+            --glow-arithmetic: rgba(6,182,212,0.35);
+            --glow-algebra:    rgba(34,197,94,0.35);
+            --glow-geometry:   rgba(99,102,241,0.35);
+            --glow-logic:      rgba(245,158,11,0.35);
+            --glow-stats:      rgba(168,85,247,0.35);
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; overflow-x: hidden; }
+        .glass-nav { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); }
+        .dark .glass-nav { background: rgba(15,23,42,0.85); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-    <style>
+        /* ── Math float bg symbols ── */
+        .math-pattern {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+            background-size: 30px 30px;
+            position: relative;
+        }
+        .dark .math-pattern { background-color: #020617; background-image: radial-gradient(#1e293b 0.5px, transparent 0.5px); }
+
+        #float-symbols {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .fsym {
+            position: absolute;
+            font-size: clamp(1.2rem, 3vw, 2.8rem);
+            font-weight: 900;
+            color: #6366f1;
+            opacity: 0.045;
+            animation: floatUp linear infinite;
+            user-select: none;
+        }
+        .dark .fsym { color: #818cf8; opacity: 0.06; }
+        @keyframes floatUp {
+            0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.06; }
+            90%  { opacity: 0.06; }
+            100% { transform: translateY(-15vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ── Game cards ── */
+        .game-card {
+            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275),
+                        box-shadow 0.4s ease, opacity 0.5s ease;
+            position: relative;
+            overflow: visible;
+        }
+        .game-card.card-hidden { opacity: 0; transform: translateY(28px) scale(0.97); pointer-events: none; }
+        .game-card.card-visible { opacity: 1; transform: none; }
+
+        /* category glow on hover */
+        .game-card[data-category="arithmetic"]:hover { box-shadow: 0 22px 50px var(--glow-arithmetic), 0 0 0 1px rgba(6,182,212,0.2); transform: scale(1.03) translateY(-10px); }
+        .game-card[data-category="algebra"]:hover    { box-shadow: 0 22px 50px var(--glow-algebra),    0 0 0 1px rgba(34,197,94,0.2);  transform: scale(1.03) translateY(-10px); }
+        .game-card[data-category="geometry"]:hover   { box-shadow: 0 22px 50px var(--glow-geometry),   0 0 0 1px rgba(99,102,241,0.2); transform: scale(1.03) translateY(-10px); }
+        .game-card[data-category="logic"]:hover      { box-shadow: 0 22px 50px var(--glow-logic),      0 0 0 1px rgba(245,158,11,0.2); transform: scale(1.03) translateY(-10px); }
+        .game-card[data-category="stats"]:hover      { box-shadow: 0 22px 50px var(--glow-stats),      0 0 0 1px rgba(168,85,247,0.2); transform: scale(1.03) translateY(-10px); }
+
+        /* Shimmer effect on card thumbnail */
+        .card-thumb::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.12) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        .game-card:hover .card-thumb::after { transform: translateX(100%); }
+
+        /* ── Hero gradient ── */
+        .hero-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+
+        /* ── Hero animated mesh ── */
+        .hero-mesh {
+            background:
+              radial-gradient(ellipse 60% 50% at 20% 60%, rgba(99,102,241,0.18) 0%, transparent 70%),
+              radial-gradient(ellipse 50% 40% at 80% 30%, rgba(168,85,247,0.15) 0%, transparent 70%);
+            animation: meshPulse 6s ease-in-out infinite alternate;
+        }
+        @keyframes meshPulse {
+            0%   { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* ── Filter buttons ── */
+        .filter-btn {
+            position: relative; overflow: hidden;
+            transition: all 0.25s ease;
+        }
+        .filter-btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            opacity: 0; transition: opacity 0.25s;
+            border-radius: inherit;
+        }
+        .filter-btn.active::before { opacity: 1; }
+        .filter-btn.active { color: white !important; border-color: transparent !important; }
+        .filter-btn span { position: relative; z-index: 1; }
+        .filter-btn.active { box-shadow: 0 4px 18px rgba(99,102,241,0.4); }
+
+        /* ── Leaderboard progress bars ── */
+        .lb-bar { height: 4px; border-radius: 99px; background: #e2e8f0; overflow: hidden; margin-top: 4px; }
+        .dark .lb-bar { background: #1e293b; }
+        .lb-bar-fill {
+            height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7);
+            border-radius: 99px;
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 1s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .lb-bar-fill.animated { transform: scaleX(1); }
+
+        /* ── AI panel cards ── */
+        .ai-card {
+            background: linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(168,85,247,0.07) 100%);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 1rem; padding: 0.85rem 1rem;
+            margin-bottom: 0.6rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .ai-card:hover { border-color: rgba(99,102,241,0.4); transform: translateX(4px); }
+        .dark .ai-card { background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(168,85,247,0.08) 100%); }
+
+        /* ── Category dot ── */
+        .cat-dot {
+            display: inline-block; width: 8px; height: 8px;
+            border-radius: 50%; margin-right: 6px; vertical-align: middle;
+            flex-shrink: 0;
+        }
+
         /* ── Toast ── */
         #mp-toast {
             position: fixed; bottom: 1.75rem; left: 50%;
@@ -59,72 +166,61 @@
 
         /* ── Back to Top ── */
         #mp-btt {
-            position: fixed; bottom: 1.75rem; right: 1.5rem;
-            z-index: 900; width: 3rem; height: 3rem;
-            border-radius: 50%; background: #6366f1; color: #fff;
+            position: fixed; bottom: 1.75rem; right: 1.5rem; z-index: 900;
+            width: 3rem; height: 3rem; border-radius: 50%;
+            background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff;
             border: none; cursor: pointer; font-size: 1.1rem;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 20px rgba(99,102,241,0.45);
+            box-shadow: 0 4px 20px rgba(99,102,241,0.5);
             opacity: 0; transform: translateY(16px);
-            transition: opacity 0.3s, transform 0.3s, background 0.2s;
+            transition: opacity 0.3s, transform 0.3s;
             pointer-events: none;
         }
         #mp-btt.mp-visible { opacity: 1; transform: translateY(0); pointer-events: all; }
-        #mp-btt:hover { background: #4f46e5; transform: translateY(-3px) !important; }
+        #mp-btt:hover { transform: translateY(-3px) !important; box-shadow: 0 8px 28px rgba(99,102,241,0.65); }
 
-        /* ── Game Count Bar ── */
+        /* ── Count bar ── */
         #mp-count-bar {
             text-align: center; font-size: 0.78rem; font-weight: 700;
             color: #94a3b8; letter-spacing: 0.06em;
-            padding: 0.2rem 0 0.5rem;
-            transition: color 0.2s;
+            padding: 0.2rem 0 0.5rem; transition: color 0.2s;
         }
         .dark #mp-count-bar { color: #475569; }
 
-        /* ── Keyboard Hint ── */
+        /* ── Keyboard hint ── */
         #mp-kbd-hint {
             display: flex; align-items: center; justify-content: center;
-            gap: 0.4rem; font-size: 0.7rem; color: #94a3b8;
-            margin-top: 0.3rem;
+            gap: 0.4rem; font-size: 0.7rem; color: #94a3b8; margin-top: 0.3rem;
         }
         #mp-kbd-hint kbd {
-            background: #e2e8f0; color: #475569;
-            border-radius: 4px; padding: 1px 7px;
-            font-family: monospace; font-size: 0.75rem;
+            background: #e2e8f0; color: #475569; border-radius: 4px;
+            padding: 1px 7px; font-family: monospace; font-size: 0.75rem;
             border: 1px solid #cbd5e1;
         }
         .dark #mp-kbd-hint { color: #475569; }
         .dark #mp-kbd-hint kbd { background: #1e293b; color: #64748b; border-color: #334155; }
 
-        /* ── Daily Challenge highlight ── */
-        .mp-daily-card {
-            outline: 3px solid #f59e0b !important;
-            outline-offset: 3px;
-        }
+        /* ── Daily badge ── */
+        .mp-daily-card { outline: 3px solid #f59e0b !important; outline-offset: 3px; }
         .mp-daily-badge {
-            position: absolute; top: -13px; left: 50%;
-            transform: translateX(-50%);
+            position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(90deg,#f59e0b,#f97316);
             color: #fff; font-size: 0.6rem; font-weight: 900;
             text-transform: uppercase; letter-spacing: 0.12em;
-            padding: 3px 14px; border-radius: 999px;
-            white-space: nowrap; z-index: 20;
-            box-shadow: 0 2px 10px rgba(245,158,11,0.4);
-            pointer-events: none;
+            padding: 3px 14px; border-radius: 999px; white-space: nowrap; z-index: 20;
+            box-shadow: 0 2px 10px rgba(245,158,11,0.45); pointer-events: none;
         }
 
-        /* ── Streak pill (sidebar) ── */
+        /* ── Streak pill ── */
         #mp-streak-pill {
             display: flex; align-items: center; justify-content: space-between;
             background: linear-gradient(135deg,#6366f1,#8b5cf6);
-            color: #fff; border-radius: 1rem; padding: 0.85rem 1rem;
-            margin-bottom: 0.5rem;
+            color: #fff; border-radius: 1rem; padding: 0.85rem 1rem; margin-bottom: 0.5rem;
         }
         #mp-streak-pill .mp-snum { font-size: 1.9rem; font-weight: 900; line-height: 1; }
-        #mp-streak-pill .mp-slabel { font-size: 0.65rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.85; }
+        #mp-streak-pill .mp-slabel { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.85; }
 
-        /* ── Recently played items (sidebar) ── */
+        /* ── Recent links ── */
         .mp-recent-link {
             display: flex; align-items: center; gap: 0.55rem;
             padding: 0.55rem 0.75rem; border-radius: 0.75rem;
@@ -135,10 +231,9 @@
         .dark .mp-recent-link { background: rgba(30,41,59,0.55); color: #cbd5e1; }
         .mp-recent-link:hover { background: #e0e7ff; }
         .dark .mp-recent-link:hover { background: rgba(99,102,241,0.18); }
-        .mp-rdot { width: 7px; height: 7px; border-radius: 50%;
-            background: #6366f1; flex-shrink: 0; }
+        .mp-rdot { width: 7px; height: 7px; border-radius: 50%; background: #6366f1; flex-shrink: 0; }
 
-        /* ── Footer stats strip ── */
+        /* ── Footer ── */
         #mp-footer {
             background: #fff; border-top: 1px solid #e2e8f0;
             padding: 0.9rem 1.5rem;
@@ -147,28 +242,99 @@
         }
         .dark #mp-footer { background: #0f172a; border-color: #1e293b; color: #475569; }
         #mp-footer strong { color: #6366f1; font-size: 1.05rem; margin-right: 3px; }
+
+        /* ── Animated number count-up ── */
+        .count-anim { display: inline-block; }
+
+        /* ── New badge ── */
+        .new-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: linear-gradient(90deg,#f59e0b,#ef4444);
+            color: #fff; font-size: 0.55rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            padding: 2px 8px; border-radius: 99px;
+            box-shadow: 0 2px 8px rgba(245,158,11,0.4);
+            animation: pulse-badge 2s ease-in-out infinite;
+        }
+        @keyframes pulse-badge { 0%,100%{box-shadow:0 2px 8px rgba(245,158,11,0.4)} 50%{box-shadow:0 4px 16px rgba(245,158,11,0.7)} }
+
+        /* ── Hero title gradient animation ── */
+        .hero-title-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 40%, #ec4899 70%, #6366f1 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s linear infinite;
+        }
+        @keyframes gradientShift {
+            0%   { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* ── Section reveal ── */
+        .reveal-section {
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal-section.revealed { opacity: 1; transform: none; }
+
+        /* ── Card enter animation stagger ── */
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(32px) scale(0.96); }
+            to   { opacity: 1; transform: none; }
+        }
+        .card-enter { animation: cardReveal 0.5s cubic-bezier(0.34,1.2,0.64,1) both; }
+
+        /* ── Scroll progress bar ── */
+        #mp-progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            width: 0%; transition: width 0.1s linear;
+            box-shadow: 0 0 10px rgba(99,102,241,0.6);
+        }
+
+        /* mobile menu */
+        #mobile-menu { transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+
+        /* ── Section heading accent ── */
+        .section-heading::before {
+            content: '';
+            display: inline-block; width: 12px; height: 12px;
+            background: linear-gradient(135deg,#6366f1,#a855f7);
+            border-radius: 3px; margin-right: 10px; vertical-align: middle;
+            transform: rotate(45deg);
+        }
+
+        @media(prefers-reduced-motion:reduce){
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
 <body class="math-pattern text-slate-900 dark:text-slate-100 min-h-screen">
 
+    <!-- Scroll progress -->
+    <div id="mp-progress-bar" aria-hidden="true"></div>
+
+    <!-- Floating math symbols background -->
+    <div id="float-symbols" aria-hidden="true"></div>
+
+    <!-- Overlay -->
     <button id="menu-overlay" type="button" aria-label="Close menu" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm"></button>
 
-    <!-- ═══ MOBILE SIDEBAR MENU ═══ -->
+    <!-- ═══ MOBILE SIDEBAR ═══ -->
     <div id="mobile-menu" class="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white dark:bg-dark z-[70] translate-x-full shadow-2xl flex flex-col p-6">
         <div class="flex justify-between items-center mb-8">
-            <h2 class="text-xl font-extrabold">Settings & Search</h2>
-            <button id="close-menu-btn" type="button" aria-label="Close settings menu" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-2xl">&times;</button>
+            <h2 class="text-xl font-extrabold">Settings &amp; Search</h2>
+            <button id="close-menu-btn" type="button" aria-label="Close menu" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-2xl">&times;</button>
         </div>
-
         <div class="space-y-4">
             <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Quick Find</p>
             <div class="relative">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <label for="mobileSearch" class="sr-only">Search challenges</label>
-                <input type="text" id="mobileSearch" placeholder="Search challenges..."
+                <input type="text" id="mobileSearch" placeholder="Search challenges…"
                     class="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
-
             <div class="pt-6">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Stats</p>
                 <div class="p-4 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 rounded-2xl flex justify-between items-center">
@@ -176,7 +342,6 @@
                     <span class="text-xl font-black">18</span>
                 </div>
             </div>
-
             <div class="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Dashboard Tools</p>
                 <a href="#leaderboardPanel" class="block p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
@@ -192,82 +357,94 @@
     </div>
 
     <!-- ═══ NAVBAR ═══ -->
-    <nav class="glass-nav sticky top-0 z-50 border-b border-slate-200">
+    <nav class="glass-nav sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-2 select-none">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
+                    <i class="fas fa-infinity text-white text-sm"></i>
+                </div>
+                <span class="font-black text-lg tracking-tight hidden sm:block" style="font-family:'Space Grotesk',sans-serif">Math<span class="text-indigo-600">Portal</span></span>
+            </a>
             <div class="flex items-center gap-3">
-                <button id="theme-toggle-btn" type="button" aria-label="Toggle dark mode" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
+                <button id="theme-toggle-btn" type="button" aria-label="Toggle dark mode"
+                    class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:ring-2 ring-indigo-500 transition-all">
                     <i id="theme-icon" class="fas fa-moon"></i>
                 </button>
-                <button id="open-menu-btn" type="button" aria-label="Open settings menu" class="p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+                <button id="open-menu-btn" type="button" aria-label="Open settings menu"
+                    class="p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-indigo-500 transition-colors">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- ═══ HEADER ═══ -->
-    <header class="max-w-7xl mx-auto px-6 pt-16 pb-8 text-center">
-        <span class="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-900/20 rounded-full">Ready to Play?</span>
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight">
-            Select Your <span class="text-transparent bg-clip-text hero-gradient">Challenge</span>
+    <!-- ═══ HERO HEADER ═══ -->
+    <header class="hero-mesh max-w-7xl mx-auto px-6 pt-16 pb-8 text-center relative z-10">
+        <span class="inline-block px-4 py-1.5 mb-6 text-sm font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-900/20 rounded-full border border-indigo-100 dark:border-indigo-900/40">
+            ✦ Ready to Play?
+        </span>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight" style="font-family:'Space Grotesk',sans-serif; line-height:1.08">
+            Select Your <span class="hero-title-gradient">Challenge</span>
         </h1>
 
         <div class="max-w-2xl mx-auto space-y-6">
             <div class="relative group hidden md:block">
                 <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
                 <label for="gameSearch" class="sr-only">Search for a math topic</label>
-                <input type="text" id="gameSearch" placeholder="Search for a topic (e.g. Algebra)..."
-                    class="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:text-white">
+                <input type="text" id="gameSearch" placeholder="Search for a topic (e.g. Algebra)…"
+                    class="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white">
             </div>
 
+            <!-- Filter buttons -->
             <div class="flex flex-wrap justify-center gap-2">
-                <button type="button" data-category="all" class="filter-btn active px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">All</button>
-                <button type="button" data-category="arithmetic" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Arithmetic</button>
-                <button type="button" data-category="algebra" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Algebra</button>
-                <button type="button" data-category="geometry" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Geometry</button>
-                <button type="button" data-category="logic" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold hover:border-indigo-500 transition-all">Logic & Algorithms</button>
+                <button type="button" data-category="all" class="filter-btn active px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold transition-all"><span>All</span></button>
+                <button type="button" data-category="arithmetic" class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold transition-all"><span>Arithmetic</span></button>
+                <button type="button" data-category="algebra"    class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold transition-all"><span>Algebra</span></button>
+                <button type="button" data-category="geometry"   class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold transition-all"><span>Geometry</span></button>
+                <button type="button" data-category="logic"      class="filter-btn px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold transition-all"><span>Logic &amp; Algorithms</span></button>
             </div>
         </div>
     </header>
 
     <!-- ═══ LEADERBOARD + AI ═══ -->
-    <section class="max-w-7xl mx-auto px-6 pb-10">
+    <section class="max-w-7xl mx-auto px-6 pb-10 relative z-10 reveal-section">
         <div class="grid lg:grid-cols-2 gap-6">
+
+            <!-- Leaderboard -->
             <article id="leaderboardPanel" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg scroll-mt-24">
                 <div class="flex items-center justify-between mb-5">
-                    <h2 class="text-2xl font-extrabold">Leaders Board</h2>
-                    <span class="text-xs uppercase tracking-widest font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">High Scores</span>
+                    <h2 class="text-2xl font-extrabold section-heading">Leaders Board</h2>
+                    <span class="text-xs uppercase tracking-widest font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full border border-emerald-100 dark:border-emerald-900/30">High Scores</span>
                 </div>
                 <div id="leaderboardList" class="space-y-3 text-sm"></div>
             </article>
 
+            <!-- AI Guide -->
             <article id="aiGuidePanel" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg scroll-mt-24">
                 <div class="flex items-center justify-between mb-5">
-                    <h2 class="text-2xl font-extrabold">AI Solution Coach</h2>
-                    <span class="text-xs uppercase tracking-widest font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Predictions</span>
+                    <h2 class="text-2xl font-extrabold section-heading">AI Solution Coach</h2>
+                    <span class="text-xs uppercase tracking-widest font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/30">Predictions</span>
                 </div>
-                <div id="aiPredictionList" class="space-y-3 text-sm max-h-80 overflow-auto pr-1"></div>
+                <div id="aiPredictionList" class="space-y-1 text-sm max-h-80 overflow-auto pr-1 custom-scroll"></div>
             </article>
         </div>
     </section>
 
-    <!-- ═══ MAIN GAME GRID ═══ -->
-    <main class="max-w-7xl mx-auto px-6 pb-24">
-        <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
+    <!-- ═══ GAME GRID ═══ -->
+    <main class="max-w-7xl mx-auto px-6 pb-24 relative z-10">
+        <div id="gameGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            <!-- Magic Square -->
+            <!-- ① Magic Square -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-900 to-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
-                    <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 0deg, transparent, #06b6d4, transparent); animation: spin 4s linear infinite;"></div>
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-900 to-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
+                    <div class="absolute inset-0 opacity-10" style="background-image:conic-gradient(from 0deg,transparent,#06b6d4,transparent);animation:spin 4s linear infinite"></div>
                     <div class="z-10 grid grid-cols-3 gap-1 mb-2">
-                        <script>
-                            for(let i=0; i<9; i++) {
-                                const op = [0.5, 1, 0.5, 1, 0.2, 1, 0.5, 1, 0.5][i];
-                                document.write(`<div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity: ${op}"></div>`);
-                            }
-                        </script>
+                        <div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity:.5"></div><div class="w-4 h-4 rounded-sm bg-cyan-500"></div><div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity:.5"></div>
+                        <div class="w-4 h-4 rounded-sm bg-cyan-500"></div><div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity:.2"></div><div class="w-4 h-4 rounded-sm bg-cyan-500"></div>
+                        <div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity:.5"></div><div class="w-4 h-4 rounded-sm bg-cyan-500"></div><div class="w-4 h-4 rounded-sm bg-cyan-500" style="opacity:.5"></div>
                     </div>
-                    <div class="z-10 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Protocol Lo Shu</div>
+                    <div class="z-10 text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Protocol Lo Shu</div>
                 </div>
                 <div class="px-2">
                     <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Arithmetic Balance</span>
@@ -279,23 +456,29 @@
                 </div>
             </div>
 
-            <div class="game-card ..." data-category="logic">
-  <!-- thumbnail -->
-  <i class="fas fa-magnifying-glass text-5xl text-amber-400 z-10"></i>
-  <div class="z-10 mt-3 mono text-[9px] font-black text-amber-500 uppercase tracking-[0.4em]">Noir Mystery</div>
-  <!-- card body -->
-  <span ...>Number Theory</span>
-  <h3 ...>The Prime Suspect</h3>
-  <p ...>Crack encrypted clues using primes, factors and LCM to unmask the Composite.</p>
-  <a href="primesuspect.html" ...>Open Case File</a>
-</div>
-
-            <!-- Deduction Protocol -->
+            <!-- ② The Prime Suspect  ★ FIXED ★ -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-indigo-900 via-slate-900 to-amber-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
-                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-amber-900 via-slate-900 to-yellow-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-amber-500/30">
+                    <div class="absolute inset-0 opacity-15" style="background-image:radial-gradient(#f59e0b 1px,transparent 1px);background-size:18px 18px"></div>
+                    <i class="fas fa-magnifying-glass text-5xl text-amber-400 z-10 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]"></i>
+                    <div class="z-10 mt-3 text-[9px] font-black text-amber-500 uppercase tracking-[0.4em]">Noir Mystery</div>
+                </div>
+                <div class="px-2">
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 px-3 py-1 rounded-full">Number Theory</span>
+                    <h3 class="text-2xl font-bold mt-3 mb-2">The Prime Suspect</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Crack encrypted clues using primes, factors and LCM to unmask the Composite.</p>
+                    <a href="primesuspect.html" class="flex items-center justify-center w-full py-4 bg-amber-600 text-white rounded-2xl font-bold hover:bg-amber-500 transition-all shadow-lg shadow-amber-200 dark:shadow-none">
+                        <i class="fas fa-file-circle-question mr-2 text-xs"></i> Open Case File
+                    </a>
+                </div>
+            </div>
+
+            <!-- ③ Deduction Protocol -->
+            <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-tr from-indigo-900 via-slate-900 to-amber-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
+                    <div class="absolute inset-0 opacity-20" style="background-image:linear-gradient(#334155 1px,transparent 1px),linear-gradient(90deg,#334155 1px,transparent 1px);background-size:10px 10px"></div>
                     <i class="fas fa-table-cells text-5xl text-indigo-400 z-10 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]"></i>
-                    <div class="z-10 mt-3 mono text-[9px] font-black text-amber-500 uppercase tracking-[0.4em]">Elimination Strategy</div>
+                    <div class="z-10 mt-3 text-[9px] font-black text-amber-500 uppercase tracking-[0.4em]">Elimination Strategy</div>
                 </div>
                 <div class="px-2">
                     <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Logic Puzzle</span>
@@ -307,49 +490,49 @@
                 </div>
             </div>
 
-            <!-- Pattern Detective -->
+            <!-- ④ Pattern Detective -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-                <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
-                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#10b981 1px, transparent 1px); background-size: 15px 15px;"></div>
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
+                    <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(#10b981 1px,transparent 1px);background-size:15px 15px"></div>
                     <div class="z-10 flex gap-2 mb-2">
-                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-500 font-bold">2</div>
-                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-500 font-bold">6</div>
-                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center mono text-emerald-400 font-bold">?</div>
+                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center font-bold text-emerald-500">2</div>
+                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center font-bold text-emerald-500">6</div>
+                        <div class="w-8 h-8 rounded bg-emerald-500/20 border border-emerald-500 flex items-center justify-center font-bold text-emerald-400">?</div>
                     </div>
                     <i class="fas fa-brain text-4xl text-emerald-500 z-10 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"></i>
-                    <div class="z-10 mt-3 mono text-[9px] font-black text-emerald-500 uppercase tracking-[0.4em]">Protocol Sigma</div>
+                    <div class="z-10 mt-3 text-[9px] font-black text-emerald-500 uppercase tracking-[0.4em]">Protocol Sigma</div>
                 </div>
                 <div class="px-2">
                     <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Reasoning Trap</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Pattern Detective</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Detect shifting logic protocols. You must identify the number AND the rule to verify the sequence.</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Detect shifting logic protocols. Identify the number AND the rule to verify the sequence.</p>
                     <a href="sequence.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
                         <i class="fas fa-terminal mr-2 text-xs"></i> Initialize Decoder
                     </a>
                 </div>
             </div>
 
-            <!-- Algebra Snake -->
+            <!-- ⑤ Algebra Snake -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-slate-900 to-emerald-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
-                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#22c55e 1px, transparent 1px); background-size: 15px 15px;"></div>
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-slate-900 to-emerald-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-emerald-500/30">
+                    <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(#22c55e 1px,transparent 1px);background-size:15px 15px"></div>
                     <i class="fas fa-vector-square text-6xl text-emerald-500 z-10 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]"></i>
-                    <div class="z-10 mt-2 mono text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em]">Protocol Alpha</div>
+                    <div class="z-10 mt-2 text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em]">Protocol Alpha</div>
                 </div>
                 <div class="px-2">
                     <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Quick Calculation</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Algebra Snake</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve linear equations to grow your snake. Avoid the wrong answers to prevent system corruption!</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve linear equations to grow your snake. Avoid wrong answers to prevent system corruption!</p>
                     <a href="snake.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
                         <i class="fas fa-play mr-2 text-xs"></i> Initialize Game
                     </a>
                 </div>
             </div>
 
-            <!-- Probability Vault -->
+            <!-- ⑥ Probability Vault -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="stats">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-white relative overflow-hidden">
-                    <i class="fas fa-sync-alt text-6xl opacity-20 absolute animate-spin-slow"></i>
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-white relative overflow-hidden">
+                    <i class="fas fa-sync-alt text-6xl opacity-20 absolute" style="animation:spin 6s linear infinite"></i>
                     <div class="z-10 text-center">
                         <div class="text-xs font-black uppercase tracking-widest opacity-70">Vault Bridge</div>
                         <div class="text-4xl font-black">PROBABILITY</div>
@@ -359,13 +542,13 @@
                     <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full">Statistics</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Probability Vault</h3>
                     <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Predict the odds and unlock the Vault.</p>
-                    <a href="probability.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200">Test Your Luck</a>
+                    <a href="probability.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200 dark:shadow-none">Test Your Luck</a>
                 </div>
             </div>
 
-            <!-- Math Millionaire -->
+            <!-- ⑦ Math Millionaire -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-blue-900 to-black flex items-center justify-center text-white relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-blue-900 to-black flex items-center justify-center text-white relative overflow-hidden">
                     <i class="fas fa-trophy text-6xl text-amber-500 z-10 shadow-2xl"></i>
                     <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
                 </div>
@@ -377,10 +560,10 @@
                 </div>
             </div>
 
-            <!-- Graph Master -->
+            <!-- ⑧ Graph Master -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-                <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
-                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#4f46e5 1px, transparent 1px), linear-gradient(90deg, #4f46e5 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-slate-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-indigo-500/30">
+                    <div class="absolute inset-0 opacity-20" style="background-image:linear-gradient(#4f46e5 1px,transparent 1px),linear-gradient(90deg,#4f46e5 1px,transparent 1px);background-size:20px 20px"></div>
                     <i class="fas fa-chart-line text-6xl text-indigo-500 z-10"></i>
                 </div>
                 <div class="px-2">
@@ -391,23 +574,26 @@
                 </div>
             </div>
 
-            <!-- Fraction Frenzy -->
+            <!-- ⑨ Fraction Frenzy -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-cyan-500 flex flex-col items-center justify-center text-white relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-cyan-500 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <div class="text-4xl font-mono font-bold z-10">¾ vs ⅚</div>
                     <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                 </div>
                 <div class="px-2">
-                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">New Release</span>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">Arithmetic</span>
+                        <span class="new-badge">⚡ New</span>
+                    </div>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Fraction Frenzy</h3>
                     <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2">Visual comparison and arithmetic battle. Master the number line!</p>
                     <a href="fractions.html" class="flex items-center justify-center w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">Play Blitz</a>
                 </div>
             </div>
 
-            <!-- Target Practice -->
+            <!-- ⑩ Target Practice -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-900 to-black flex items-center justify-center text-white relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-900 to-black flex items-center justify-center text-white relative overflow-hidden">
                     <div class="absolute w-32 h-32 border-4 border-dashed border-amber-500/30 rounded-full"></div>
                     <i class="fas fa-bullseye text-6xl text-amber-500 z-10 animate-pulse"></i>
                 </div>
@@ -419,9 +605,9 @@
                 </div>
             </div>
 
-            <!-- Speed Arithmetic -->
+            <!-- ⑪ Speed Arithmetic -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-yellow-400 to-orange-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <i class="fas fa-bolt text-6xl z-10 opacity-90 animate-pulse"></i>
                     <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/circuit-board.png')]"></div>
                 </div>
@@ -433,9 +619,9 @@
                 </div>
             </div>
 
-            <!-- Memory Pro -->
+            <!-- ⑫ Memory Pro -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-600 to-purple-700 flex flex-col items-center justify-center text-white relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-600 to-purple-700 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <i class="fas fa-brain text-6xl z-10 opacity-90"></i>
                     <div class="absolute top-2 right-4 text-4xl opacity-10 font-bold">∑</div>
                     <div class="absolute bottom-2 left-4 text-4xl opacity-10 font-bold">√</div>
@@ -448,9 +634,9 @@
                 </div>
             </div>
 
-            <!-- Divisibility Rules -->
+            <!-- ⑬ Divisibility Rules -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-400 to-blue-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-cyan-400 to-blue-600 flex flex-col items-center justify-center text-white relative overflow-hidden">
                     <span class="text-6xl z-10 font-bold">÷</span>
                 </div>
                 <div class="px-2">
@@ -461,22 +647,22 @@
                 </div>
             </div>
 
-            <!-- Tug of War -->
+            <!-- ⑭ Tug of War -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="arithmetic">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-red-500 to-indigo-600 flex items-center justify-center text-white overflow-hidden relative">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-red-500 to-indigo-600 flex items-center justify-center text-white overflow-hidden relative">
                     <i class="fas fa-hands-helping text-6xl opacity-80 rotate-12"></i>
                 </div>
                 <div class="px-2">
                     <span class="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-widest bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-full">Arithmetic Battle</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Tug of War</h3>
                     <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Fast-paced mental math battle. Pull the rope to your side!</p>
-                    <a href="tugofwar.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200">Enter Arena</a>
+                    <a href="tugofwar.html" class="flex items-center justify-center w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200 dark:shadow-none">Enter Arena</a>
                 </div>
             </div>
 
-            <!-- Escape Algebra -->
+            <!-- ⑮ Escape Algebra -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white overflow-hidden relative">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white overflow-hidden relative">
                     <i class="fas fa-door-open text-6xl opacity-80"></i>
                 </div>
                 <div class="px-2">
@@ -487,9 +673,9 @@
                 </div>
             </div>
 
-            <!-- Geometry Proofs -->
+            <!-- ⑯ Geometry Proofs -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-white overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-white overflow-hidden">
                     <i class="fas fa-shapes text-6xl opacity-80"></i>
                 </div>
                 <div class="px-2">
@@ -500,9 +686,9 @@
                 </div>
             </div>
 
-            <!-- Quadratic Equation -->
+            <!-- ⑰ Quadratic Equation -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="algebra">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white relative overflow-hidden">
                     <div class="text-2xl font-mono italic z-10">ax² + bx + c = 0</div>
                 </div>
                 <div class="px-2">
@@ -513,9 +699,9 @@
                 </div>
             </div>
 
-            <!-- Flowchart Logic -->
+            <!-- ⑱ Flowchart Logic -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="logic">
-                <div class="rounded-3xl h-44 mb-6 bg-slate-900 flex items-center justify-center text-cyan-400 border border-slate-700 relative overflow-hidden">
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-slate-900 flex items-center justify-center text-cyan-400 border border-slate-700 relative overflow-hidden">
                     <i class="fas fa-microchip text-6xl z-10"></i>
                 </div>
                 <div class="px-2">
@@ -526,211 +712,118 @@
                 </div>
             </div>
 
-            <!-- ══ TRIG TOWER — NEW CARD ══ -->
+            <!-- ⑲ Trig Tower -->
             <div class="game-card bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 shadow-xl border border-slate-100 dark:border-slate-800" data-category="geometry">
-                <div class="rounded-3xl h-44 mb-6 bg-gradient-to-tr from-cyan-900 via-slate-900 to-violet-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
-                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px); background-size: 10px 10px;"></div>
+                <div class="card-thumb rounded-3xl h-44 mb-6 bg-gradient-to-tr from-cyan-900 via-slate-900 to-violet-900 flex flex-col items-center justify-center text-white relative overflow-hidden border border-cyan-500/30">
+                    <div class="absolute inset-0 opacity-20" style="background-image:linear-gradient(#334155 1px,transparent 1px),linear-gradient(90deg,#334155 1px,transparent 1px);background-size:10px 10px"></div>
                     <i class="fas fa-building text-5xl text-cyan-400 z-10 drop-shadow-[0_0_15px_rgba(0,212,255,0.5)]"></i>
-                    <div class="z-10 mt-3 mono text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Build & Conquer</div>
+                    <div class="z-10 mt-3 text-[9px] font-black text-cyan-400 uppercase tracking-[0.4em]">Build &amp; Conquer</div>
                 </div>
                 <div class="px-2">
                     <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-50 dark:bg-cyan-900/20 px-3 py-1 rounded-full">Trigonometry</span>
                     <h3 class="text-2xl font-bold mt-3 mb-2">Trig Tower</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve sin, cos and tan problems to build your tower floor by floor. Wrong answers cost lives — how high can you reach?</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-2 leading-relaxed">Solve sin, cos and tan problems to build your tower floor by floor. Wrong answers cost lives!</p>
                     <a href="trigtower.html" class="flex items-center justify-center w-full py-4 bg-cyan-600 text-white rounded-2xl font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-200 dark:shadow-none">
                         <i class="fas fa-layer-group mr-2 text-xs"></i> Launch Tower
                     </a>
                 </div>
             </div>
 
-        </div>
+        </div><!-- /gameGrid -->
 
         <div id="noResults" class="hidden text-center py-20">
-            <i class="fas fa-search text-4xl text-slate-300 mb-4"></i>
+            <i class="fas fa-search text-4xl text-slate-300 mb-4 block"></i>
             <h3 class="text-xl font-bold text-slate-500">No matching challenges found.</h3>
         </div>
     </main>
 
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const overlay = document.getElementById('menu-overlay');
-            if (!menu || !overlay) return;
-            const isOpen = !menu.classList.contains('translate-x-full');
-            if (isOpen) {
-                menu.classList.add('translate-x-full');
-                overlay.classList.add('hidden');
-                document.body.style.overflow = '';
-            } else {
-                menu.classList.remove('translate-x-full');
-                overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const icon = document.getElementById('theme-icon');
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                if (icon) icon.className = 'fas fa-moon';
-                localStorage.theme = 'light';
-            } else {
-                html.classList.add('dark');
-                if (icon) icon.className = 'fas fa-sun';
-                localStorage.theme = 'dark';
-            }
-        }
-
-        const desktopSearch = document.getElementById('gameSearch');
-        const mobileSearch  = document.getElementById('mobileSearch');
-        const cards         = document.querySelectorAll('.game-card');
-        const filterBtns    = document.querySelectorAll('.filter-btn');
-        const noResults     = document.getElementById('noResults');
-        const leaderboardList  = document.getElementById('leaderboardList');
-        const aiPredictionList = document.getElementById('aiPredictionList');
-        const menuOverlay   = document.getElementById('menu-overlay');
-        const openMenuBtn   = document.getElementById('open-menu-btn');
-        const closeMenuBtn  = document.getElementById('close-menu-btn');
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        let activeCategory  = 'all';
-
-        function extractHighScore(slug) {
-            const values = [];
-            const pushNumber = (raw) => {
-                const score = Number(raw);
-                if (Number.isFinite(score) && score >= 0) values.push(score);
-            };
-            const exactKey = `${slug}HighScore`;
-            pushNumber(localStorage.getItem(exactKey));
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (!key || !key.toLowerCase().includes(slug.toLowerCase()) || !key.toLowerCase().includes('score')) continue;
-                pushNumber(localStorage.getItem(key));
-            }
-            return values.length ? Math.max(...values) : 0;
-        }
-
-        function renderLeaderboard() {
-            const scores = [...cards].map((card) => {
-                const title = card.querySelector('h3')?.innerText.trim() || 'Game';
-                const href  = card.querySelector('a')?.getAttribute('href') || '';
-                const slug  = href.replace('.html', '').toLowerCase();
-                return { title, score: extractHighScore(slug) };
-            }).sort((a, b) => b.score - a.score).slice(0, 6);
-
-            if (!leaderboardList) return;
-            leaderboardList.innerHTML = scores.map((entry, index) => `
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-                    <div class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">${index + 1}</span>
-                        <div>
-                            <p class="font-bold">${entry.title}</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Top performance</p>
-                        </div>
-                    </div>
-                    <span class="text-lg font-black text-emerald-600">${entry.score || '—'}</span>
-                </div>
-            `).join('');
-        }
-
-        function buildPrediction(title, category) {
-            const categoryHints = {
-                arithmetic: 'prioritize speed rounds, begin with easiest operators, and use estimation before committing.',
-                algebra:    'predict variable isolation steps, keep coefficients balanced, and verify with substitution.',
-                geometry:   'identify known angles first, map symmetry, and infer missing values from shape properties.',
-                logic:      'eliminate impossible options early, track clues as constraints, and iterate with consistency checks.',
-                stats:      'estimate likely outcomes first, then compare to exact probability formulas for precision.'
-            };
-            return `AI predicts that in ${title}, you should ${categoryHints[category] || 'break the challenge into smaller verified steps.'}`;
-        }
-
-        function renderAiPredictions() {
-            if (!aiPredictionList) return;
-            aiPredictionList.innerHTML = [...cards].map((card) => {
-                const title    = card.querySelector('h3')?.innerText.trim() || 'Game';
-                const category = card.getAttribute('data-category');
-                return `
-                    <div class="p-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30">
-                        <p class="font-bold text-indigo-700 dark:text-indigo-300 mb-1">${title}</p>
-                        <p class="text-slate-600 dark:text-slate-300">${buildPrediction(title, category)}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterGames(category) {
-            activeCategory = category;
-            filterBtns.forEach((btn) => {
-                btn.classList.toggle('active', btn.dataset.category === category);
-            });
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const searchTerm = (desktopSearch?.value || '').toLowerCase();
-            let visibleCount = 0;
-            cards.forEach((card) => {
-                const title       = card.querySelector('h3')?.innerText.toLowerCase() || '';
-                const description = card.querySelector('p')?.innerText.toLowerCase() || '';
-                const category    = card.getAttribute('data-category');
-                const matchesSearch   = title.includes(searchTerm) || description.includes(searchTerm);
-                const matchesCategory = activeCategory === 'all' || category === activeCategory;
-                card.classList.toggle('hidden', !(matchesSearch && matchesCategory));
-                if (matchesSearch && matchesCategory) visibleCount++;
-            });
-            if (noResults) noResults.classList.toggle('hidden', visibleCount > 0);
-        }
-
-        menuOverlay?.addEventListener('click', toggleMenu);
-        openMenuBtn?.addEventListener('click', toggleMenu);
-        closeMenuBtn?.addEventListener('click', toggleMenu);
-        themeToggleBtn?.addEventListener('click', toggleDarkMode);
-        filterBtns.forEach((button) => button.addEventListener('click', () => filterGames(button.dataset.category)));
-
-        [desktopSearch, mobileSearch].forEach((input) => {
-            input?.addEventListener('input', (event) => {
-                const value = event.target.value;
-                if (desktopSearch) desktopSearch.value = value;
-                if (mobileSearch)  mobileSearch.value  = value;
-                applyFilters();
-            });
-        });
-
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            const icon = document.getElementById('theme-icon');
-            if (icon) icon.className = 'fas fa-sun';
-        }
-
-        renderLeaderboard();
-        renderAiPredictions();
-        applyFilters();
-    </script>
-
-    <!-- Toast notification -->
+    <!-- Toast -->
     <div id="mp-toast" role="status" aria-live="polite">
         <span id="mp-toast-icon">🚀</span>
         <span id="mp-toast-msg">Welcome to MathPortal!</span>
     </div>
 
-    <!-- Back to top button -->
+    <!-- Back to top -->
     <button id="mp-btt" type="button" aria-label="Back to top" title="Back to top">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- Stats footer strip -->
+    <!-- Stats footer -->
     <footer id="mp-footer" aria-label="Portal stats">
-        <span><strong id="mpf-total">18</strong> Games Available</span>
-        <span><strong id="mpf-streak">0</strong> Day Streak 🔥</span>
-        <span><strong id="mpf-today">0</strong> Played Today</span>
+        <span><strong id="mpf-total" class="count-anim">18</strong> Games Available</span>
+        <span><strong id="mpf-streak" class="count-anim">0</strong> Day Streak 🔥</span>
+        <span><strong id="mpf-today" class="count-anim">0</strong> Played Today</span>
     </footer>
 
+    <!-- ════════════════════════════════════════
+         SCRIPTS
+    ════════════════════════════════════════ -->
     <script>
     (function () {
         'use strict';
+
+        /* ── Utilities ── */
         function $(id) { return document.getElementById(id); }
 
+        /* ── Floating math symbols ── */
+        (function spawnSymbols() {
+            var symbols = ['∑','∫','√','π','∞','∂','Δ','∇','λ','θ','α','β','γ','φ','∈','⊂','⊕','×','÷','≈','≠','≡','∀','∃','±','ℝ'];
+            var container = $('float-symbols');
+            if (!container) return;
+            for (var i = 0; i < 28; i++) {
+                var el = document.createElement('span');
+                el.className = 'fsym';
+                el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                el.style.left = (Math.random() * 100) + '%';
+                el.style.animationDuration = (18 + Math.random() * 22) + 's';
+                el.style.animationDelay = -(Math.random() * 30) + 's';
+                el.style.fontSize = (1.2 + Math.random() * 2) + 'rem';
+                container.appendChild(el);
+            }
+        })();
+
+        /* ── Scroll progress bar ── */
+        window.addEventListener('scroll', function () {
+            var bar = $('mp-progress-bar');
+            if (!bar) return;
+            var doc = document.documentElement;
+            var pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+            bar.style.width = pct + '%';
+        }, { passive: true });
+
+        /* ── Dark mode ── */
+        function applyTheme(dark) {
+            var html = document.documentElement;
+            var icon = $('theme-icon');
+            if (dark) { html.classList.add('dark'); if (icon) icon.className = 'fas fa-sun'; }
+            else       { html.classList.remove('dark'); if (icon) icon.className = 'fas fa-moon'; }
+        }
+        function toggleDarkMode() {
+            var isDark = document.documentElement.classList.contains('dark');
+            localStorage.theme = isDark ? 'light' : 'dark';
+            applyTheme(!isDark);
+        }
+        var savedTheme = localStorage.theme;
+        applyTheme(savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches));
+
+        /* ── Mobile menu ── */
+        function toggleMenu() {
+            var menu = $('mobile-menu'), overlay = $('menu-overlay');
+            if (!menu || !overlay) return;
+            var isOpen = !menu.classList.contains('translate-x-full');
+            if (isOpen) { menu.classList.add('translate-x-full'); overlay.classList.add('hidden'); document.body.style.overflow = ''; }
+            else         { menu.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+        }
+        var menuOverlay   = $('menu-overlay');
+        var openMenuBtn   = $('open-menu-btn');
+        var closeMenuBtn  = $('close-menu-btn');
+        var themeToggleBtn = $('theme-toggle-btn');
+        if (menuOverlay)  menuOverlay.addEventListener('click', toggleMenu);
+        if (openMenuBtn)  openMenuBtn.addEventListener('click', toggleMenu);
+        if (closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMenu);
+        if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleDarkMode);
+
+        /* ── Toast ── */
         function showToast(msg, icon, ms) {
             var t = $('mp-toast'), m = $('mp-toast-msg'), ic = $('mp-toast-icon');
             if (!t) return;
@@ -740,64 +833,206 @@
             t._tid = setTimeout(function () { t.classList.remove('mp-show'); }, ms || 3500);
         }
 
-        function manageStreak() {
-            var today     = new Date().toDateString();
-            var yesterday = new Date(Date.now() - 864e5).toDateString();
-            var last      = localStorage.getItem('mp_last');
-            var streak    = parseInt(localStorage.getItem('mp_streak') || '0', 10);
-            if (last === today) {
-            } else if (last === yesterday) {
-                streak += 1;
-            } else {
-                streak = 1;
+        /* ── Filter & Search ── */
+        var desktopSearch = $('gameSearch');
+        var mobileSearch  = $('mobileSearch');
+        var cards         = document.querySelectorAll('.game-card');
+        var filterBtns    = document.querySelectorAll('.filter-btn');
+        var noResults     = $('noResults');
+        var activeCategory = 'all';
+
+        function applyFilters() {
+            var searchTerm = ((desktopSearch && desktopSearch.value) || '').toLowerCase();
+            var visibleCount = 0;
+            cards.forEach(function (card) {
+                var title = (card.querySelector('h3') || {}).innerText || '';
+                var desc  = (card.querySelector('p')  || {}).innerText || '';
+                var cat   = card.getAttribute('data-category');
+                var matchSearch = title.toLowerCase().includes(searchTerm) || desc.toLowerCase().includes(searchTerm);
+                var matchCat    = activeCategory === 'all' || cat === activeCategory;
+                var show = matchSearch && matchCat;
+                card.classList.toggle('hidden', !show);
+                if (show) visibleCount++;
+            });
+            if (noResults) noResults.classList.toggle('hidden', visibleCount > 0);
+            refreshCountBar();
+        }
+
+        filterBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                activeCategory = btn.dataset.category;
+                filterBtns.forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                applyFilters();
+            });
+        });
+
+        [desktopSearch, mobileSearch].forEach(function (input) {
+            if (!input) return;
+            input.addEventListener('input', function (e) {
+                var v = e.target.value;
+                if (desktopSearch) desktopSearch.value = v;
+                if (mobileSearch)  mobileSearch.value  = v;
+                applyFilters();
+            });
+        });
+
+        /* ── Count bar ── */
+        function injectCountBar() {
+            var filterRow = document.querySelector('header .flex.flex-wrap.justify-center');
+            if (!filterRow || $('mp-count-bar')) return;
+            var bar = document.createElement('div');
+            bar.id = 'mp-count-bar'; bar.setAttribute('aria-live', 'polite');
+            filterRow.after(bar);
+        }
+        function refreshCountBar() {
+            var bar = $('mp-count-bar'); if (!bar) return;
+            var total   = document.querySelectorAll('.game-card').length;
+            var visible = document.querySelectorAll('.game-card:not(.hidden)').length;
+            bar.textContent = visible === total ? 'Showing all ' + total + ' challenges' : 'Showing ' + visible + ' of ' + total + ' challenges';
+            var ft = $('mpf-total'); if (ft) ft.textContent = total;
+        }
+
+        /* ── Leaderboard ── */
+        function extractHighScore(slug) {
+            var values = [];
+            var pushN = function(raw) { var n=Number(raw); if(Number.isFinite(n)&&n>=0) values.push(n); };
+            pushN(localStorage.getItem(slug+'HighScore'));
+            for (var i=0; i<localStorage.length; i++) {
+                var k=localStorage.key(i);
+                if (!k||!k.toLowerCase().includes(slug.toLowerCase())||!k.toLowerCase().includes('score')) continue;
+                pushN(localStorage.getItem(k));
             }
+            return values.length ? Math.max.apply(null, values) : 0;
+        }
+
+        function renderLeaderboard() {
+            var lb = $('leaderboardList'); if (!lb) return;
+            var scores = Array.from(cards).map(function (card) {
+                var title = (card.querySelector('h3')||{}).innerText||'Game';
+                var href  = (card.querySelector('a')||{}).getAttribute('href')||'';
+                var slug  = href.replace('.html','').toLowerCase();
+                return { title: title, score: extractHighScore(slug) };
+            }).sort(function(a,b){ return b.score-a.score; }).slice(0,6);
+
+            var maxScore = scores[0] && scores[0].score > 0 ? scores[0].score : 1;
+            var medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+
+            lb.innerHTML = scores.map(function(entry, idx) {
+                var pct = entry.score > 0 ? (entry.score / maxScore) : 0;
+                return '<div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">' +
+                    '<div class="flex items-center justify-between">' +
+                        '<div class="flex items-center gap-3">' +
+                            '<span class="text-xl leading-none">' + medals[idx] + '</span>' +
+                            '<p class="font-bold">' + entry.title + '</p>' +
+                        '</div>' +
+                        '<span class="text-lg font-black text-emerald-600">' + (entry.score || '—') + '</span>' +
+                    '</div>' +
+                    '<div class="lb-bar mt-2"><div class="lb-bar-fill" data-pct="' + pct + '"></div></div>' +
+                '</div>';
+            }).join('');
+
+            // Animate bars after a frame
+            requestAnimationFrame(function () {
+                lb.querySelectorAll('.lb-bar-fill').forEach(function (fill) {
+                    var pct = parseFloat(fill.getAttribute('data-pct'));
+                    fill.style.transform = 'scaleX(' + pct + ')';
+                    setTimeout(function() { fill.classList.add('animated'); }, 80);
+                });
+            });
+        }
+
+        /* ── AI Predictions ── */
+        var catHints = {
+            arithmetic: 'prioritize speed rounds, begin with easiest operators, and use estimation before committing.',
+            algebra:    'predict variable isolation steps, keep coefficients balanced, and verify with substitution.',
+            geometry:   'identify known angles first, map symmetry, and infer missing values from shape properties.',
+            logic:      'eliminate impossible options early, track clues as constraints, and iterate with consistency checks.',
+            stats:      'estimate likely outcomes first, then compare to exact probability formulas for precision.'
+        };
+        var catColors = {
+            arithmetic: '#06b6d4', algebra: '#22c55e', geometry: '#6366f1', logic: '#f59e0b', stats: '#a855f7'
+        };
+
+        function renderAiPredictions() {
+            var panel = $('aiPredictionList'); if (!panel) return;
+            panel.innerHTML = Array.from(cards).map(function (card) {
+                var title = (card.querySelector('h3')||{}).innerText||'Game';
+                var cat   = card.getAttribute('data-category');
+                var hint  = catHints[cat] || 'break the challenge into smaller verified steps.';
+                var color = catColors[cat] || '#6366f1';
+                return '<div class="ai-card">' +
+                    '<div class="flex items-center gap-2 mb-1">' +
+                        '<span style="width:8px;height:8px;border-radius:50%;background:' + color + ';flex-shrink:0;display:inline-block"></span>' +
+                        '<p class="font-bold text-indigo-700 dark:text-indigo-300">' + title + '</p>' +
+                    '</div>' +
+                    '<p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">AI predicts: ' + hint + '</p>' +
+                '</div>';
+            }).join('');
+        }
+
+        /* ── Streak & session ── */
+        function manageStreak() {
+            var today = new Date().toDateString();
+            var yesterday = new Date(Date.now() - 864e5).toDateString();
+            var last   = localStorage.getItem('mp_last');
+            var streak = parseInt(localStorage.getItem('mp_streak')||'0', 10);
+            if (last === today) {}
+            else if (last === yesterday) { streak += 1; }
+            else { streak = 1; }
             localStorage.setItem('mp_streak', streak);
             localStorage.setItem('mp_last', today);
-            var fs = $('mpf-streak');
-            if (fs) fs.textContent = streak;
-            var sidebarStats = document.querySelector('#mobile-menu .pt-6');
-            if (sidebarStats && !$('mp-streak-pill')) {
-                var pill = document.createElement('div');
-                pill.id = 'mp-streak-pill';
-                pill.innerHTML =
-                    '<div><p class="mp-slabel">Daily Streak</p>' +
-                    '<p class="mp-snum">' + streak + '</p></div>' +
-                    '<div style="font-size:2rem">🔥</div>';
-                sidebarStats.prepend(pill);
-            }
+            var fs = $('mpf-streak'); if (fs) countUp(fs, streak, 800);
             return streak;
         }
 
-        function getRecent() {
-            try { return JSON.parse(localStorage.getItem('mp_recent') || '[]'); } catch (e) { return []; }
+        /* ── Count-up animation ── */
+        function countUp(el, target, duration) {
+            if (!el || target === 0) return;
+            var start = 0, startTime = null;
+            function step(ts) {
+                if (!startTime) startTime = ts;
+                var progress = Math.min((ts - startTime) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.floor(eased * target);
+                if (progress < 1) requestAnimationFrame(step);
+                else el.textContent = target;
+            }
+            requestAnimationFrame(step);
         }
+        setTimeout(function () {
+            var total = document.querySelectorAll('.game-card').length;
+            var ft = $('mpf-total'); if (ft) countUp(ft, total, 1200);
+        }, 500);
+
+        /* ── Recent games ── */
+        function getRecent() { try { return JSON.parse(localStorage.getItem('mp_recent')||'[]'); } catch(e){ return []; } }
         function saveRecent(title, href) {
-            var list = getRecent().filter(function (r) { return r.href !== href; });
+            var list = getRecent().filter(function(r){ return r.href !== href; });
             list.unshift({ title: title, href: href });
-            localStorage.setItem('mp_recent', JSON.stringify(list.slice(0, 5)));
+            localStorage.setItem('mp_recent', JSON.stringify(list.slice(0,5)));
         }
         function renderRecentSidebar() {
-            var list = getRecent();
-            if (!list.length) return;
+            var list = getRecent(); if (!list.length) return;
             var toolsSection = document.querySelector('#mobile-menu .pt-6.border-t');
             if (!toolsSection || $('mp-recent-section')) return;
             var sec = document.createElement('div');
             sec.id = 'mp-recent-section'; sec.className = 'pt-5';
             sec.innerHTML = '<p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Recently Played</p>' +
-                list.slice(0, 3).map(function (r) {
-                    return '<a href="' + r.href + '" class="mp-recent-link"><span class="mp-rdot"></span>' + r.title + '</a>';
+                list.slice(0,3).map(function(r){
+                    return '<a href="'+r.href+'" class="mp-recent-link"><span class="mp-rdot"></span>'+r.title+'</a>';
                 }).join('');
             toolsSection.before(sec);
         }
 
-        document.querySelectorAll('.game-card').forEach(function (card) {
+        cards.forEach(function (card) {
             var link  = card.querySelector('a');
-            var title = card.querySelector('h3') ? card.querySelector('h3').innerText.trim() : '';
+            var title = (card.querySelector('h3')||{}).innerText||'';
             if (!link || !title) return;
             link.addEventListener('click', function () {
                 saveRecent(title, link.getAttribute('href'));
-                var key     = 'mp_today_' + new Date().toDateString();
-                var visited = JSON.parse(localStorage.getItem(key) || '[]');
+                var key = 'mp_today_' + new Date().toDateString();
+                var visited = JSON.parse(localStorage.getItem(key)||'[]');
                 if (!visited.includes(link.getAttribute('href'))) {
                     visited.push(link.getAttribute('href'));
                     localStorage.setItem(key, JSON.stringify(visited));
@@ -806,54 +1041,56 @@
         });
 
         function updateTodayCount() {
-            var key     = 'mp_today_' + new Date().toDateString();
-            var visited = JSON.parse(localStorage.getItem(key) || '[]');
-            var ft = $('mpf-today');
-            if (ft) ft.textContent = visited.length;
+            var key = 'mp_today_' + new Date().toDateString();
+            var visited = JSON.parse(localStorage.getItem(key)||'[]');
+            var ft = $('mpf-today'); if (ft) ft.textContent = visited.length;
         }
 
+        /* ── Daily challenge ── */
         function applyDailyChallenge() {
-            var allCards = document.querySelectorAll('.game-card');
-            if (!allCards.length) return;
+            var allCards = document.querySelectorAll('.game-card'); if (!allCards.length) return;
             var dayIdx = Math.floor(Date.now() / 864e5) % allCards.length;
             var chosen = allCards[dayIdx];
             chosen.classList.add('mp-daily-card');
             chosen.style.position = 'relative';
             if (!chosen.querySelector('.mp-daily-badge')) {
                 var badge = document.createElement('div');
-                badge.className = 'mp-daily-badge';
-                badge.textContent = '⭐ Daily Challenge';
+                badge.className = 'mp-daily-badge'; badge.textContent = '⭐ Daily Challenge';
                 chosen.prepend(badge);
             }
             var grid = $('gameGrid');
             if (grid && grid.firstElementChild !== chosen) { grid.prepend(chosen); }
         }
 
-        function injectCountBar() {
-            var filterRow = document.querySelector('header .flex.flex-wrap.justify-center');
-            if (!filterRow || $('mp-count-bar')) return;
-            var bar = document.createElement('div');
-            bar.id = 'mp-count-bar'; bar.setAttribute('aria-live', 'polite');
-            filterRow.after(bar);
+        /* ── Staggered card entrance (IntersectionObserver) ── */
+        function initCardAnimations() {
+            var allCards = document.querySelectorAll('.game-card');
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry, i) {
+                    if (entry.isIntersecting) {
+                        var el = entry.target;
+                        var idx = Array.from(allCards).indexOf(el);
+                        el.style.animationDelay = (idx * 55) + 'ms';
+                        el.classList.add('card-enter');
+                        observer.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.08 });
+            allCards.forEach(function (card) { observer.observe(card); });
         }
 
-        function refreshCountBar() {
-            var bar = $('mp-count-bar');
-            if (!bar) return;
-            var total   = document.querySelectorAll('.game-card').length;
-            var visible = document.querySelectorAll('.game-card:not(.hidden)').length;
-            bar.textContent = visible === total
-                ? 'Showing all ' + total + ' challenges'
-                : 'Showing ' + visible + ' of ' + total + ' challenges';
-            var ft = $('mpf-total');
-            if (ft) ft.textContent = total;
+        /* ── Section reveal ── */
+        function initSectionReveal() {
+            var sections = document.querySelectorAll('.reveal-section');
+            var obs = new IntersectionObserver(function(entries){
+                entries.forEach(function(e){
+                    if(e.isIntersecting){ e.target.classList.add('revealed'); obs.unobserve(e.target); }
+                });
+            }, { threshold: 0.1 });
+            sections.forEach(function(s){ obs.observe(s); });
         }
 
-        var observer = new MutationObserver(refreshCountBar);
-        document.querySelectorAll('.game-card').forEach(function (c) {
-            observer.observe(c, { attributes: true, attributeFilter: ['class'] });
-        });
-
+        /* ── Keyboard shortcut ── */
         function injectKbdHint() {
             var searchWrap = document.querySelector('header .group.hidden');
             if (!searchWrap || $('mp-kbd-hint')) return;
@@ -862,30 +1099,23 @@
             hint.innerHTML = 'Press <kbd>/</kbd> to search instantly';
             searchWrap.after(hint);
         }
-
         document.addEventListener('keydown', function (e) {
-            var active  = document.activeElement;
-            var isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
-            if (e.key === '/' && !isInput) {
-                e.preventDefault();
-                var search = $('gameSearch') || $('mobileSearch');
-                if (search) { search.focus(); search.select(); }
-            }
-            if (e.key === 'Escape' && isInput) { active.blur(); }
+            var active = document.activeElement;
+            var isInput = active && (active.tagName==='INPUT'||active.tagName==='TEXTAREA');
+            if (e.key==='/' && !isInput) { e.preventDefault(); var s=$('gameSearch')||$('mobileSearch'); if(s){s.focus();s.select();} }
+            if (e.key==='Escape' && isInput) { active.blur(); }
         });
 
+        /* ── Back to top ── */
         var btt = $('mp-btt');
         window.addEventListener('scroll', function () {
-            if (!btt) return;
-            btt.classList.toggle('mp-visible', window.scrollY > 380);
+            if (btt) btt.classList.toggle('mp-visible', window.scrollY > 380);
         }, { passive: true });
-        if (btt) {
-            btt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
-        }
+        if (btt) btt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
+        /* ── Welcome toast ── */
         function welcomeToast(streak) {
-            var recent = getRecent();
-            var msg, icon;
+            var recent = getRecent(); var msg, icon;
             if (streak >= 7)        { msg = streak + '-day streak! Absolute legend! 🏆'; icon = '🔥'; }
             else if (streak >= 3)   { msg = streak + ' days in a row — keep it going!';  icon = '⚡'; }
             else if (recent.length) { msg = 'Welcome back! Ready for another challenge?'; icon = '👋'; }
@@ -893,14 +1123,42 @@
             setTimeout(function () { showToast(msg, icon, 4000); }, 900);
         }
 
-        var streak = manageStreak();
-        renderRecentSidebar();
-        applyDailyChallenge();
+        /* ── Streak sidebar pill ── */
+        function injectStreakPill(streak) {
+            var sidebarStats = document.querySelector('#mobile-menu .pt-6');
+            if (!sidebarStats || $('mp-streak-pill')) return;
+            var pill = document.createElement('div');
+            pill.id = 'mp-streak-pill';
+            pill.innerHTML =
+                '<div><p class="mp-slabel">Daily Streak</p>' +
+                '<p class="mp-snum">' + streak + '</p></div>' +
+                '<div style="font-size:2rem">🔥</div>';
+            sidebarStats.prepend(pill);
+        }
+
+        /* ── Spin keyframe (Tailwind doesn't have slow spin) ── */
+        if (!document.querySelector('#mp-spin-style')) {
+            var st = document.createElement('style');
+            st.id = 'mp-spin-style';
+            st.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+            document.head.appendChild(st);
+        }
+
+        /* ── INIT ── */
         injectCountBar();
         injectKbdHint();
-        refreshCountBar();
+        applyDailyChallenge();
+        renderLeaderboard();
+        renderAiPredictions();
+        applyFilters();
         updateTodayCount();
+        initCardAnimations();
+        initSectionReveal();
+        var streak = manageStreak();
+        renderRecentSidebar();
+        injectStreakPill(streak);
         welcomeToast(streak);
+
     })();
     </script>
 
