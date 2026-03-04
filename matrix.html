@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Mayhem | MathPortal</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg:        #050b14;
+  --bg2:       #0a1628;
+  --bg3:       #0f1f3d;
+  --cyan:      #00e5ff;
+  --cyan-dim:  rgba(0,229,255,0.15);
+  --pink:      #ff2d78;
+  --pink-dim:  rgba(255,45,120,0.15);
+  --gold:      #ffd23f;
+  --green:     #00ff9f;
+  --green-dim: rgba(0,255,159,0.12);
+  --red:       #ff4444;
+  --text:      #cce8ff;
+  --muted:     #4a6a8a;
+  --border:    rgba(0,229,255,0.2);
+  --card:      rgba(10,22,40,0.9);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Grid bg ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* ── Scan line overlay ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+}
+
+/* ── Layout ── */
+.wrap {
+  position: relative; z-index: 1;
+  max-width: 960px; margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+/* ── Nav ── */
+.top-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+.back-btn {
+  display: flex; align-items: center; gap: 0.5rem;
+  color: var(--cyan); font-size: 0.8rem; font-weight: 700;
+  text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase;
+  font-family: 'Orbitron', sans-serif;
+  transition: opacity 0.2s;
+}
+.back-btn:hover { opacity: 0.7; }
+.logo-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem; font-weight: 900;
+  color: var(--muted); letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── Hero title ── */
+.hero {
+  text-align: center; padding: 1rem 0 2.5rem;
+}
+.hero-badge {
+  display: inline-block;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cyan); background: var(--cyan-dim);
+  border: 1px solid var(--border);
+  padding: 0.35rem 1rem; border-radius: 99px; margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900; line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(0,229,255,0.4), 0 0 80px rgba(0,229,255,0.15);
+}
+.hero h1 span { color: var(--cyan); }
+.hero-sub {
+  margin-top: 0.7rem;
+  font-size: 0.95rem; color: var(--muted); letter-spacing: 0.03em;
+}
+
+/* ── Stats bar ── */
+.stats-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.5rem; flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.stat-chip {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 0.55rem 1rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+}
+.stat-chip .val {
+  font-size: 1.2rem; color: var(--cyan);
+  transition: transform 0.2s, color 0.2s;
+}
+.stat-chip .val.bump { transform: scale(1.35); color: var(--gold); }
+.stat-chip .label { color: var(--muted); font-size: 0.6rem; }
+
+.lives-display { display: flex; gap: 4px; }
+.heart { font-size: 1rem; transition: opacity 0.3s, transform 0.3s; }
+.heart.dead { opacity: 0.2; transform: scale(0.8); filter: grayscale(1); }
+
+/* ── Operation badge ── */
+.op-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem; font-weight: 900; letter-spacing: 0.12em;
+  padding: 0.45rem 1.1rem; border-radius: 99px;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+.op-ADD       { background: rgba(0,229,255,0.12); color: var(--cyan);  border: 1px solid rgba(0,229,255,0.35); }
+.op-SUBTRACT  { background: rgba(255,45,120,0.12); color: var(--pink);  border: 1px solid rgba(255,45,120,0.35); }
+.op-SCALAR    { background: rgba(255,210,63,0.12); color: var(--gold);  border: 1px solid rgba(255,210,63,0.35); }
+.op-MULTIPLY  { background: rgba(0,255,159,0.12); color: var(--green); border: 1px solid rgba(0,255,159,0.35); }
+.op-DETERMINANT { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.35); }
+.op-TRANSPOSE { background: rgba(251,146,60,0.12); color: #fb923c; border: 1px solid rgba(251,146,60,0.35); }
+
+/* ── Main game area ── */
+.game-area {
+  display: flex; flex-direction: column; align-items: center; gap: 1.75rem;
+}
+
+/* ── Matrix equation row ── */
+.equation-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.25rem; flex-wrap: wrap;
+}
+
+/* ── Matrix block ── */
+.matrix-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+.matrix-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em;
+  color: var(--muted); text-transform: uppercase;
+}
+
+.matrix {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
+  padding: 14px 10px;
+  border-radius: 10px;
+  position: relative;
+}
+/* bracket lines */
+.matrix::before, .matrix::after {
+  content: ''; position: absolute;
+  top: 0; bottom: 0; width: 6px;
+  border-top: 2px solid var(--cyan);
+  border-bottom: 2px solid var(--cyan);
+  opacity: 0.5;
+}
+.matrix::before { left: 0; border-left: 2px solid var(--cyan); border-right: none; }
+.matrix::after  { right: 0; border-right: 2px solid var(--cyan); border-left: none; }
+
+.matrix.matrix-B::before, .matrix.matrix-B::after { border-color: var(--pink); opacity: 0.5; }
+.matrix.matrix-B .cell-val { border-color: rgba(255,45,120,0.3); color: var(--pink); }
+
+.matrix.matrix-R::before, .matrix.matrix-R::after { border-color: var(--green); opacity: 0.6; }
+
+/* ── Cells ── */
+.cell-val {
+  width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem; font-weight: 700;
+  background: var(--bg3); border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 8px; color: var(--cyan);
+  user-select: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.cell-val.highlighted {
+  border-color: var(--cyan); box-shadow: 0 0 12px rgba(0,229,255,0.35), inset 0 0 8px rgba(0,229,255,0.08);
+  background: rgba(0,229,255,0.05);
+  animation: breathe 1.4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { box-shadow: 0 0 12px rgba(0,229,255,0.35); }
+  50%      { box-shadow: 0 0 22px rgba(0,229,255,0.6); }
+}
+.cell-val.correct {
+  border-color: var(--green); color: var(--green);
+  background: var(--green-dim);
+  box-shadow: 0 0 14px rgba(0,255,159,0.3);
+  animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn {
+  0%   { transform: scale(0.75); opacity: 0.4; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.cell-val.wrong {
+  border-color: var(--red); color: var(--red); background: rgba(255,68,68,0.1);
+  animation: shake 0.4s ease;
+}
+@keyframes shake {
+  0%,100%{ transform:translateX(0); }
+  20%    { transform:translateX(-7px); }
+  40%    { transform:translateX(7px); }
+  60%    { transform:translateX(-5px); }
+  80%    { transform:translateX(5px); }
+}
+
+/* ── Input cell ── */
+.cell-input-wrap { position: relative; }
+.cell-input {
+  width: 56px; height: 56px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem; font-weight: 700;
+  text-align: center;
+  background: rgba(0,229,255,0.06); border: 2px solid var(--cyan);
+  border-radius: 8px; color: #fff; outline: none;
+  box-shadow: 0 0 16px rgba(0,229,255,0.25), inset 0 0 10px rgba(0,229,255,0.06);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  caret-color: var(--cyan);
+}
+.cell-input:focus {
+  box-shadow: 0 0 24px rgba(0,229,255,0.45);
+  border-color: #fff;
+}
+.cell-input.wrong {
+  border-color: var(--red); box-shadow: 0 0 16px rgba(255,68,68,0.4);
+  animation: shake 0.4s ease;
+}
+
+/* ── Math operator symbols ── */
+.eq-op {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem; font-weight: 900; color: var(--muted);
+  line-height: 1;
+}
+.eq-eq { color: var(--cyan); opacity: 0.7; }
+
+/* ── Scalar label ── */
+.scalar-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.6rem; font-weight: 700; color: var(--gold);
+  padding-right: 4px;
+}
+
+/* ── Step hint panel ── */
+.hint-panel {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.25rem 1.5rem;
+  width: 100%; max-width: 520px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.hint-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem; letter-spacing: 0.18em; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 0.6rem;
+}
+.hint-formula {
+  font-size: 0.95rem; color: #fff; line-height: 1.7;
+}
+.hint-formula .hi { color: var(--cyan); font-weight: 700; }
+.hint-formula .hiB { color: var(--pink); }
+.hint-formula .hiR { color: var(--green); }
+.hint-formula .op-sym { color: var(--gold); margin: 0 4px; }
+
+/* ── Progress track ── */
+.progress-track {
+  width: 100%; max-width: 520px;
+  height: 4px; background: var(--bg3); border-radius: 99px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  transition: width 0.5s cubic-bezier(0.34,1.2,0.64,1);
+  box-shadow: 0 0 8px rgba(0,229,255,0.5);
+}
+
+/* ── Submit button ── */
+.submit-row {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center;
+}
+.submit-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem; font-weight: 900; letter-spacing: 0.12em;
+  text-transform: uppercase; cursor: pointer;
+  padding: 0.9rem 2.5rem; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--cyan), #0099ff);
+  color: #000; box-shadow: 0 4px 24px rgba(0,229,255,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,229,255,0.5); }
+.submit-btn:active { transform: translateY(0); }
+.skip-btn {
+  font-family: 'Orbitron', sans-serif; font-size: 0.68rem; letter-spacing: 0.1em;
+  text-transform: uppercase; cursor: pointer; padding: 0.7rem 1.4rem;
+  border-radius: 10px; border: 1px solid var(--border); background: transparent;
+  color: var(--muted); transition: color 0.2s, border-color 0.2s;
+}
+.skip-btn:hover { color: var(--text); border-color: rgba(0,229,255,0.4); }
+
+/* ── Level complete overlay ── */
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(5,11,20,0.88); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.overlay.show { display: flex; }
+.overlay-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 24px; padding: 2.5rem 3rem;
+  text-align: center; max-width: 400px; width: 90%;
+  box-shadow: 0 0 80px rgba(0,229,255,0.15);
+  animation: slideUp 0.45s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.overlay-icon { font-size: 3.5rem; margin-bottom: 0.75rem; }
+.overlay-title {
+  font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900;
+  color: var(--cyan); margin-bottom: 0.5rem;
+  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+}
+.overlay-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; }
+.overlay-score {
+  font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900;
+  color: var(--gold); margin-bottom: 1.5rem;
+}
+.overlay-btn {
+  font-family: 'Orbitron', sans-serif; font-size: 0.78rem; font-weight: 900;
+  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  padding: 0.9rem 2.2rem; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--cyan), #0099ff);
+  color: #000; box-shadow: 0 4px 20px rgba(0,229,255,0.35);
+  transition: transform 0.15s;
+}
+.overlay-btn:hover { transform: translateY(-2px); }
+
+.overlay-btn-ghost {
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  box-shadow: none; margin-left: 0.75rem;
+}
+.overlay-btn-ghost:hover { color: var(--text); border-color: rgba(0,229,255,0.4); transform: none; }
+
+/* ── Game over ── */
+.overlay-card.gameover { border-color: rgba(255,45,120,0.35); box-shadow: 0 0 80px rgba(255,45,120,0.12); }
+.overlay-card.gameover .overlay-title { color: var(--pink); text-shadow: 0 0 20px rgba(255,45,120,0.5); }
+
+/* ── Particle burst ── */
+.particle { position: fixed; pointer-events: none; z-index: 200; border-radius: 50%; }
+
+/* ── Level indicator ── */
+.level-track {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: 'Orbitron', sans-serif; font-size: 0.62rem;
+  color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.level-track .cur { color: var(--cyan); font-size: 1rem; font-weight: 900; }
+
+/* ── Tutorial step tracker ── */
+.step-dots {
+  display: flex; gap: 6px;
+}
+.step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--bg3); border: 1px solid var(--border);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.step-dot.done { background: var(--green); border-color: var(--green); box-shadow: 0 0 6px rgba(0,255,159,0.5); }
+.step-dot.active { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 6px rgba(0,229,255,0.5); }
+
+/* ── Info tooltip row ── */
+.info-row {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; max-width: 520px;
+}
+
+/* ── Responsive ── */
+@media(max-width:540px){
+  .cell-val, .cell-input { width: 46px; height: 46px; font-size: 1.05rem; }
+  .equation-row { gap: 0.75rem; }
+  .eq-op { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Nav -->
+  <nav class="top-nav">
+    <a href="index.html" class="back-btn"><i class="fas fa-chevron-left"></i> Portal</a>
+    <span class="logo-tag">Matrix Mayhem</span>
+    <div class="level-track">
+      Level <span class="cur" id="levelNum">1</span>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">⚡ Puzzle Mode · Step-by-Step</div>
+    <h1>Matrix <span>Mayhem</span></h1>
+    <p class="hero-sub">Operate on 2×2 matrices — one cell at a time.</p>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-chip">
+      <div>
+        <div class="val" id="scoreVal">0</div>
+        <div class="label">Score</div>
+      </div>
+    </div>
+    <div class="stat-chip">
+      <span id="opBadge" class="op-badge op-ADD">ADD</span>
+    </div>
+    <div class="stat-chip">
+      <div class="lives-display" id="livesDisplay">
+        <span class="heart" id="h1">❤️</span>
+        <span class="heart" id="h2">❤️</span>
+        <span class="heart" id="h3">❤️</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Game area -->
+  <div class="game-area">
+
+    <!-- Step dots + info -->
+    <div class="info-row">
+      <div id="stepDots" class="step-dots"></div>
+      <div id="cellHint" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted)">Fill the highlighted cell →</div>
+    </div>
+
+    <!-- Equation row -->
+    <div class="equation-row" id="equationRow"></div>
+
+    <!-- Hint panel -->
+    <div class="hint-panel">
+      <div class="hint-title">⬡ Step Hint</div>
+      <div class="hint-formula" id="hintFormula">Loading puzzle…</div>
+    </div>
+
+    <!-- Submit row -->
+    <div class="submit-row">
+      <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">
+        <i class="fas fa-check mr-1"></i> Confirm
+      </button>
+      <button class="skip-btn" onclick="skipLevel()">Skip Level</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Level complete overlay -->
+<div class="overlay" id="levelOverlay">
+  <div class="overlay-card" id="overlayCard">
+    <div class="overlay-icon" id="overlayIcon">✅</div>
+    <div class="overlay-title" id="overlayTitle">Matrix Solved!</div>
+    <div class="overlay-sub" id="overlaySub">All cells computed correctly.</div>
+    <div class="overlay-score" id="overlayScore">+250</div>
+    <div>
+      <button class="overlay-btn" onclick="nextLevel()">Next Level <i class="fas fa-arrow-right ml-1"></i></button>
+      <button class="overlay-btn overlay-btn-ghost" onclick="location.href='index.html'">Exit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  GAME ENGINE
+// ══════════════════════════════════════════════
+const OPERATIONS = ['ADD','ADD','SUBTRACT','SUBTRACT','SCALAR','SCALAR','MULTIPLY','MULTIPLY','DETERMINANT','TRANSPOSE'];
+
+let state = {
+  level: 1,
+  score: 0,
+  lives: 3,
+  op: 'ADD',
+  matA: [], matB: [],
+  scalar: 1,
+  result: [],       // correct answers
+  userResult: [],   // user-filled so far (null = empty)
+  cellOrder: [],    // which result cells to fill in order
+  currentStep: 0,   // index into cellOrder
+  wrongThisCell: false,
+};
+
+// ── Helpers ──
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function randMatrix(lo, hi) {
+  return [[rand(lo,hi), rand(lo,hi)], [rand(lo,hi), rand(lo,hi)]];
+}
+
+// ── Generate puzzle ──
+function generatePuzzle(level) {
+  const opIdx = Math.min(level - 1, OPERATIONS.length - 1);
+  const op = OPERATIONS[opIdx];
+  state.op = op;
+
+  const lo = level <= 3 ? 1 : (level <= 7 ? -9 : -12);
+  const hi = level <= 3 ? 9 : (level <= 7 ? 9  : 12);
+
+  state.matA = randMatrix(lo, hi);
+  state.matB = randMatrix(lo, hi);
+  state.scalar = rand(2, 6);
+
+  // Compute correct result
+  if (op === 'ADD') {
+    state.result = [
+      [state.matA[0][0] + state.matB[0][0], state.matA[0][1] + state.matB[0][1]],
+      [state.matA[1][0] + state.matB[1][0], state.matA[1][1] + state.matB[1][1]]
+    ];
+    state.resultSize = [2,2];
+  } else if (op === 'SUBTRACT') {
+    state.result = [
+      [state.matA[0][0] - state.matB[0][0], state.matA[0][1] - state.matB[0][1]],
+      [state.matA[1][0] - state.matB[1][0], state.matA[1][1] - state.matB[1][1]]
+    ];
+    state.resultSize = [2,2];
+  } else if (op === 'SCALAR') {
+    state.result = [
+      [state.scalar * state.matA[0][0], state.scalar * state.matA[0][1]],
+      [state.scalar * state.matA[1][0], state.scalar * state.matA[1][1]]
+    ];
+    state.resultSize = [2,2];
+  } else if (op === 'MULTIPLY') {
+    const a = state.matA, b = state.matB;
+    state.result = [
+      [a[0][0]*b[0][0] + a[0][1]*b[1][0],  a[0][0]*b[0][1] + a[0][1]*b[1][1]],
+      [a[1][0]*b[0][0] + a[1][1]*b[1][0],  a[1][0]*b[0][1] + a[1][1]*b[1][1]]
+    ];
+    state.resultSize = [2,2];
+  } else if (op === 'DETERMINANT') {
+    const a = state.matA;
+    const det = a[0][0]*a[1][1] - a[0][1]*a[1][0];
+    state.result = [[det]];
+    state.resultSize = [1,1];
+  } else if (op === 'TRANSPOSE') {
+    const a = state.matA;
+    state.result = [[a[0][0], a[1][0]], [a[0][1], a[1][1]]];
+    state.resultSize = [2,2];
+  }
+
+  // Set up user result grid and cell order
+  const [rows, cols] = state.resultSize;
+  state.userResult = Array.from({length: rows}, () => Array(cols).fill(null));
+  state.cellOrder = [];
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      state.cellOrder.push([r, c]);
+  state.currentStep = 0;
+  state.wrongThisCell = false;
+}
+
+// ── Render equation ──
+function render() {
+  document.getElementById('levelNum').textContent = state.level;
+  document.getElementById('opBadge').textContent = state.op;
+  document.getElementById('opBadge').className = 'op-badge op-' + state.op;
+  document.getElementById('scoreVal').textContent = state.score;
+  renderLives();
+  renderEquation();
+  renderHint();
+  renderProgress();
+  renderStepDots();
+}
+
+function renderEquation() {
+  const row = document.getElementById('equationRow');
+  const op = state.op;
+
+  let html = '';
+
+  if (op === 'DETERMINANT') {
+    html += matrixHTML(state.matA, 'matrix-A', 'A', false, []);
+    html += `<div class="eq-op eq-eq" style="font-size:1.2rem;color:var(--cyan)">det</div>`;
+    html += `<div class="eq-op eq-eq">=</div>`;
+    html += resultHTML();
+  } else if (op === 'TRANSPOSE') {
+    html += matrixHTML(state.matA, 'matrix-A', 'Aᵀ', false, []);
+    html += `<div class="eq-op eq-eq">=</div>`;
+    html += resultHTML();
+  } else if (op === 'SCALAR') {
+    html += `<div class="scalar-label">${state.scalar}</div>`;
+    html += matrixHTML(state.matA, 'matrix-A', 'A', false, []);
+    html += `<div class="eq-op eq-eq">=</div>`;
+    html += resultHTML();
+  } else {
+    const sym = op === 'ADD' ? '+' : op === 'SUBTRACT' ? '−' : '×';
+    html += matrixHTML(state.matA, 'matrix-A', 'A', false, []);
+    html += `<div class="eq-op">${sym}</div>`;
+    html += matrixHTML(state.matB, 'matrix-B', 'B', false, []);
+    html += `<div class="eq-op eq-eq">=</div>`;
+    html += resultHTML();
+  }
+
+  row.innerHTML = html;
+
+  // Focus the input
+  const inp = document.getElementById('activeInput');
+  if (inp) { inp.focus(); inp.select(); }
+  bindEnterKey();
+}
+
+function matrixHTML(mat, cls, label, _unused, _highlight) {
+  let cells = '';
+  for (let r = 0; r < 2; r++)
+    for (let c = 0; c < 2; c++)
+      cells += `<div class="cell-val ${cls}">${mat[r][c]}</div>`;
+  return `<div class="matrix-wrap">
+    <div class="matrix-label">${label}</div>
+    <div class="matrix ${cls}">${cells}</div>
+  </div>`;
+}
+
+function resultHTML() {
+  const [rows, cols] = state.resultSize;
+  const [curR, curC] = state.cellOrder[state.currentStep] || [-1,-1];
+  let cells = '';
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const filled = state.userResult[r][c];
+      const isCurrent = (r === curR && c === curC);
+      const isDone = filled !== null;
+
+      if (isCurrent) {
+        cells += `<div class="cell-input-wrap">
+          <input class="cell-input" id="activeInput" type="text" inputmode="numeric"
+            autocomplete="off" maxlength="5" placeholder="?">
+        </div>`;
+      } else if (isDone) {
+        cells += `<div class="cell-val correct">${filled}</div>`;
+      } else {
+        cells += `<div class="cell-val highlighted" style="color:var(--muted);font-size:1.5rem;border-color:var(--muted);opacity:0.3">—</div>`;
+      }
+    }
+  }
+  const bracketCls = rows === 1 ? 'matrix matrix-R' : 'matrix matrix-R';
+  return `<div class="matrix-wrap">
+    <div class="matrix-label">Result</div>
+    <div class="${bracketCls}">${cells}</div>
+  </div>`;
+}
+
+// ── Hint formula ──
+function renderHint() {
+  const op = state.op;
+  const [curR, curC] = state.cellOrder[state.currentStep] || [0,0];
+  const a = state.matA, b = state.matB, k = state.scalar;
+  let html = '';
+
+  const pos = `R${curR+1}C${curC+1}`;
+
+  if (op === 'ADD') {
+    html = `<span class="hiR">Result[${pos}]</span> = <span class="hi">A[${pos}]</span> <span class="op-sym">+</span> <span class="hiB">B[${pos}]</span><br>
+            = <span class="hi">${a[curR][curC]}</span> + <span class="hiB">${b[curR][curC]}</span>
+            = <span class="hiR">?</span>`;
+  } else if (op === 'SUBTRACT') {
+    html = `<span class="hiR">Result[${pos}]</span> = <span class="hi">A[${pos}]</span> <span class="op-sym">−</span> <span class="hiB">B[${pos}]</span><br>
+            = <span class="hi">${a[curR][curC]}</span> − <span class="hiB">${b[curR][curC]}</span>
+            = <span class="hiR">?</span>`;
+  } else if (op === 'SCALAR') {
+    html = `<span class="hiR">Result[${pos}]</span> = <span style="color:var(--gold)">${k}</span> <span class="op-sym">×</span> <span class="hi">A[${pos}]</span><br>
+            = ${k} × <span class="hi">${a[curR][curC]}</span>
+            = <span class="hiR">?</span>`;
+  } else if (op === 'MULTIPLY') {
+    if (curR === 0 && curC === 0)
+      html = `<span class="hiR">Result[R1C1]</span> = <span class="hi">A[R1C1]</span>×<span class="hiB">B[R1C1]</span> + <span class="hi">A[R1C2]</span>×<span class="hiB">B[R2C1]</span><br>
+              = <span class="hi">${a[0][0]}</span>×<span class="hiB">${b[0][0]}</span> + <span class="hi">${a[0][1]}</span>×<span class="hiB">${b[1][0]}</span>
+              = <span class="hiR">?</span>`;
+    else if (curR === 0 && curC === 1)
+      html = `<span class="hiR">Result[R1C2]</span> = <span class="hi">A[R1C1]</span>×<span class="hiB">B[R1C2]</span> + <span class="hi">A[R1C2]</span>×<span class="hiB">B[R2C2]</span><br>
+              = <span class="hi">${a[0][0]}</span>×<span class="hiB">${b[0][1]}</span> + <span class="hi">${a[0][1]}</span>×<span class="hiB">${b[1][1]}</span>
+              = <span class="hiR">?</span>`;
+    else if (curR === 1 && curC === 0)
+      html = `<span class="hiR">Result[R2C1]</span> = <span class="hi">A[R2C1]</span>×<span class="hiB">B[R1C1]</span> + <span class="hi">A[R2C2]</span>×<span class="hiB">B[R2C1]</span><br>
+              = <span class="hi">${a[1][0]}</span>×<span class="hiB">${b[0][0]}</span> + <span class="hi">${a[1][1]}</span>×<span class="hiB">${b[1][0]}</span>
+              = <span class="hiR">?</span>`;
+    else
+      html = `<span class="hiR">Result[R2C2]</span> = <span class="hi">A[R2C1]</span>×<span class="hiB">B[R1C2]</span> + <span class="hi">A[R2C2]</span>×<span class="hiB">B[R2C2]</span><br>
+              = <span class="hi">${a[1][0]}</span>×<span class="hiB">${b[0][1]}</span> + <span class="hi">${a[1][1]}</span>×<span class="hiB">${b[1][1]}</span>
+              = <span class="hiR">?</span>`;
+  } else if (op === 'DETERMINANT') {
+    html = `<span class="hiR">det(A)</span> = <span class="hi">A[R1C1]</span>×<span class="hi">A[R2C2]</span> <span class="op-sym">−</span> <span class="hiB">A[R1C2]</span>×<span class="hiB">A[R2C1]</span><br>
+            = <span class="hi">${a[0][0]}</span>×<span class="hi">${a[1][1]}</span> − <span class="hiB">${a[0][1]}</span>×<span class="hiB">${a[1][0]}</span>
+            = <span class="hiR">?</span>`;
+  } else if (op === 'TRANSPOSE') {
+    const vals = [[0,0],[0,1],[1,0],[1,1]];
+    const [sr, sc] = vals[state.currentStep] || [0,0];
+    const [dr, dc] = [sc, sr];
+    html = `<span class="hiR">Aᵀ[R${sr+1}C${sc+1}]</span> = <span class="hi">A[R${dr+1}C${dc+1}]</span><br>
+            Rows ↔ Columns: position (${sr+1},${sc+1}) ← position (${dr+1},${dc+1})<br>
+            = <span class="hi">${a[dr][dc]}</span> = <span class="hiR">?</span>`;
+  }
+
+  document.getElementById('hintFormula').innerHTML = html;
+}
+
+function renderProgress() {
+  const total = state.cellOrder.length;
+  const done  = state.currentStep;
+  document.getElementById('progressFill').style.width = ((done / total) * 100) + '%';
+}
+
+function renderStepDots() {
+  const container = document.getElementById('stepDots');
+  const total = state.cellOrder.length;
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    let cls = 'step-dot';
+    if (i < state.currentStep) cls += ' done';
+    else if (i === state.currentStep) cls += ' active';
+    html += `<div class="${cls}"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+function renderLives() {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('h' + i);
+    el.classList.toggle('dead', i > state.lives);
+  });
+}
+
+// ── Check answer ──
+function checkAnswer() {
+  const inp = document.getElementById('activeInput');
+  if (!inp) return;
+  const raw = inp.value.trim();
+  if (raw === '') { inp.classList.add('wrong'); setTimeout(() => inp.classList.remove('wrong'), 500); return; }
+  const val = parseInt(raw, 10);
+  if (isNaN(val)) { inp.classList.add('wrong'); setTimeout(() => inp.classList.remove('wrong'), 500); return; }
+
+  const [r, c] = state.cellOrder[state.currentStep];
+  const correct = state.result[r][c];
+
+  if (val === correct) {
+    state.userResult[r][c] = val;
+    state.currentStep++;
+    state.wrongThisCell = false;
+
+    // Score
+    const base = state.op === 'MULTIPLY' ? 60 : state.op === 'DETERMINANT' ? 80 : 30;
+    const bonus = state.op === 'MULTIPLY' ? 10 : 5;
+    state.score += base + (state.level - 1) * bonus;
+    bumpScore();
+
+    if (state.currentStep >= state.cellOrder.length) {
+      // Level complete!
+      setTimeout(showLevelComplete, 300);
+    } else {
+      renderEquation();
+      renderHint();
+      renderProgress();
+      renderStepDots();
+      document.getElementById('scoreVal').textContent = state.score;
+    }
+  } else {
+    // Wrong
+    if (!state.wrongThisCell) {
+      state.lives--;
+      state.wrongThisCell = true;
+      renderLives();
+      if (state.lives <= 0) { setTimeout(showGameOver, 400); return; }
+    }
+    inp.classList.add('wrong');
+    inp.value = '';
+    setTimeout(() => { inp.classList.remove('wrong'); inp.focus(); }, 500);
+  }
+}
+
+function bumpScore() {
+  const el = document.getElementById('scoreVal');
+  el.classList.add('bump');
+  el.textContent = state.score;
+  setTimeout(() => el.classList.remove('bump'), 350);
+}
+
+// ── Overlays ──
+function showLevelComplete() {
+  const gained = state.op === 'MULTIPLY' ? 50 : state.op === 'DETERMINANT' ? 80 : 30;
+  // level bonus
+  state.score += state.level * 20;
+  saveHighScore();
+  const ov = document.getElementById('levelOverlay');
+  const card = document.getElementById('overlayCard');
+  card.classList.remove('gameover');
+  document.getElementById('overlayIcon').textContent = ['🎯','⚡','🔥','✨','💎','🏆'][Math.min(state.level-1,5)];
+  document.getElementById('overlayTitle').textContent = 'Matrix Solved!';
+  document.getElementById('overlaySub').textContent = `Level ${state.level} complete. Operation: ${state.op}`;
+  document.getElementById('overlayScore').textContent = 'Score: ' + state.score;
+  ov.classList.add('show');
+  burst(window.innerWidth/2, window.innerHeight/2);
+}
+
+function showGameOver() {
+  saveHighScore();
+  const ov = document.getElementById('levelOverlay');
+  const card = document.getElementById('overlayCard');
+  card.classList.add('gameover');
+  document.getElementById('overlayIcon').textContent = '💀';
+  document.getElementById('overlayTitle').textContent = 'Overloaded';
+  document.getElementById('overlaySub').textContent = 'You ran out of lives. The matrix won this round.';
+  document.getElementById('overlayScore').textContent = 'Final: ' + state.score;
+  // Change next button to restart
+  ov.querySelector('.overlay-btn').textContent = '↺ Try Again';
+  ov.querySelector('.overlay-btn').onclick = restartGame;
+  ov.classList.add('show');
+}
+
+function nextLevel() {
+  document.getElementById('levelOverlay').classList.remove('show');
+  document.querySelector('.overlay-btn').textContent = 'Next Level →';
+  document.querySelector('.overlay-btn').onclick = nextLevel;
+  state.level++;
+  state.lives = Math.min(state.lives + 1, 3); // restore 1 life
+  generatePuzzle(state.level);
+  render();
+}
+
+function restartGame() {
+  document.getElementById('levelOverlay').classList.remove('show');
+  document.querySelector('.overlay-btn').textContent = 'Next Level →';
+  document.querySelector('.overlay-btn').onclick = nextLevel;
+  state.level = 1; state.score = 0; state.lives = 3;
+  generatePuzzle(1);
+  render();
+}
+
+function skipLevel() {
+  state.level++;
+  generatePuzzle(state.level);
+  render();
+}
+
+// ── High score ──
+function saveHighScore() {
+  const prev = parseInt(localStorage.getItem('matrixHighScore') || '0', 10);
+  if (state.score > prev) localStorage.setItem('matrixHighScore', state.score);
+}
+
+// ── Enter key ──
+function bindEnterKey() {
+  const inp = document.getElementById('activeInput');
+  if (inp) {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); checkAnswer(); }
+    });
+  }
+}
+
+// ── Particle burst ──
+function burst(x, y) {
+  const colors = ['#00e5ff','#ff2d78','#ffd23f','#00ff9f'];
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 8 + 4;
+    p.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${colors[i%4]};`;
+    document.body.appendChild(p);
+    const angle = Math.random() * Math.PI * 2;
+    const vel   = Math.random() * 140 + 60;
+    const dx = Math.cos(angle) * vel, dy = Math.sin(angle) * vel;
+    p.animate([
+      { transform:'translate(-50%,-50%) scale(1)', opacity:1 },
+      { transform:`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`, opacity:0 }
+    ], { duration: 700 + Math.random()*400, easing:'cubic-bezier(.2,.8,.6,1)', fill:'forwards' })
+    .onfinish = () => p.remove();
+  }
+}
+
+// ── INIT ──
+generatePuzzle(state.level);
+render();
+</script>
+</body>
+</html>
